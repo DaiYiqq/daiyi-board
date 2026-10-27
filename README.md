@@ -2,7 +2,7 @@
 
 一款面向课堂、讲解与现场演示的开源白板。用几笔整理想法，也可以接入摄像头，把实物展示与画面批注放在同一个工作区。应用主界面以「墨迹实验室」为设计方向：深墨色操作台、电光青工具状态，中央保留一张清晰、可书写的纸面画布。
 
-> 当前版本：0.1.1 · 网页/PWA 与 Electron 桌面端。公开源码镜像：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)。Linux AppImage/DEB 已在本地构建。首轮 `v0.1.0` 三平台安装器构建完成后，electron-builder 的自动上传阶段因未配置其专用令牌而失败；打包脚本现显式关闭该自动上传，`v0.1.1` 正式签名 Release 尚待重跑。
+> 当前版本：0.1.1 · 网页/PWA 与 Electron 桌面端。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；[v0.1.1 下载页](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)。当前 Release 含 Windows x64 NSIS、macOS ARM64 DMG/ZIP、Linux x64 AppImage/DEB；尚未提供 Windows ARM64 或 Intel Mac 安装包。SHA256 清单已由 GitHub OIDC/Sigstore 签名并验证。
 
 ## 功能
 
@@ -37,9 +37,9 @@ pnpm typecheck
 
 | 系统 | 命令 | 产物 |
 | --- | --- | --- |
-| Windows x64 / arm64 | `pnpm desktop:win` | NSIS `.exe` 安装向导 |
-| macOS | `pnpm desktop:mac` | `.dmg`、`.zip` |
-| Linux | `pnpm desktop:linux` | `.AppImage`、`.deb` |
+| Windows（本机架构；当前 Release 为 x64） | `pnpm desktop:win` | NSIS `.exe` 安装向导 |
+| macOS（本机架构；当前 Release 为 ARM64） | `pnpm desktop:mac` | `.dmg`、`.zip` |
+| Linux x64 | `pnpm desktop:linux` | `.AppImage`、`.deb` |
 | 本机目录试运行 | `pnpm desktop:pack` | 未安装目录包 |
 
 Windows 安装程序采用完整的 NSIS 安装引导流程，提供许可协议、安装位置选择、开始菜单/桌面快捷方式、安装完成启动应用及标准卸载入口。应用包元数据列出开发者/发布者“戴亿”；许可文件为 MIT。Windows 可执行文件的**组织身份验证签名**及 macOS Developer ID/公证不包含于默认免费构建配置，必须由开发者提供有效证书和密钥后才能启用；未签名应用首次运行可能显示系统安全提示。
@@ -52,7 +52,7 @@ Windows 安装程序采用完整的 NSIS 安装引导流程，提供许可协议
 
 ## GitHub Releases、校验与签名
 
-推送 `v*` 版本标签后，`.github/workflows/release.yml` 会在 Windows、macOS、Linux runner 上构建安装包，生成 `SHA256SUMS`，使用 GitHub Actions OIDC 和 Sigstore/Cosign 对校验清单进行 keyless 签名，并为构建产物生成 GitHub build provenance attestations。发布者可在 Release 页下载各平台安装包、校验清单和签名 bundle。
+推送 `v*` 版本标签后，`.github/workflows/release.yml` 会在 Windows、macOS、Linux runner 上构建安装包，生成 `SHA256SUMS`，使用 GitHub Actions OIDC 和 Sigstore/Cosign 对校验清单进行 keyless 签名，并为构建产物生成 GitHub build provenance attestations。`[v0.1.1 Release](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)` 已发布 Windows x64、macOS ARM64、Linux x64 安装包。该版本的签名清单已用 Cosign 验证；Linux AppImage 的 provenance attestation 也已由 GitHub CLI 验证。
 
 校验示例：
 
