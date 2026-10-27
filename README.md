@@ -2,7 +2,7 @@
 
 一款面向课堂、讲解与现场演示的开源白板。用几笔整理想法，也可以接入摄像头，把实物展示与画面批注放在同一个工作区。应用主界面以「墨迹实验室」为设计方向：深墨色操作台、电光青工具状态，中央保留一张清晰、可书写的纸面画布。
 
-> 当前版本：0.1.0 · 网页/PWA 与 Electron 桌面端。公开源码镜像：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)。Linux AppImage/DEB 已在本地构建；`v*` 发布工作流负责构建 Windows、macOS 与 Linux 安装包并签名校验清单，首次正式 Release 尚未完成。
+> 当前版本：0.1.1 · 网页/PWA 与 Electron 桌面端。公开源码镜像：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)。Linux AppImage/DEB 已在本地构建。首轮 `v0.1.0` 三平台安装器构建完成后，electron-builder 的自动上传阶段因未配置其专用令牌而失败；打包脚本现显式关闭该自动上传，`v0.1.1` 正式签名 Release 尚待重跑。
 
 ## 功能
 

@@ -1,6 +1,6 @@
 {
   "name": "daiyi-board",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "A customizable classroom whiteboard and document-camera workspace by Dai Yi.",
   "homepage": "https://github.com/DaiYiqq/daiyi-board",
@@ -15,11 +15,11 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "desktop:dev": "concurrently -k \"pnpm dev\" \"wait-on http://127.0.0.1:3000 && electron .\"",
-    "desktop:pack": "pnpm build && electron-builder --dir",
-    "desktop:dist": "pnpm build && electron-builder",
-    "desktop:win": "pnpm build && electron-builder --win nsis",
-    "desktop:mac": "pnpm build && electron-builder --mac dmg zip",
-    "desktop:linux": "pnpm build && electron-builder --linux AppImage deb",
+    "desktop:pack": "pnpm build && electron-builder --publish never --dir",
+    "desktop:dist": "pnpm build && electron-builder --publish never",
+    "desktop:win": "pnpm build && electron-builder --publish never --win nsis",
+    "desktop:mac": "pnpm build && electron-builder --publish never --mac dmg zip",
+    "desktop:linux": "pnpm build && electron-builder --publish never --linux AppImage deb",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -48,7 +48,7 @@
     "asar": true,
     "publish": [],
     "electronLanguages": ["zh-CN", "en-US"],
-    "win": { "icon": "build/icon.ico", "target": [{ "target": "nsis", "arch": ["x64", "arm64"] }], "publisherName": "戴亿" },
+    "win": { "icon": "build/icon.ico", "target": [{ "target": "nsis", "arch": ["x64", "arm64"] }], "signtoolOptions": { "publisherName": "戴亿" } },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
