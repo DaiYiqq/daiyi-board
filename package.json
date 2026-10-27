@@ -1,0 +1,67 @@
+{
+  "name": "daiyi-board",
+  "version": "0.1.0",
+  "private": false,
+  "description": "A customizable classroom whiteboard and document-camera workspace by Dai Yi.",
+  "homepage": "https://github.com/DaiYiqq",
+  "author": "戴亿 <1703205607@qq.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@11.25.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "desktop:dev": "concurrently -k \"pnpm dev\" \"wait-on http://127.0.0.1:3000 && electron .\"",
+    "desktop:pack": "pnpm build && electron-builder --dir",
+    "desktop:dist": "pnpm build && electron-builder",
+    "desktop:win": "pnpm build && electron-builder --win nsis",
+    "desktop:mac": "pnpm build && electron-builder --mac dmg zip",
+    "desktop:linux": "pnpm build && electron-builder --linux AppImage deb",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.daiyi.board",
+    "productName": "戴亿白板",
+    "artifactName": "DaiYi-Board-${version}-${os}-${arch}.${ext}",
+    "icon": "build/icon.png",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["dist/**/*", "electron/**/*", "package.json", "LICENSE", "LICENSE.txt"],
+    "asar": true,
+    "publish": [],
+    "electronLanguages": ["zh-CN", "en-US"],
+    "win": { "icon": "build/icon.ico", "target": [{ "target": "nsis", "arch": ["x64", "arm64"] }], "publisherName": "戴亿" },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "displayLanguageSelector": true,
+      "license": "LICENSE.txt",
+      "shortcutName": "戴亿白板",
+      "runAfterFinish": true
+    },
+    "mac": { "icon": "build/icon.png", "category": "public.app-category.education", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }, { "target": "zip", "arch": ["x64", "arm64"] }], "identity": null, "hardenedRuntime": true, "gatekeeperAssess": false },
+    "dmg": { "sign": false },
+    "linux": { "icon": "build/icon.png", "category": "Education", "target": ["AppImage", "deb"], "maintainer": "戴亿 <1703205607@qq.com>", "synopsis": "可定制的教学白板与展台" }
+  }
+}

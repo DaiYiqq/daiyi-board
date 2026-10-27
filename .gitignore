@@ -1,0 +1,15 @@
+node_modules/
+dist/
+release/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.provisionprofile
+*.daiyi-board.json
+*.tsbuildinfo
