@@ -7,11 +7,12 @@
 - [x] **自定义界面与主题**：支持自定义界面和工具、主题显示方式，并保存用户配置。改版保留黑/白两种画布主题、常用工具配置与本地偏好；旧的左右侧栏选项随固定底部工具栏取消。
 - [x] **展台摄像模式**：提供一键切换的展台模式，自动识别电脑已连接的摄像设备，支持设备切换、实时画面预览及在画面上批注。已实现设备枚举与热插拔刷新、设备选择、实时流和本地批注；真实摄像头测试取决于目标设备和系统授权。
 - [x] **应用内开发者页面**：软件菜单加入开发者信息，展示戴亿、QQ邮箱 1703205607@qq.com、QQ 1703205607、Gmail 邮箱 daiy91004@gmail.com、抖音 daiyi091004。
-- [x] **跨平台安装、开源与签名**：保留桌面安装引导、开发者信息、公开仓库、README、MIT 许可证及 GitHub Actions 跨平台构建、SHA256、Cosign OIDC 签名和 provenance 工作流。历史 v0.1.1 已发布 Windows x64、macOS ARM64、Linux x64 包；不伪造开发者个人 GPG/SSH 签名。
+- [x] **跨平台安装、开源与签名**：保留桌面安装引导、开发者信息、公开仓库、README、MIT 许可证及 GitHub Actions 跨平台构建、SHA256、Cosign OIDC 签名和 provenance 工作流。v0.2.0 已发布 Windows x64 NSIS、macOS Apple Silicon ARM64 DMG/ZIP、Linux x64 DEB/AppImage；Cosign 清单验签通过，12 项 Release 文件 SHA256 匹配，Linux AppImage 的 GitHub provenance 按 v0.2.0 ref/commit 验证通过。Sigstore 发布签名不冒充开发者个人 GPG/SSH 提交签名，也不代表 Windows Authenticode 或 macOS Developer ID 厂商签名。
 
 ## DY Board 0.2.0 改版要求
 
 - [x] **启动全屏与空白板**：软件设计成打开即全屏；把公开课演示去掉，直接变成一个黑色或白色的空白板。桌面 Electron 窗口启动全屏，PWA 配置全屏显示；黑/白主题下画布分别是纯黑/纯白，初次启动画面不出现样例课程标题、提示文案、网格或装饰水印。不得清除已有本地白板数据。Electron 窗口设置原生全屏，PWA 优先使用 fullscreen display；白板画布黑/白主题铺满可用区域，空白板不再显示样例。仅更新缓存版本，不清理白板 localStorage。
 - [x] **底部简洁控件与最大画布**：软件的按钮设计简洁大方、不花哨，像希沃白板一样把所有主要操作按钮都放到最下方，保证白板可以最大化。工具、颜色、笔触、撤销/重做、页面、摄像头、打开/保存工程、主题和设置集中在底部；移除左侧导航和顶部公开课/演示标题区。主要书写、工程、相机、页面、撤销/重做、缩放、主题和设置入口均在底栏；工具栏在中等桌面宽度压缩，窄屏允许底栏横向滚动。
 - [x] **DY Board 品牌名称和图标**：软件名称改为“DY Board”；应用图标设计成中央一个倾斜的大大的“Yi+”。同步更新 Electron 标题、安装包产品名/快捷方式、HTML、PWA 名称与图标、项目 README 和应用内版本显示。Electron、PWA、HTML、Linux/NSIS 包名和 README 已同步；图标 SVG/PNG/ICO 已更新为黑底倾斜 Yi+；应用内显示版本 0.2.0。
-- [ ] **版本更新、测试与 GitHub 发布**：将版本号更新至 0.2.0；保留其他既有要求和公开仓库 `DaiYiqq/daiyi-board`，先通过构建/类型检查，再提交并推送至 GitHub；创建 `v0.2.0` 标签以沿用跨平台安装包与签名发布流程。仅在 Actions/Release 明确成功后将三平台发布标为完成。
+- [x] **版本更新、测试与 GitHub 发布**：将版本号更新至 0.2.0；保留其他既有要求和公开仓库 `DaiYiqq/daiyi-board`，先通过构建/类型检查，再提交并推送至 GitHub；创建 `v0.2.0` 标签以沿用跨平台安装包与签名发布流程。仅在 Actions/Release 明确成功后将三平台发布标为完成。已完成 TypeScript 检查、Vite 生产构建和 Linux 安装包构建；GitHub main CI 与 v0.2.0 Desktop releases Actions 均成功。提交 `a88bdd72ad7029f3bb195dd5ce4db2df3d8439e6` 已推送到 Manus main 和公开 GitHub main，v0.2.0 Release 资产可下载并通过签名/校验验证。
+- [x] **在线安装版 PWA**：让黑/白空白板能通过跨设备网页以 PWA 方式访问及安装。已发布 https://baiboard-hesrkue5.manus.space，首页 HTTP 200；浏览器安装取决于平台的 PWA 能力，本版本未生成 Android APK 或 iOS IPA。

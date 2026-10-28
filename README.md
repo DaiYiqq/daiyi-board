@@ -2,8 +2,7 @@
 
 DY Board 是一个优先留出书写空间的全屏白板。启动后直接进入纯黑或纯白画布，主要操作集中在屏幕底边；不再显示公开课样例或演示文案。它保留多色笔迹、页面、撤销重做、摄像展台、本地工程和开发者信息。
 
-> 当前开发版本：**0.2.0**。公开源码仓库：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)。当前已发布的旧版安装包仍在 [v0.1.1 Release](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)；0.2.0 安装包会在推送版本标签并完成 GitHub Actions 后出现在 [Releases](https://github.com/DaiYiqq/daiyi-board/releases)。
-
+> 当前版本 **0.2.0** 已正式发布。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；[v0.2.0 Release 下载页](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.2.0)；[在线安装版 PWA](https://baiboard-hesrkue5.manus.space)。
 ## 主要功能
 
 - **全屏空白画布**：Electron 桌面版启动即原生全屏；已安装 PWA 优先请求全屏显示。深色主题显示纯黑板，明亮主题显示纯白板。普通浏览器受安全限制，网页不能在未获用户手势时强制隐藏浏览器界面，但应用画面始终铺满可视区域。
@@ -15,7 +14,15 @@ DY Board 是一个优先留出书写空间的全屏白板。启动后直接进�
 
 ## 获取与安装
 
-0.2.0 的桌面安装包将在版本发布成功后放到 [GitHub Releases](https://github.com/DaiYiqq/daiyi-board/releases)。目前可查看上一版 [v0.1.1 安装包](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)。目标平台的公开发布工作流会生成 Windows NSIS 安装程序、macOS DMG/ZIP 与 Linux AppImage/DEB，并附带校验清单及 Sigstore 签名文件。当前 workflow runner 提供的架构以发行说明为准。
+v0.2.0 当前发布的桌面安装包如下：
+
+| 平台 | 安装包 | 架构 |
+| --- | --- | --- |
+| Windows | [NSIS 安装向导 `.exe`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-win-x64.exe) | x64 |
+| macOS | [DMG 安装包](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-mac-arm64.dmg) · [ZIP](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-mac-arm64.zip) | Apple Silicon ARM64 |
+| Linux | [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-linux-amd64.deb) · [AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-linux-x86_64.AppImage) | x64 / amd64 |
+
+浏览器与手机/平板可使用[在线 PWA](https://baiboard-hesrkue5.manus.space)，并按各平台浏览器的方式安装或添加到主屏幕。本版本没有单独生成 Android APK 或 iOS IPA。上述桌面包仅覆盖表格列出的 CPU 架构；其他架构可从源码自行构建。
 
 桌面 NSIS 安装向导提供许可协议、安装位置选择、开始菜单/桌面快捷方式、安装完成启动应用及标准卸载入口；包元数据列出开发者“戴亿”。默认工作流使用 GitHub OIDC/Cosign 对 SHA256 清单进行 keyless 签名，并为安装资产生成 GitHub provenance。它不等同于开发者个人 GPG/SSH 提交签名或 Windows/macOS 厂商代码签名；本仓库不含个人私钥、Windows 代码签名证书或 macOS Developer ID/公证凭证。
 
@@ -25,13 +32,20 @@ DY Board 是一个优先留出书写空间的全屏白板。启动后直接进�
 
 ```bash
 sha256sum -c SHA256SUMS
-cosign verify-blob SHA256SUMS \
+cosign verify-blob \
   --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity-regexp 'https://github.com/DaiYiqq/daiyi-board/.github/workflows/release.yml@refs/tags/v.+' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+  --certificate-identity-regexp '^https://github.com/DaiYiqq/daiyi-board/.github/workflows/release.yml@refs/tags/v0\.2\.0$' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  SHA256SUMS
+
+gh attestation verify DY-Board-0.2.0-linux-x86_64.AppImage \
+  --repo DaiYiqq/daiyi-board \
+  --signer-workflow github.com/DaiYiqq/daiyi-board/.github/workflows/release.yml \
+  --source-ref refs/tags/v0.2.0 \
+  --source-digest a88bdd72ad7029f3bb195dd5ce4db2df3d8439e6
 ```
 
-GitHub Actions 对 `v*` 标签运行 Windows/macOS/Linux 构建；成功后会生成 GitHub Release、SHA256 清单、Cosign bundle 和 provenance。
+GitHub Actions 的 v0.2.0 三平台构建已通过；发布包含 12 项可校验资产。已实际验证 SHA256 清单的 GitHub OIDC/Cosign 签名、全部清单哈希，以及限定 v0.2.0 标签与 commit 的 Linux AppImage provenance。GitHub Actions 对后续 `v*` 标签继续运行 Windows/macOS/Linux 构建。
 
 ## 本地开发
 
