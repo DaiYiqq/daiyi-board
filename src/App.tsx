@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, PointerEvent as ReactPointerEvent } from 'react';
 import {
-  ArrowDownToLine, ArrowLeft, ArrowRight, Camera, Check, ChevronDown, CircleHelp,
-  Eraser, FolderOpen, GripVertical, LayoutPanelLeft, Maximize2, Menu, Minus,
-  MousePointer2, Palette, Pencil, Plus, Redo2, Save, SlidersHorizontal, Trash2,
-  Undo2, X
+  Camera, Check, CircleHelp, Eraser, FilePenLine, FolderOpen, GripVertical,
+  Info, Minus, Moon, MousePointer2, Palette, Pencil, Plus, Redo2, RefreshCw, Save,
+  SlidersHorizontal, Sun, Trash2, Undo2, X
 } from 'lucide-react';
 
 type Point = { x: number; y: number; pressure?: number };
@@ -12,14 +11,15 @@ type Mark = { id: string; kind: 'pen' | 'highlighter'; color: string; width: num
 type Page = { id: string; title: string; marks: Mark[] };
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
-type Preferences = { theme: 'dark' | 'light'; toolbarSide: 'left' | 'right'; compact: boolean; visibleTools: Tool[] };
+type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const COLORS = ['#1D2637', '#E95E52', '#3D77E8', '#13A879', '#F0B44D', '#A66BE8', '#0EA5A4', '#FFFFFF'];
+const APP_VERSION = '0.2.0';
+const COLORS = ['#FFFFFF', '#000000', '#E5484D', '#2878D0', '#15803D', '#F1A61A', '#8B5CF6', '#0F9D9A'];
 const TOOL_LABEL: Record<Tool, string> = { select: '选择', pen: '画笔', eraser: '橡皮' };
 const toolIcon = { select: MousePointer2, pen: Pencil, eraser: Eraser };
-const defaultPrefs: Preferences = { theme: 'dark', toolbarSide: 'left', compact: false, visibleTools: ['select', 'pen', 'eraser'] };
+const defaultPrefs: Preferences = { theme: 'dark', compact: false, visibleTools: ['select', 'pen', 'eraser'] };
 const newPage = (n: number): Page => ({ id: crypto.randomUUID(), title: `白板 ${String(n).padStart(2, '0')}`, marks: [] });
 const pressureWidth = (width: number, pressure = 0.5) => width * (0.45 + Math.max(0, Math.min(1, pressure)) * 0.9);
 const boundsFor = (points: Point[]) => {
@@ -50,14 +50,14 @@ function readBoard(): BoardData {
       if (isValidBoard(data)) return { ...data, activePage: data.pages.some(page => page.id === data.activePage) ? data.activePage : data.pages[0].id };
     }
   } catch { /* Ignore a corrupt autosave and start with a clean board. */ }
-  const page = { id: 'welcome-board', title: '第一块白板', marks: [] };
+  const page = { id: 'welcome-board', title: '白板 01', marks: [] };
   return { version: 1, pages: [page], activePage: page.id };
 }
 function readPrefs(): Preferences {
   try {
     const raw = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Record<string, unknown>;
     const tools = Array.isArray(raw.visibleTools) ? raw.visibleTools.filter((tool): tool is Tool => tool === 'select' || tool === 'pen' || tool === 'eraser') : defaultPrefs.visibleTools;
-    return { theme: raw.theme === 'light' ? 'light' : 'dark', toolbarSide: raw.toolbarSide === 'right' ? 'right' : 'left', compact: typeof raw.compact === 'boolean' ? raw.compact : false, visibleTools: tools.length ? tools : defaultPrefs.visibleTools };
+    return { theme: raw.theme === 'light' ? 'light' : 'dark', compact: typeof raw.compact === 'boolean' ? raw.compact : false, visibleTools: tools.length ? tools : defaultPrefs.visibleTools };
   } catch { return defaultPrefs; }
 }
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -71,13 +71,12 @@ export default function App() {
   const undoStack = useRef<BoardData[]>([]);
   const redoStack = useRef<BoardData[]>([]);
   const [tool, setTool] = useState<Tool>('pen');
-  const [color, setColor] = useState(COLORS[0]);
+  const [color, setColor] = useState(() => readPrefs().theme === 'dark' ? '#FFFFFF' : '#000000');
   const [width, setWidth] = useState(4);
   const [prefs, setPrefs] = useState<Preferences>(readPrefs);
   const [panel, setPanel] = useState<'customize' | 'developer' | 'help' | 'camera' | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
-  const [present, setPresent] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [savedAt, setSavedAt] = useState('已自动保存');
   const [dragTool, setDragTool] = useState<Tool | null>(null);
@@ -178,7 +177,7 @@ export default function App() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
-      if (e.key === 'Escape') { setPresent(false); setPanel(null); }
+      if (e.key === 'Escape') setPanel(null);
     };
     window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
   }, [undo, redo]);
@@ -301,7 +300,7 @@ export default function App() {
       if (!isValidBoard(parsed)) throw new Error('格式不正确');
       const nextActive = parsed.pages.some(page => page.id === parsed.activePage) ? parsed.activePage : parsed.pages[0].id;
       commit(parsed.pages); setActivePage(nextActive); activeRef.current = nextActive; setSavedAt('工程已打开');
-    } catch { window.alert('无法打开该白板工程。请确认文件来自戴亿白板导出的 .json 文件。'); }
+    } catch { window.alert('无法打开该白板工程。请确认文件来自 DY Board 导出的 .json 文件。'); }
     event.target.value = '';
   };
   const moveTool = (target: Tool) => {
@@ -345,93 +344,97 @@ export default function App() {
   const cameraUp = () => { if (cameraDraft?.length) setCameraMarks([...cameraMarks, { id: crypto.randomUUID(), kind: 'pen', color, width, points: cameraDraft }]); setCameraDraft(null); };
 
   return (
-    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''} ${present ? 'is-present' : ''}`}>
-      {!present && <aside className="nav-rail">
-        <button className="brand-mark" title="DaiYi Board"><span className="brand-glyph"><i /><i /><i /></span></button>
-        <div className="rail-divider" />
-        <button className="rail-button active" title="白板"><LayoutPanelLeft size={19} /><span>白板</span></button>
-        <button className="rail-button" title="摄像展台" onClick={() => void startCamera()}><Camera size={19} /><span>展台</span></button>
-        <div className="rail-spacer" />
-        <button className="rail-button" title="自定义界面" onClick={() => setPanel('customize')}><SlidersHorizontal size={19} /><span>自定义</span></button>
-        <button className="rail-button" title="开发者" onClick={() => setPanel('developer')}><CircleHelp size={19} /><span>关于</span></button>
-        <div className="rail-profile">戴</div>
-      </aside>}
+    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}`}>
       <section className="workspace">
-        {!present && <header className="topbar">
-          <div className="crumb"><span className="crumb-overline">DAIYI BOARD / WORKSPACE</span><div className="crumb-title">公开课演示 <ChevronDown size={14} /></div></div>
-          <div className="top-meta"><span className="save-indicator"><i />{savedAt}</span><span className="meta-divider" /><span className="page-counter">第 {String(activeIndex + 1).padStart(2, '0')} 页</span></div>
-          <div className="top-actions">
-            <button className="icon-button" title="撤销 (Ctrl+Z)" onClick={undo} disabled={!undoStack.current.length}><Undo2 size={17} /></button>
-            <button className="icon-button" title="重做 (Ctrl+Y)" onClick={redo} disabled={!redoStack.current.length}><Redo2 size={17} /></button>
-            <span className="meta-divider" />
-            <button className="top-button" onClick={() => fileRef.current?.click()}><FolderOpen size={15} />打开</button>
-            <button className="top-button" onClick={saveFile}><Save size={15} />保存工程</button>
-            <button className="present-button" onClick={() => setPresent(true)}><Maximize2 size={15} />演示模式</button>
-            <button className="icon-button mobile-menu" title="菜单" onClick={() => setPanel('customize')}><Menu size={18} /></button>
-          </div>
-          <input ref={fileRef} className="hidden-input" type="file" accept=".json,.daiyi-board.json,application/json" onChange={openFile} />
-        </header>}
-        {present && <div className="presentation-head"><span className="present-dot" />演示模式 <button className="top-button" onClick={() => setPresent(false)}><X size={15} />退出演示</button></div>}
-
         {panel === 'camera' ? (
           <section className="camera-workspace">
-            <div className="camera-toolbar"><div><span className="live-dot" />展台模式 <span className="camera-hint">画面批注仅保存在当前会话</span></div><div className="camera-actions">
-              <select value={cameraId} onChange={e => { setCameraId(e.target.value); void startCamera(e.target.value); }} aria-label="选择摄像头" disabled={!mediaDevices.length}>
-                {!mediaDevices.length && <option>未发现摄像设备</option>}{mediaDevices.map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `摄像头 ${i + 1}`}</option>)}
-              </select><button className="icon-button" title="重新扫描摄像头" onClick={() => void refreshCameras()}><ArrowDownToLine size={16} /></button><button className="icon-button" title="擦除本次批注" onClick={() => setCameraMarks([])}><Eraser size={16} /></button><button className="exit-stage" onClick={exitCamera}><X size={16} />退出展台</button>
-            </div></div>
-            <div className="camera-stage"><video ref={videoRef} autoPlay playsInline muted />{!stream && <div className="camera-empty"><div className="camera-empty-icon"><Camera size={28} /></div><h2>摄像头已就绪</h2><p>选择设备开始实时展示，可以直接在画面上批注。</p><button className="present-button" onClick={() => void startCamera(cameraId)}><Camera size={16} />启动摄像头</button></div>}
+            <div className="camera-stage">
+              {stream ? <video ref={videoRef} autoPlay playsInline muted /> : <div className="camera-empty"><Camera size={30} /><span>摄像头暂不可用，请重新选择设备</span></div>}
               <svg className="annotation-layer" viewBox="0 0 1 1" preserveAspectRatio="none" onPointerDown={cameraDown} onPointerMove={cameraMove} onPointerUp={cameraUp} onPointerCancel={cameraUp}>
                 {cameraMarks.map(mark => <polyline key={mark.id} points={mark.points.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke={mark.color} strokeWidth={Math.max(0.002, mark.width / 1100)} strokeLinecap="round" strokeLinejoin="round" />)}
                 {cameraDraft && <polyline points={cameraDraft.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke={color} strokeWidth={Math.max(0.002, width / 1100)} strokeLinecap="round" strokeLinejoin="round" />}
               </svg>
             </div>
-            <div className="camera-bottom"><div className="camera-colors"><span>批注颜色</span>{COLORS.slice(0, 6).map(c => <button key={c} className={`color-dot ${color === c ? 'chosen' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={`选择颜色 ${c}`} />)}</div><label className="width-control">笔触 <input type="range" min="2" max="14" value={width} onChange={e => setWidth(Number(e.target.value))} /></label><span className="camera-bottom-note">画面只在本地设备内处理，不会上传</span></div>
+            <footer className="camera-dock" aria-label="展台工具栏">
+              <span className="camera-dock-label"><Camera size={17} />展台</span>
+              <select className="dock-select camera-select" value={cameraId} onChange={e => { setCameraId(e.target.value); void startCamera(e.target.value); }} aria-label="选择摄像头" disabled={!mediaDevices.length}>
+                {!mediaDevices.length && <option value="">未发现摄像设备</option>}{mediaDevices.map((device, index) => <option key={device.deviceId} value={device.deviceId}>{device.label || `摄像头 ${index + 1}`}</option>)}
+              </select>
+              <button className="dock-button" title="重新扫描摄像头" aria-label="重新扫描摄像头" onClick={() => void refreshCameras()}><RefreshCw size={18} /></button>
+              <button className="dock-button" title="清除本次批注" aria-label="清除本次批注" onClick={() => setCameraMarks([])}><Eraser size={18} /></button>
+              <span className="dock-divider" />
+              <div className="dock-color-set" aria-label="批注颜色">
+                {COLORS.map(c => <button key={c} className={`dock-swatch ${color === c ? 'is-selected' : ''}`} style={{ '--swatch': c } as React.CSSProperties} onClick={() => setColor(c)} aria-label={`选择颜色 ${c}`} title={`颜色 ${c}`} />)}
+              </div>
+              <label className="dock-size"><span>粗细</span><input type="range" min="2" max="16" value={width} onChange={e => setWidth(Number(e.target.value))} /><output>{width}</output></label>
+              <span className="dock-spacer" />
+              <button className="dock-button dock-exit" onClick={exitCamera}><X size={18} /><span>退出展台</span></button>
+            </footer>
           </section>
         ) : (
           <section className="board-area">
-            <div className="board-toolbar" style={{ [prefs.toolbarSide]: '22px' } as React.CSSProperties}>
-              {prefs.visibleTools.map((id, index) => { const Icon = toolIcon[id]; return <button key={id} draggable onDragStart={() => setDragTool(id)} onDragOver={e => e.preventDefault()} onDrop={() => moveTool(id)} onDragEnd={() => setDragTool(null)} className={`tool-button ${tool === id ? 'selected' : ''}`} onClick={() => setTool(id)} title={`${TOOL_LABEL[id]} · 拖动排序`}><Icon size={19} /><span className="tool-tip">{TOOL_LABEL[id]}</span>{index === 0 && <span className="tool-grip"><GripVertical size={12} /></span>}</button>; })}
-              <span className="toolbar-line" />
-              <button className="tool-button" onClick={() => setPanel('customize')} title="画笔颜色"><Palette size={18} /><span className="color-chip" style={{ background: color }} /></button>
-              <button className="tool-button" onClick={() => setWidth(width >= 10 ? 3 : width + 2)} title={`笔触 ${width}px`}><span className="stroke-preview" style={{ width: 6 + width, height: Math.max(2, width / 2), background: color }} /></button>
-              {selected && <button className="tool-button delete-tool" onClick={deleteSelected} title="删除所选"><Trash2 size={17} /></button>}
-            </div>
-            <div className="canvas-stage" onClick={() => { if (panel) setPanel(null); }}>
-              <div className="canvas-label"><span className="label-marker" />无标题课堂 <span className="label-slash">/</span> {active?.title}</div>
+            <div className="canvas-stage" onClick={() => { if (panel === 'customize') setPanel(null); }}>
               <div className="canvas-wrap" style={{ transform: `scale(${zoom / 100})` }}>
                 <div className="paper-sheet">
-                  <div className="paper-grid" />
-                  <div className="page-heading"><span>LESSON NOTE <span className="heading-dot">·</span> 01</span><h1>{active?.title === '第一块白板' ? '今天，一起把想法<br />画出来。' : active?.title}</h1><p>好的问题，是理解的开始。</p></div>
-                  <div className="paper-watermark"><span>DAIYI</span><i /> WHITEBOARD</div>
                   <canvas ref={canvasRef} className={`drawing-canvas ${tool === 'pen' ? 'pen-cursor' : tool === 'eraser' ? 'eraser-cursor' : 'select-cursor'}`} onPointerDown={onCanvasDown} onPointerMove={onCanvasMove} onPointerUp={finishDrawing} onPointerCancel={finishDrawing} />
-                  <span className="paper-footnote">{String(activeIndex + 1).padStart(2, '0')} / {String(pages.length).padStart(2, '0')}</span>
                 </div>
               </div>
-              <div className="canvas-hint"><span className="keycap">{tool === 'pen' ? '✦' : tool === 'select' ? '↖' : '⌫'}</span>{tool === 'pen' ? '在画布上书写或绘制' : tool === 'select' ? '点选后拖动移动，拉动右下角手柄缩放' : '点击笔迹即可擦除'}</div>
               {panel === 'customize' && <div className="customizer-popover" onClick={e => e.stopPropagation()}>
-                <div className="popover-head"><div><span className="eyebrow">YOUR WORKSPACE</span><h3>调一调，顺手就好。</h3></div><button className="icon-button" onClick={() => setPanel(null)}><X size={17} /></button></div>
-                <div className="setting-group"><div className="setting-label">界面主题</div><div className="theme-switch"><button className={prefs.theme === 'dark' ? 'is-on' : ''} onClick={() => setPrefs({ ...prefs, theme: 'dark' })}><span className="theme-preview dark-preview" />墨色</button><button className={prefs.theme === 'light' ? 'is-on' : ''} onClick={() => setPrefs({ ...prefs, theme: 'light' })}><span className="theme-preview light-preview" />明亮</button></div></div>
-                <div className="setting-group"><div className="setting-label">画笔颜色</div><div className="swatches">{COLORS.map(c => <button key={c} className={`swatch ${color === c ? 'is-on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={`画笔颜色 ${c}`}>{color === c && <Check size={13} color={c === '#FFFFFF' ? '#111827' : '#fff'} />}</button>)}<label className="custom-color"><input type="color" value={color} onChange={e => setColor(e.target.value)} /><Plus size={15} /></label></div></div>
-                <div className="setting-group"><div className="setting-row"><div><div className="setting-label">笔触粗细</div><div className="setting-sub">{width}px · 压感笔兼容</div></div><input className="range-slider" type="range" min="2" max="16" value={width} onChange={e => setWidth(Number(e.target.value))} /></div></div>
-                <div className="setting-group"><div className="setting-label">工具栏位置</div><div className="segmented"><button className={prefs.toolbarSide === 'left' ? 'is-on' : ''} onClick={() => setPrefs({ ...prefs, toolbarSide: 'left' })}><ArrowLeft size={14} />左侧</button><button className={prefs.toolbarSide === 'right' ? 'is-on' : ''} onClick={() => setPrefs({ ...prefs, toolbarSide: 'right' })}>右侧<ArrowRight size={14} /></button></div></div>
-                <div className="setting-group"><div className="setting-row"><div><div className="setting-label">紧凑工具栏</div><div className="setting-sub">收窄控件间距</div></div><button className={`toggle ${prefs.compact ? 'on' : ''}`} onClick={() => setPrefs({ ...prefs, compact: !prefs.compact })}><i /></button></div></div>
-                <div className="setting-group"><div className="setting-label">常用工具</div><div className="tool-toggles">{(['select', 'pen', 'eraser'] as Tool[]).map(id => <button key={id} className={prefs.visibleTools.includes(id) ? 'is-on' : ''} onClick={() => toggleToolVisibility(id)}>{prefs.visibleTools.includes(id) && <Check size={12} />}{TOOL_LABEL[id]}</button>)}</div></div>
-                <div className="popover-foot"><GripVertical size={14} />拖动工具栏图标即可重新排序</div>
+                <div className="popover-head"><div><span className="eyebrow">DY BOARD</span><h3>画布与工具</h3></div><button className="popover-close" onClick={() => setPanel(null)} aria-label="关闭设置"><X size={18} /></button></div>
+                <div className="setting-group"><div className="setting-label">画布</div><div className="theme-switch"><button className={prefs.theme === 'dark' ? 'is-on' : ''} onClick={() => { setPrefs({ ...prefs, theme: 'dark' }); setColor('#FFFFFF'); }}><span className="theme-preview dark-preview" />黑色</button><button className={prefs.theme === 'light' ? 'is-on' : ''} onClick={() => { setPrefs({ ...prefs, theme: 'light' }); setColor('#000000'); }}><span className="theme-preview light-preview" />白色</button></div></div>
+                <div className="setting-group"><div className="setting-label">画笔颜色</div><div className="swatches">{COLORS.map(c => <button key={c} className={`swatch ${color === c ? 'is-on' : ''}`} style={{ background: c }} onClick={() => setColor(c)} aria-label={`画笔颜色 ${c}`}>{color === c && <Check size={13} color={c === '#FFFFFF' ? '#111827' : '#fff'} />}</button>)}<label className="custom-color" title="自定义颜色"><input type="color" value={color} onChange={e => setColor(e.target.value)} /><Palette size={15} /></label></div></div>
+                <div className="setting-group"><div className="setting-row"><div><div className="setting-label">笔触粗细</div><div className="setting-sub">{width}px · 支持压感</div></div><input className="range-slider" type="range" min="2" max="16" value={width} onChange={e => setWidth(Number(e.target.value))} /></div></div>
+                <div className="setting-group"><div className="setting-row"><div><div className="setting-label">紧凑工具栏</div><div className="setting-sub">调整底栏控件间距</div></div><button className={`toggle ${prefs.compact ? 'on' : ''}`} onClick={() => setPrefs({ ...prefs, compact: !prefs.compact })} aria-label="切换紧凑工具栏"><i /></button></div></div>
+                <div className="setting-group"><div className="setting-label">显示工具</div><div className="tool-toggles">{(['select', 'pen', 'eraser'] as Tool[]).map(id => <button key={id} className={prefs.visibleTools.includes(id) ? 'is-on' : ''} onClick={() => toggleToolVisibility(id)}>{prefs.visibleTools.includes(id) && <Check size={12} />}{TOOL_LABEL[id]}</button>)}</div></div>
+                <div className="popover-foot"><GripVertical size={14} />拖动底部工具可调整顺序</div>
               </div>}
             </div>
-            {!present && <footer className="page-strip"><div className="page-strip-left"><span className="strip-label">页面</span><button className="strip-add" onClick={addPage}><Plus size={14} />新建页面</button><button className="strip-action" onClick={clearPage} title="清空当前页面"><Trash2 size={15} /></button></div><div className="page-thumbnails">
-              {pages.map((page, index) => <div key={page.id} className={`page-thumb ${page.id === activePage ? 'active' : ''}`} role="button" tabIndex={0} title="单击切换 · 双击重命名" onClick={() => { setActivePage(page.id); activeRef.current = page.id; setSelected(null); }} onDoubleClick={() => renamePage(page.id)} onKeyDown={e => { if (e.key === 'Enter') { setActivePage(page.id); activeRef.current = page.id; } }}><span className="thumb-number">{String(index + 1).padStart(2, '0')}</span><span className="thumb-scribble">{page.marks.length ? '✳' : '—'}</span><span className="thumb-title">{page.title}</span>{pages.length > 1 && page.id === activePage && <button className="thumb-delete" title="删除当前页" onClick={e => { e.stopPropagation(); deletePage(page.id); }}><X size={11} /></button>}</div>)}
-              <button className="page-add-card" onClick={addPage}><Plus size={17} /></button>
-            </div><div className="zoom-control"><button onClick={() => setZoom(Math.max(60, zoom - 10))}><Minus size={14} /></button><span>{zoom}%</span><button onClick={() => setZoom(Math.min(140, zoom + 10))}><Plus size={14} /></button></div></footer>}
+            <footer className="bottom-dock" aria-label="白板工具栏">
+              <div className="dock-group dock-tools" aria-label="绘图工具">
+                {prefs.visibleTools.map(id => { const Icon = toolIcon[id]; return <button key={id} draggable onDragStart={() => setDragTool(id)} onDragOver={e => e.preventDefault()} onDrop={() => moveTool(id)} onDragEnd={() => setDragTool(null)} className={`dock-button tool-button ${tool === id ? 'selected' : ''}`} onClick={() => setTool(id)} title={`${TOOL_LABEL[id]}（可拖动排序）`} aria-label={TOOL_LABEL[id]}><Icon size={18} /><span>{TOOL_LABEL[id]}</span></button>; })}
+                {selected && <button className="dock-button dock-danger" onClick={deleteSelected} title="删除所选笔迹" aria-label="删除所选笔迹"><Trash2 size={17} /></button>}
+              </div>
+              <span className="dock-divider" />
+              <div className="dock-color-set" aria-label="画笔颜色">
+                {COLORS.map(c => <button key={c} className={`dock-swatch ${color === c ? 'is-selected' : ''}`} style={{ '--swatch': c } as React.CSSProperties} onClick={() => setColor(c)} aria-label={`选择颜色 ${c}`} title={`颜色 ${c}`} />)}
+                <label className="dock-custom-color" title="自定义颜色"><input type="color" value={color} onChange={e => setColor(e.target.value)} /><Palette size={17} /></label>
+              </div>
+              <label className="dock-size"><span>粗细</span><input type="range" min="2" max="16" value={width} onChange={e => setWidth(Number(e.target.value))} /><output>{width}</output></label>
+              <span className="dock-divider" />
+              <div className="dock-group dock-pages" aria-label="页面管理">
+                <select className="dock-select" value={activePage} onChange={e => { setActivePage(e.target.value); activeRef.current = e.target.value; setSelected(null); }} aria-label="当前白板页面">
+                  {pages.map((page, index) => <option key={page.id} value={page.id}>{String(index + 1).padStart(2, '0')} · {page.title}</option>)}
+                </select>
+                <button className="dock-button" onClick={addPage} title="新建页面" aria-label="新建页面"><Plus size={18} /></button>
+                <button className="dock-button dock-optional" onClick={() => renamePage(activePage)} title="重命名页面" aria-label="重命名页面"><FilePenLine size={17} /></button>
+                <button className="dock-button dock-optional" onClick={clearPage} title="清空当前页面" aria-label="清空当前页面"><Eraser size={17} /></button>
+                <button className="dock-button dock-optional dock-danger" onClick={() => deletePage(activePage)} disabled={pages.length < 2} title="删除当前页面" aria-label="删除当前页面"><Trash2 size={16} /></button>
+                <span className="dock-page-count">{activeIndex + 1}/{pages.length}</span>
+              </div>
+              <span className="dock-divider dock-page-divider" />
+              <div className="dock-group dock-history" aria-label="撤销和缩放">
+                <button className="dock-button" title="撤销（Ctrl+Z）" aria-label="撤销" onClick={undo} disabled={!undoStack.current.length}><Undo2 size={17} /></button>
+                <button className="dock-button" title="重做（Ctrl+Y）" aria-label="重做" onClick={redo} disabled={!redoStack.current.length}><Redo2 size={17} /></button>
+                <span className="dock-divider dock-zoom-divider" />
+                <button className="dock-button dock-zoom-button" onClick={() => setZoom(Math.max(60, zoom - 10))} title="缩小画布"><Minus size={15} /></button><span className="dock-zoom-value">{zoom}%</span><button className="dock-button dock-zoom-button" onClick={() => setZoom(Math.min(140, zoom + 10))} title="放大画布"><Plus size={15} /></button>
+              </div>
+              <span className="dock-spacer" />
+              <input ref={fileRef} className="hidden-input" type="file" accept=".json,.daiyi-board.json,application/json" onChange={openFile} />
+              <div className="dock-group dock-actions" aria-label="其他操作">
+                <button className="dock-button" onClick={() => void startCamera()} title="摄像展台" aria-label="摄像展台"><Camera size={18} /><span>展台</span></button>
+                <button className="dock-button dock-secondary" onClick={() => fileRef.current?.click()} title="打开白板工程" aria-label="打开工程"><FolderOpen size={17} /><span>打开</span></button>
+                <button className="dock-button dock-secondary" onClick={saveFile} title={savedAt} aria-label="保存工程"><Save size={17} /><span>保存</span></button><span className="dock-save-state" aria-live="polite">{savedAt}</span>
+                <button className="dock-button" onClick={() => { const nextTheme = prefs.theme === 'dark' ? 'light' : 'dark'; setPrefs({ ...prefs, theme: nextTheme }); setColor(nextTheme === 'dark' ? '#FFFFFF' : '#000000'); }} title={prefs.theme === 'dark' ? '切换白色画布' : '切换黑色画布'} aria-label="切换黑白画布">{prefs.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button>
+                <button className={`dock-button ${panel === 'customize' ? 'selected' : ''}`} onClick={() => setPanel(panel === 'customize' ? null : 'customize')} title="设置画布与工具" aria-label="设置画布与工具"><SlidersHorizontal size={18} /></button>
+                <button className="dock-button" onClick={() => setPanel('help')} title="白板快捷操作" aria-label="白板快捷操作"><CircleHelp size={18} /></button>
+                <button className="dock-button dock-secondary" onClick={() => setPanel('developer')} title="开发者信息" aria-label="开发者信息"><Info size={18} /><span>关于</span></button>
+              </div>
+            </footer>
           </section>
         )}
       </section>
-
-      {panel === 'developer' && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setPanel(null); }}><section className="info-modal developer-modal"><button className="modal-close" onClick={() => setPanel(null)}><X size={18} /></button><div className="developer-mark"><span className="brand-glyph"><i /><i /><i /></span></div><span className="eyebrow">MADE FOR IDEAS · MADE BY A PERSON</span><h2>开发者</h2><p className="developer-name">戴亿 <span>Creator & Developer</span></p><div className="contact-list"><a href="mailto:1703205607@qq.com"><span>QQ 邮箱</span><b>1703205607@qq.com</b><ArrowRight size={15} /></a><a href="https://mail.google.com/mail/?view=cm&to=daiy91004@gmail.com" target="_blank" rel="noreferrer"><span>Gmail</span><b>daiy91004@gmail.com</b><ArrowRight size={15} /></a><a href="https://wpa.qq.com/msgrd?v=3&uin=1703205607&site=qq&menu=yes" target="_blank" rel="noreferrer"><span>QQ</span><b>1703205607</b><ArrowRight size={15} /></a><a href="https://www.douyin.com/user/self?modal_id=0" target="_blank" rel="noreferrer"><span>抖音</span><b>daiyi091004</b><ArrowRight size={15} /></a></div><div className="modal-bottom">白板 · DaiYi Board <span>版本 0.1.0</span></div></section></div>}
-      {panel === 'help' && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setPanel(null); }}><section className="info-modal"><button className="modal-close" onClick={() => setPanel(null)}><X size={18} /></button><span className="eyebrow">QUICK GUIDE</span><h2>几笔之间，思路就清楚了。</h2><p className="help-row"><b>绘制</b><span>选择画笔，在画布上拖动即可书写。触控笔压力由浏览器/设备驱动支持。</span></p><p className="help-row"><b>整理</b><span>选择工具点击笔迹并拖动；按 Ctrl/⌘ + Z 撤销，Ctrl/⌘ + Y 重做。</span></p><p className="help-row"><b>展台</b><span>选择摄像设备，允许系统访问摄像头后即可边展示边批注。</span></p><div className="modal-bottom">工程保存在此设备浏览器的本地存储中。</div></section></div>}
-      {!present && panel !== 'camera' && <button className="help-button" title="使用帮助" onClick={() => setPanel('help')}><CircleHelp size={17} /></button>}
-      {present && <button className="present-exit" onClick={() => setPresent(false)}><X size={16} />退出演示</button>}
+      {panel === 'developer' && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setPanel(null); }}><section className="info-modal developer-modal"><button className="modal-close" onClick={() => setPanel(null)} aria-label="关闭"><X size={18} /></button><div className="developer-mark"><span className="brand-glyph">Yi+</span></div><span className="eyebrow">DY BOARD</span><h2>开发者</h2><p className="developer-name">戴亿 <span>Developer</span></p><div className="contact-list"><a href="mailto:1703205607@qq.com"><span>QQ 邮箱</span><b>1703205607@qq.com</b></a><a href="https://mail.google.com/mail/?view=cm&to=daiy91004@gmail.com" target="_blank" rel="noreferrer"><span>Gmail</span><b>daiy91004@gmail.com</b></a><a href="https://wpa.qq.com/msgrd?v=3&uin=1703205607&site=qq&menu=yes" target="_blank" rel="noreferrer"><span>QQ</span><b>1703205607</b></a><a href="https://www.douyin.com/user/self?modal_id=0" target="_blank" rel="noreferrer"><span>抖音</span><b>daiyi091004</b></a></div><div className="modal-bottom">DY Board <span>版本 {APP_VERSION}</span></div></section></div>}
+      {panel === 'help' && <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setPanel(null); }}><section className="info-modal"><button className="modal-close" onClick={() => setPanel(null)} aria-label="关闭"><X size={18} /></button><span className="eyebrow">DY BOARD</span><h2>白板快捷操作</h2><p className="help-row"><b>书写</b><span>选择画笔，在黑色或白色画布上拖动即可书写；可从底部选择颜色和笔触粗细。</span></p><p className="help-row"><b>整理</b><span>选择工具可选中、移动或缩放笔迹；按 Ctrl/⌘ + Z 撤销，Ctrl/⌘ + Y 重做。</span></p><p className="help-row"><b>展台</b><span>从底部打开摄像展台，允许系统访问摄像头后即可边展示边批注。</span></p><div className="modal-bottom">工程自动保存在此设备，可用底部“保存”导出备份。</div></section></div>}
     </main>
   );
 }

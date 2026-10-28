@@ -1,60 +1,27 @@
-# DY白板 · DaiYi Board
+# DY Board
 
-一款面向课堂、讲解与现场演示的开源白板。用几笔整理想法，也可以接入摄像头，把实物展示与画面批注放在同一个工作区。应用主界面以「墨迹实验室」为设计方向：深墨色操作台、电光青工具状态，中央保留一张清晰、可书写的纸面画布。
+DY Board 是一个优先留出书写空间的全屏白板。启动后直接进入纯黑或纯白画布，主要操作集中在屏幕底边；不再显示公开课样例或演示文案。它保留多色笔迹、页面、撤销重做、摄像展台、本地工程和开发者信息。
 
-> 当前版本：0.1.1 · 网页/PWA 与 Electron 桌面端。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；[v0.1.1 下载页](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)。当前 Release 含 Windows x64 NSIS、macOS ARM64 DMG/ZIP、Linux x64 AppImage/DEB；尚未提供 Windows ARM64 或 Intel Mac 安装包。SHA256 清单已由 GitHub OIDC/Sigstore 签名并验证。
+> 当前开发版本：**0.2.0**。公开源码仓库：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)。当前已发布的旧版安装包仍在 [v0.1.1 Release](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)；0.2.0 安装包会在推送版本标签并完成 GitHub Actions 后出现在 [Releases](https://github.com/DaiYiqq/daiyi-board/releases)。
 
-## 功能
+## 主要功能
 
-- **白板与页面**：新增、切换、重命名、删除页面；画布缩放与演示模式；画笔、橡皮、选择、笔迹移动及对象缩放/删除。
-- **书写**：多色画笔、笔触粗细、支持指针/触屏绘制；支持 Ctrl/⌘+Z 撤销、Ctrl/⌘+Y 重做。
-- **本地工程**：自动恢复当前工作区；通过「打开」载入工程 JSON 并恢复保存时的活动页，「保存工程」导出 `.daiyi-board.json`。数据默认存放于浏览器/Electron 本地存储，不上传云端。
-- **自定义界面**：墨色/明亮主题、左右工具栏布局、紧凑模式和拖动重排工具栏；偏好设置本地保存。
-- **展台模式**：扫描系统视频输入、设备切换、实时预览，并可在摄像头画面上绘制彩色批注。视频只在本地显示，不会上传。
-- **安装**：支持符合条件浏览器的 PWA 安装；Electron 可构建 Windows NSIS 安装程序、macOS DMG/ZIP、Linux AppImage/DEB。
-- **开发者信息**：应用内「关于」页面以及本 README 均包含完整开发者联络信息。
+- **全屏空白画布**：Electron 桌面版启动即原生全屏；已安装 PWA 优先请求全屏显示。深色主题显示纯黑板，明亮主题显示纯白板。普通浏览器受安全限制，网页不能在未获用户手势时强制隐藏浏览器界面，但应用画面始终铺满可视区域。
+- **简洁底部工具栏**：画笔、选择、橡皮、多色选择、自定义颜色、笔触粗细、页面管理、撤销/重做、缩放、摄像展台、打开/保存工程、黑白主题和设置均放在底部。可在设置中显隐常用工具、开启紧凑布局，并拖动调整绘图工具顺序。
+- **书写与编辑**：支持指针/触屏、兼容设备压感；笔迹可选择、移动、等比缩放和删除；支持 Ctrl/⌘+Z 撤销、Ctrl/⌘+Y 重做。
+- **页面与本地工程**：可新建、切换、重命名、清空和删除页面；自动保存到当前浏览器/Electron 用户配置文件，可导入或导出 `.daiyi-board.json` 工程。数据留在本地，不上传；升级不会主动清除既有白板数据，旧工程格式与本地存储键保持兼容。
+- **摄像展台**：识别已连接的视频输入设备，允许选择/切换摄像头，在实物画面上做彩色批注；视频和批注在本地处理。设备发现和访问取决于浏览器 API、HTTPS/localhost、安全权限、系统授权及驱动。
+- **开发者资料**：应用内“关于”及本 README 均列出完整联系方式。
 
-## 快速开始
+## 获取与安装
 
-要求 Node.js 22 与 pnpm 11。克隆仓库后安装依赖并启动开发服务器：
+0.2.0 的桌面安装包将在版本发布成功后放到 [GitHub Releases](https://github.com/DaiYiqq/daiyi-board/releases)。目前可查看上一版 [v0.1.1 安装包](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)。目标平台的公开发布工作流会生成 Windows NSIS 安装程序、macOS DMG/ZIP 与 Linux AppImage/DEB，并附带校验清单及 Sigstore 签名文件。当前 workflow runner 提供的架构以发行说明为准。
 
-```bash
-corepack enable
-pnpm install
-pnpm dev
-```
+桌面 NSIS 安装向导提供许可协议、安装位置选择、开始菜单/桌面快捷方式、安装完成启动应用及标准卸载入口；包元数据列出开发者“戴亿”。默认工作流使用 GitHub OIDC/Cosign 对 SHA256 清单进行 keyless 签名，并为安装资产生成 GitHub provenance。它不等同于开发者个人 GPG/SSH 提交签名或 Windows/macOS 厂商代码签名；本仓库不含个人私钥、Windows 代码签名证书或 macOS Developer ID/公证凭证。
 
-访问 `http://localhost:3000`。生产构建和类型检查：
+### 发布资产验证
 
-```bash
-pnpm build
-pnpm typecheck
-```
-
-## 桌面开发与安装包
-
-在目标操作系统运行对应命令。应用和 Electron 运行时应在对应平台打包；完整平台矩阵由 GitHub Actions 发布工作流自动构建。
-
-| 系统 | 命令 | 产物 |
-| --- | --- | --- |
-| Windows（本机架构；当前 Release 为 x64） | `pnpm desktop:win` | NSIS `.exe` 安装向导 |
-| macOS（本机架构；当前 Release 为 ARM64） | `pnpm desktop:mac` | `.dmg`、`.zip` |
-| Linux x64 | `pnpm desktop:linux` | `.AppImage`、`.deb` |
-| 本机目录试运行 | `pnpm desktop:pack` | 未安装目录包 |
-
-Windows 安装程序采用完整的 NSIS 安装引导流程，提供许可协议、安装位置选择、开始菜单/桌面快捷方式、安装完成启动应用及标准卸载入口。应用包元数据列出开发者/发布者“戴亿”；许可文件为 MIT。Windows 可执行文件的**组织身份验证签名**及 macOS Developer ID/公证不包含于默认免费构建配置，必须由开发者提供有效证书和密钥后才能启用；未签名应用首次运行可能显示系统安全提示。
-
-在非 localhost 环境使用网页摄像头时，浏览器要求 HTTPS 安全上下文。首次进入展台模式需要允许摄像头访问；Electron 桌面版需在操作系统隐私设置中授予相机权限。切换或退出展台时，应用会停止摄像流。
-
-## PWA 安装与数据
-
-通过 HTTPS 部署后，可以从支持 PWA 的浏览器菜单选择「安装应用」。离线 Service Worker 缓存已访问的应用外壳资源；摄像头仍需本地硬件及系统授权。每个浏览器/Electron 用户配置文件的白板数据互相独立，建议定期使用「保存工程」备份。清除站点数据前请先导出重要工程。
-
-## GitHub Releases、校验与签名
-
-推送 `v*` 版本标签后，`.github/workflows/release.yml` 会在 Windows、macOS、Linux runner 上构建安装包，生成 `SHA256SUMS`，使用 GitHub Actions OIDC 和 Sigstore/Cosign 对校验清单进行 keyless 签名，并为构建产物生成 GitHub build provenance attestations。`[v0.1.1 Release](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.1.1)` 已发布 Windows x64、macOS ARM64、Linux x64 安装包。该版本的签名清单已用 Cosign 验证；Linux AppImage 的 provenance attestation 也已由 GitHub CLI 验证。
-
-校验示例：
+在 Release 下载 SHA256 清单、`SHA256SUMS.sigstore.json` bundle 和对应安装包后，可运行：
 
 ```bash
 sha256sum -c SHA256SUMS
@@ -64,27 +31,49 @@ cosign verify-blob SHA256SUMS \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-GitHub Actions 的 Sigstore 签名证明「产物由此 GitHub 工作流构建」，**不等同于戴亿个人的 GPG/SSH 提交签名或 Windows/macOS 厂商代码签名**。为使提交显示 Verified，开发者须在自己的 Git 环境生成/保管 GPG 或 SSH 签名私钥，将公钥添加到对应 GitHub 账号，并对提交签名；私钥不得提交到本仓库。当前执行环境没有戴亿的个人私钥，因此本项目不会伪造个人签名。
+GitHub Actions 对 `v*` 标签运行 Windows/macOS/Linux 构建；成功后会生成 GitHub Release、SHA256 清单、Cosign bundle 和 provenance。
+
+## 本地开发
+
+需要 Node.js 22 和 pnpm 11：
+
+```bash
+corepack enable
+pnpm install
+pnpm dev
+```
+
+开发服务器默认在 `http://localhost:3000`。运行检查和构建：
+
+```bash
+pnpm typecheck
+pnpm build
+```
+
+在对应平台构建安装包：
+
+| 平台 | 命令 | 产物 |
+| --- | --- | --- |
+| Windows | `pnpm desktop:win` | NSIS `.exe` 安装向导 |
+| macOS | `pnpm desktop:mac` | `.dmg`、`.zip` |
+| Linux | `pnpm desktop:linux` | `.AppImage`、`.deb` |
+| 未安装目录预览 | `pnpm desktop:pack` | 可运行目录 |
+
+摄像头首次访问需要授予操作系统/浏览器权限；非 localhost 的 Web 环境需要 HTTPS。请在清除浏览器站点数据或卸载前导出重要工程。
 
 ## 工程结构
 
 ```text
 src/                    React/TypeScript 白板界面、交互与样式
-public/                 PWA 清单、离线 Service Worker 与应用标识
-electron/               桌面主进程与受限 preload
-.github/workflows/      CI 检查与跨平台签名发布工作流
+public/                 PWA 清单、离线缓存、路由清单和 Yi+ 图标
+electron/               原生全屏桌面主进程与受限 preload
+build/                  Electron 桌面 PNG/ICO 图标
+.github/workflows/      CI 与跨平台 Cosign 签名发布工作流
 ```
-
-## 已知限制
-
-- 0.1.0 使用本地浏览器存储自动恢复；工程文件导入导出用于跨设备搬运，目前没有云同步和多人协作。
-- 展台批注属于当前会话，不会自动嵌入导出的白板工程；目前选择工具/橡皮对笔迹对象操作。
-- 目前交付的是源代码、开发预览和跨平台构建配置；实际签名安装包需在对应操作系统或 GitHub Actions 中构建。商店分发所需证书、公证与账户由开发者自行提供。
-- 在网页端，摄像设备识别受浏览器 API、HTTPS/localhost、安全权限及操作系统驱动限制。
 
 ## 许可证
 
-本项目使用 [MIT License](LICENSE)。
+本项目使用 [MIT License](LICENSE)。欢迎 issue 和 pull request；详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 开发者
 
@@ -95,7 +84,3 @@ electron/               桌面主进程与受限 preload
 | QQ | [1703205607](https://wpa.qq.com/msgrd?v=3&uin=1703205607&site=qq&menu=yes) |
 | Gmail | [daiy91004@gmail.com](mailto:daiy91004@gmail.com) |
 | 抖音 | **daiyi091004** |
-
-## 贡献
-
-欢迎提交 issue 与 pull request。请先描述复现步骤、系统/浏览器/设备环境与预期表现；涉及摄像头问题时，请说明操作系统授权状态。提交代码前运行 `pnpm build`，避免将个人密钥、签名证书、白板工程或本机配置提交到仓库。详细约定见 [CONTRIBUTING.md](CONTRIBUTING.md)。

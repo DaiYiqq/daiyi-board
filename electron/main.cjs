@@ -2,6 +2,7 @@ const { app, BrowserWindow, session, shell } = require('electron');
 const path = require('node:path');
 
 const isDev = !app.isPackaged;
+app.setName('DY Board');
 function createWindow() {
   const win = new BrowserWindow({
     width: 1440,
@@ -9,8 +10,10 @@ function createWindow() {
     minWidth: 920,
     minHeight: 640,
     show: false,
-    backgroundColor: '#111827',
-    title: '戴亿白板 · DaiYi Board',
+    backgroundColor: '#000000',
+    fullscreen: true,
+    autoHideMenuBar: true,
+    title: 'DY Board',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -19,6 +22,7 @@ function createWindow() {
       webSecurity: true
     }
   });
+  win.setMenuBarVisibility(false);
   win.once('ready-to-show', () => win.show());
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://') || url.startsWith('mailto:')) void shell.openExternal(url);

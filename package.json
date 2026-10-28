@@ -1,8 +1,8 @@
 {
   "name": "daiyi-board",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": false,
-  "description": "A customizable classroom whiteboard and document-camera workspace by Dai Yi.",
+  "description": "A full-screen black or white blank board with document-camera mode by Dai Yi.",
   "homepage": "https://github.com/DaiYiqq/daiyi-board",
   "repository": { "type": "git", "url": "https://github.com/DaiYiqq/daiyi-board.git" },
   "author": "戴亿 <1703205607@qq.com>",
@@ -40,8 +40,8 @@
   },
   "build": {
     "appId": "com.daiyi.board",
-    "productName": "戴亿白板",
-    "artifactName": "DaiYi-Board-${version}-${os}-${arch}.${ext}",
+    "productName": "DY Board",
+    "artifactName": "DY-Board-${version}-${os}-${arch}.${ext}",
     "icon": "build/icon.png",
     "directories": { "output": "release", "buildResources": "build" },
     "files": ["dist/**/*", "electron/**/*", "package.json", "LICENSE", "LICENSE.txt"],
@@ -58,11 +58,11 @@
       "deleteAppDataOnUninstall": false,
       "displayLanguageSelector": true,
       "license": "LICENSE.txt",
-      "shortcutName": "戴亿白板",
+      "shortcutName": "DY Board",
       "runAfterFinish": true
     },
     "mac": { "icon": "build/icon.png", "category": "public.app-category.education", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }, { "target": "zip", "arch": ["x64", "arm64"] }], "identity": null, "hardenedRuntime": true, "gatekeeperAssess": false },
     "dmg": { "sign": false },
-    "linux": { "icon": "build/icon.png", "category": "Education", "target": ["AppImage", "deb"], "maintainer": "戴亿 <1703205607@qq.com>", "synopsis": "可定制的教学白板与展台" }
+    "linux": { "icon": "build/icon.png", "category": "Education", "target": ["AppImage", "deb"], "maintainer": "戴亿 <1703205607@qq.com>", "synopsis": "DY Board full-screen blank whiteboard" }
   }
 }

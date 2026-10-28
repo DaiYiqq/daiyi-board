@@ -1,13 +1,14 @@
 {
-  "name": "戴亿白板 · DaiYi Board",
-  "short_name": "戴亿白板",
-  "description": "可定制的课堂白板与摄像展台",
+  "name": "DY Board",
+  "short_name": "DY Board",
+  "description": "全屏黑白空白板与摄像展台",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
   "orientation": "any",
-  "background_color": "#111827",
-  "theme_color": "#111827",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "lang": "zh-CN",
   "icons": [{ "src": "./board-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
 }
