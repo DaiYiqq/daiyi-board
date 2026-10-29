@@ -1,51 +1,34 @@
 # DY Board
 
-DY Board 是一个优先留出书写空间的全屏白板。启动后直接进入纯黑或纯白画布，主要操作集中在屏幕底边；不再显示公开课样例或演示文案。它保留多色笔迹、页面、撤销重做、摄像展台、本地工程和开发者信息。
+DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> 当前版本 **0.2.0** 已正式发布。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；[v0.2.0 Release 下载页](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.2.0)；[在线安装版 PWA](https://baiboard-hesrkue5.manus.space)。
-## 主要功能
+> **当前代码版本：0.3.0。** 新版源码提交后，GitHub Actions 会构建 Windows/macOS/Linux 安装包并对校验清单签名；在对应 Release 成功完成前，请以 [GitHub Releases](https://github.com/DaiYiqq/daiyi-board/releases) 当前最新完成版本为准。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
 
-- **全屏空白画布**：Electron 桌面版启动即原生全屏；已安装 PWA 优先请求全屏显示。深色主题显示纯黑板，明亮主题显示纯白板。普通浏览器受安全限制，网页不能在未获用户手势时强制隐藏浏览器界面，但应用画面始终铺满可视区域。
-- **简洁底部工具栏**：画笔、选择、橡皮、多色选择、自定义颜色、笔触粗细、页面管理、撤销/重做、缩放、摄像展台、打开/保存工程、黑白主题和设置均放在底部。可在设置中显隐常用工具、开启紧凑布局，并拖动调整绘图工具顺序。
-- **书写与编辑**：支持指针/触屏、兼容设备压感；笔迹可选择、移动、等比缩放和删除；支持 Ctrl/⌘+Z 撤销、Ctrl/⌘+Y 重做。
-- **页面与本地工程**：可新建、切换、重命名、清空和删除页面；自动保存到当前浏览器/Electron 用户配置文件，可导入或导出 `.daiyi-board.json` 工程。数据留在本地，不上传；升级不会主动清除既有白板数据，旧工程格式与本地存储键保持兼容。
-- **摄像展台**：识别已连接的视频输入设备，允许选择/切换摄像头，在实物画面上做彩色批注；视频和批注在本地处理。设备发现和访问取决于浏览器 API、HTTPS/localhost、安全权限、系统授权及驱动。
-- **开发者资料**：应用内“关于”及本 README 均列出完整联系方式。
+## 0.3.0 新增与保留功能
+
+- **5 秒启动页和常驻时间胶囊**：启动时显示“DY Board 正在启动”、倒计时与进度条；随后进入画布。屏幕顶部中央的胶囊每秒刷新本地系统时间。
+- **设置归菜单、笔迹归独立框**：主菜单提供设置、帮助、关于/开发者、全屏切换和退出。画笔颜色与粗细放入独立笔设置框，底部工具带保留绘图工具、页面、历史、展台、工程打开/保存及高级入口。
+- **安全退出**：Electron 通过受限的 preload/IPC 接口退出桌面程序；浏览器/PWA 不允许网页关掉宿主时，会显示明确说明，用户可关闭当前标签页或窗口。
+- **文档摄像展台**：枚举和刷新摄像设备、切换信号源，显示实际输出分辨率和帧率；支持 PNG 拍照、照片栏保存/删除、左右 90°旋转、冻结/继续、镜像、自动/720p/1080p/4K 分辨率请求、显示对比度调节、完整画面适配/铺满及实时批注。设备分辨率取决于摄像头；“清晰度”滑块调整本地画面对比度，不会提升镜头或传感器的光学清晰度。视频与照片只在本机处理，不上传。
+- **高级课堂工具**：全屏时钟、课堂倒计时、激光指示器和跟随指针的屏幕局部放大镜；倒计时可调时长、暂停、继续与重置。按 Esc 或“返回白板”离开模式。
+- **原有白板能力**：黑/白空白画布、多色压感笔、橡皮擦、选择/移动/缩放/删除笔迹、多页管理、撤销/重做、本地自动保存、`.daiyi-board.json` 工程导入/导出及开发者资料继续保留。既有本地存储键和工程 JSON 格式不变，不会因升级主动清除旧数据。
 
 ## 获取与安装
 
-v0.2.0 当前发布的桌面安装包如下：
+- **Windows 桌面**：GitHub Release 提供 NSIS `.exe` 安装向导，含许可说明、安装位置选择、快捷方式、安装后启动与卸载。
+- **macOS 桌面**：Release 提供 `.dmg` 和 `.zip`。
+- **Linux 桌面**：Release 提供 AppImage 与 Debian `.deb`。
+- **浏览器、手机和平板**：通过[在线 PWA](https://baiboard-hesrkue5.manus.space)访问，并按各平台浏览器方式安装/添加到主屏幕。本项目没有单独构建 Android APK 或 iOS IPA。
 
-| 平台 | 安装包 | 架构 |
-| --- | --- | --- |
-| Windows | [NSIS 安装向导 `.exe`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-win-x64.exe) | x64 |
-| macOS | [DMG 安装包](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-mac-arm64.dmg) · [ZIP](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-mac-arm64.zip) | Apple Silicon ARM64 |
-| Linux | [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-linux-amd64.deb) · [AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.2.0/DY-Board-0.2.0-linux-x86_64.AppImage) | x64 / amd64 |
+桌面版已配置的发布目标为 Windows x64、macOS ARM64、Linux x64；其它 CPU 架构以 Release 页面实际产物为准。普通网页不能在没有用户手势时强制隐藏浏览器界面；Electron 启动原生全屏，安装后的 PWA 请求 fullscreen 显示模式。
 
-浏览器与手机/平板可使用[在线 PWA](https://baiboard-hesrkue5.manus.space)，并按各平台浏览器的方式安装或添加到主屏幕。本版本没有单独生成 Android APK 或 iOS IPA。上述桌面包仅覆盖表格列出的 CPU 架构；其他架构可从源码自行构建。
+摄像头仅在用户进入展台后请求授权。Web 摄像 API 需要 HTTPS 或 localhost，并受操作系统隐私授权、浏览器支持和驱动限制。分辨率菜单是理想分辨率请求；如果设备不支持该档位，应用会提示错误并保留原画面。
 
-桌面 NSIS 安装向导提供许可协议、安装位置选择、开始菜单/桌面快捷方式、安装完成启动应用及标准卸载入口；包元数据列出开发者“戴亿”。默认工作流使用 GitHub OIDC/Cosign 对 SHA256 清单进行 keyless 签名，并为安装资产生成 GitHub provenance。它不等同于开发者个人 GPG/SSH 提交签名或 Windows/macOS 厂商代码签名；本仓库不含个人私钥、Windows 代码签名证书或 macOS Developer ID/公证凭证。
+## 校验与签名
 
-### 发布资产验证
+版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。下载后可先运行 `sha256sum -c SHA256SUMS` 校验文件，再用 Release 附带的 `SHA256SUMS.sigstore.json` 和 GitHub provenance 验证发布来源。README 中的仓库、工作流和 tag 身份应与 Release 页面实际版本一致。
 
-在 Release 下载 SHA256 清单、`SHA256SUMS.sigstore.json` bundle 和对应安装包后，可运行：
-
-```bash
-sha256sum -c SHA256SUMS
-cosign verify-blob \
-  --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity-regexp '^https://github.com/DaiYiqq/daiyi-board/.github/workflows/release.yml@refs/tags/v0\.2\.0$' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  SHA256SUMS
-
-gh attestation verify DY-Board-0.2.0-linux-x86_64.AppImage \
-  --repo DaiYiqq/daiyi-board \
-  --signer-workflow github.com/DaiYiqq/daiyi-board/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.2.0 \
-  --source-digest a88bdd72ad7029f3bb195dd5ce4db2df3d8439e6
-```
-
-GitHub Actions 的 v0.2.0 三平台构建已通过；发布包含 12 项可校验资产。已实际验证 SHA256 清单的 GitHub OIDC/Cosign 签名、全部清单哈希，以及限定 v0.2.0 标签与 commit 的 Linux AppImage provenance。GitHub Actions 对后续 `v*` 标签继续运行 Windows/macOS/Linux 构建。
+这属于**Release 资产签名**，不代表个人 Git commit 的 GPG/SSH 签名，也不代表 Windows 代码签名证书或 macOS Developer ID/公证。本仓库不含个人私钥或厂商代码签名凭证。
 
 ## 本地开发
 
@@ -57,37 +40,28 @@ pnpm install
 pnpm dev
 ```
 
-开发服务器默认在 `http://localhost:3000`。运行检查和构建：
+开发服务器默认在 `http://localhost:3000`。检查和构建：
 
 ```bash
 pnpm typecheck
 pnpm build
 ```
 
-在对应平台构建安装包：
+对应平台安装包命令：
 
 | 平台 | 命令 | 产物 |
 | --- | --- | --- |
 | Windows | `pnpm desktop:win` | NSIS `.exe` 安装向导 |
 | macOS | `pnpm desktop:mac` | `.dmg`、`.zip` |
 | Linux | `pnpm desktop:linux` | `.AppImage`、`.deb` |
-| 未安装目录预览 | `pnpm desktop:pack` | 可运行目录 |
+| 本地运行目录 | `pnpm desktop:pack` | 未安装目录 |
 
-摄像头首次访问需要授予操作系统/浏览器权限；非 localhost 的 Web 环境需要 HTTPS。请在清除浏览器站点数据或卸载前导出重要工程。
+## 项目信息
 
-## 工程结构
-
-```text
-src/                    React/TypeScript 白板界面、交互与样式
-public/                 PWA 清单、离线缓存、路由清单和 Yi+ 图标
-electron/               原生全屏桌面主进程与受限 preload
-build/                  Electron 桌面 PNG/ICO 图标
-.github/workflows/      CI 与跨平台 Cosign 签名发布工作流
-```
-
-## 许可证
-
-本项目使用 [MIT License](LICENSE)。欢迎 issue 和 pull request；详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- 源码、问题反馈与 Release：<https://github.com/DaiYiqq/daiyi-board>
+- 许可证：[MIT](LICENSE)
+- 贡献方式：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 页面路由声明：`public/manus-routes.json`
 
 ## 开发者
 

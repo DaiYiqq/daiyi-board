@@ -1,4 +1,4 @@
-const CACHE = 'dy-board-shell-v2';
+const CACHE = 'dy-board-shell-v3';
 const SHELL = ['./', './manifest.webmanifest', './board-mark.svg'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));

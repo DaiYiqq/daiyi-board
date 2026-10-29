@@ -1,7 +1,7 @@
 {
   "name": "DY Board",
   "short_name": "DY Board",
-  "description": "全屏黑白空白板与摄像展台",
+  "description": "全屏黑白白板，含拍照、旋转与画面调节的摄像展台",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
