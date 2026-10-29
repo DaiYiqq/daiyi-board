@@ -1,10 +1,36 @@
-const CACHE = 'dy-board-shell-v3';
+const CACHE = 'dy-board-shell-v4';
 const SHELL = ['./', './manifest.webmanifest', './board-mark.svg'];
+async function cacheAppShell() {
+  const cache = await caches.open(CACHE);
+  await cache.addAll(SHELL);
+  const page = await cache.match('./');
+  if (!page) return;
+  const markup = await page.text();
+  const assets = [...markup.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)]
+    .map((match) => new URL(match[1], self.registration.scope))
+    .filter((url) => url.origin === self.location.origin)
+    .map((url) => url.href);
+  if (assets.length) await cache.addAll(assets);
+}
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil(cacheAppShell());
 });
 self.addEventListener('activate', (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key.startsWith('dy-board-shell-') && key !== CACHE)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  );
+});
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'DY_BOARD_SKIP_WAITING') event.waitUntil(self.skipWaiting());
 });
 self.addEventListener('fetch', (event) => {
   const request = event.request;

@@ -1,10 +1,13 @@
 {
   "name": "daiyi-board",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "description": "A full-screen black or white blank board with document-camera mode by Dai Yi.",
   "homepage": "https://github.com/DaiYiqq/daiyi-board",
-  "repository": { "type": "git", "url": "https://github.com/DaiYiqq/daiyi-board.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaiYiqq/daiyi-board.git"
+  },
   "author": "戴亿 <1703205607@qq.com>",
   "license": "MIT",
   "packageManager": "pnpm@11.25.0",
@@ -23,6 +26,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -43,12 +47,45 @@
     "productName": "DY Board",
     "artifactName": "DY-Board-${version}-${os}-${arch}.${ext}",
     "icon": "build/icon.png",
-    "directories": { "output": "release", "buildResources": "build" },
-    "files": ["dist/**/*", "electron/**/*", "package.json", "LICENSE", "LICENSE.txt"],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "LICENSE",
+      "LICENSE.txt"
+    ],
     "asar": true,
-    "publish": [],
-    "electronLanguages": ["zh-CN", "en-US"],
-    "win": { "icon": "build/icon.ico", "target": [{ "target": "nsis", "arch": ["x64", "arm64"] }], "signtoolOptions": { "publisherName": "戴亿" } },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "DaiYiqq",
+        "repo": "daiyi-board",
+        "releaseType": "release"
+      }
+    ],
+    "electronLanguages": [
+      "zh-CN",
+      "en-US"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "signtoolOptions": {
+        "publisherName": "戴亿"
+      }
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -61,8 +98,41 @@
       "shortcutName": "DY Board",
       "runAfterFinish": true
     },
-    "mac": { "icon": "build/icon.png", "category": "public.app-category.education", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }, { "target": "zip", "arch": ["x64", "arm64"] }], "identity": null, "hardenedRuntime": true, "gatekeeperAssess": false },
-    "dmg": { "sign": false },
-    "linux": { "icon": "build/icon.png", "category": "Education", "target": ["AppImage", "deb"], "maintainer": "戴亿 <1703205607@qq.com>", "synopsis": "DY Board full-screen blank whiteboard" }
+    "mac": {
+      "icon": "build/icon.png",
+      "category": "public.app-category.education",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "identity": null,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "sign": false
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Education",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "maintainer": "戴亿 <1703205607@qq.com>",
+      "synopsis": "DY Board full-screen blank whiteboard"
+    }
   }
 }

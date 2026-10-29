@@ -37,6 +37,21 @@
 - `package.json`、`README.md`、`TODO.md`：版本与下载说明、开发者信息、旧需求保留及本次功能记录。
 - `.github/workflows/`：复用现有 CI、三平台发行、SHA256、Cosign OIDC 与 provenance 工作流。
 
+## DY Board 0.4.0 自动更新与在线升级计划
+
+沿用 0.3.0 的极简黑白界面与 Yi+ 品牌，将应用版本推进到 0.4.0。保留现有本地白板自动保存、工程 JSON 兼容、相机图片本地化处理和全部课堂工具；升级不得清除旧版本用户数据。
+
+- **桌面更新**：将 `electron-updater` 加入运行时依赖，`package.json` 为 GitHub 发布仓库 `DaiYiqq/daiyi-board` 声明 updater 发布源，以生成并随 release 发布 Electron 更新清单。`electron/main.cjs` 在打包版本启动后自动检查更新、定期复查，并提供受信任 IPC 请求；`electron/preload.cjs` 仅暴露检查、下载、安装/重启、状态订阅和打开 Release 页面所需 API。`src/App.tsx` 主菜单提供手动“检查更新”，新版本通知、下载进度与等待重启安装均由用户明确操作；不在白板绘制中途强制下载或重启。Windows 和 Linux AppImage 支持应用内下载/安装；当前 macOS 包未配置 Apple Developer ID 签名，检测到新版本后引导用户到 GitHub Release 手动安装；Linux `.deb` 可自动检查，但新版仅引导用户从 Release 手动更新，不替换系统包。
+- **PWA 更新**：`src/main.tsx` 注册时关闭 `sw.js` HTTP 缓存并检查新 Service Worker；应用启动以及其后定期请求更新。`public/sw.js` 缓存名随版本变化；已有控制器时让新版 Service Worker 暂停等待，页面通过同一更新提示告知用户，只有用户点击“刷新应用”才跳过等待、接管页面并重新加载。首次安装仍可直接激活。更新不删除 `localStorage` 中的白板与设置，不改变工程 JSON；离线时继续使用现有缓存。
+- **用户界面与提示**：沿用黑/白主题、青蓝焦点色和低干扰浮层。在桌面/PWA 新版就绪时显示版本、明确的“下载更新”“现在重启更新”或“刷新应用”按钮；“检查更新”需显示检查中、已是最新版本、下载进度/失败和 Linux `.deb` 手动更新说明。自动启动检查在没有更新时保持安静。
+- **资料和一次性迁移说明**：更新 `APP_VERSION`、Service Worker 缓存标识、`package.json` 和 `README.md` 至 0.4.0；保持现有 Release 签名与 provenance 工作流，并将 `v0.4.0` 发布到 GitHub。0.3.0 的既有安装包没有 updater 代码，必须先手动安装 0.4.0 一次；此后版本可由内置更新器获取。Manus 仍为项目 canonical 主仓，GitHub `DaiYiqq/daiyi-board` 保持公开发行镜像。
+
+项目结构补充：`src/main.tsx` 管理 PWA Service Worker 注册、更新检测及安全激活；`public/sw.js` 管理带版本号的离线缓存与等待/激活；`electron/main.cjs` 和 `electron/preload.cjs` 实现桌面更新检查、下载、状态 IPC 和安装；`src/App.tsx` 与 `src/style.css` 提供统一更新入口和非打断式提示；`package.json` 声明 GitHub updater provider 与应用版本，现有 `.github/workflows/release.yml` 继续构建跨平台安装包、SHA256、Cosign 签名和 provenance。
+
+## 0.4.0 运行边界
+
+桌面在线更新依赖可访问 GitHub Releases；macOS 安装包未使用 Apple Developer ID 签名，因此仅提供新版检测与 Release 手动安装指引；Electron AppImage 更新能力仅适用于 AppImage 启动的 Linux 发行包，Linux `.deb` 由系统包管理/用户手动安装。PWA 必须在线检查到新版 Service Worker 才可提示；用户未确认时旧页面继续工作。0.3.0 既有桌面应用尚无 updater 代码，无法通过 0.4.0 反向注入更新器，需一次手动安装过渡。
+
 ## 运行限制
 
 相机可用分辨率由摄像设备、操作系统和浏览器决定；应用请求理想分辨率并显示实际输出，不能凭软件提升传感器本身的光学清晰度。“清晰度”控件只改变本地预览/导出图的图像对比显示处理。Electron 可真正退出桌面进程；浏览器页不能强行关闭由用户开启的标签。Windows ARM64/macOS Intel 的包是否发布由现有 workflow 目标与 runner 实际产物决定。

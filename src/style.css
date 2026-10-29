@@ -1117,7 +1117,108 @@ input:focus-visible {
   color: var(--text);
   background: var(--surface);
 }
-
+.update-notice {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  width: min(600px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 14px;
+  color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.28);
+  transform: translateX(-50%);
+}
+.update-notice-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-radius: 10px;
+}
+.update-notice-copy {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 4px;
+}
+.update-notice-copy b {
+  font-size: 13px;
+  font-weight: 650;
+}
+.update-notice-copy > span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.update-notice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.update-action-primary,
+.update-action-secondary {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.update-action-primary {
+  color: #fff;
+  background: #286da8;
+}
+.update-action-primary:hover {
+  background: #347fbf;
+}
+.update-action-secondary {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--line);
+}
+.update-dismiss {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  color: var(--quiet);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+}
+.update-dismiss:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+.update-progress {
+  height: 4px;
+  overflow: hidden;
+  background: var(--line);
+  border-radius: 4px;
+}
+.update-progress i {
+  height: 100%;
+  display: block;
+  background: var(--accent);
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
 @media (max-width: 680px) {
   .time-island {
     top: max(7px, env(safe-area-inset-top));
@@ -1158,6 +1259,15 @@ input:focus-visible {
   }
   .timer-controls .timer-primary {
     min-width: 90px;
+  }
+  .update-notice {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .update-notice-actions {
+    width: 100%;
+    margin-left: 44px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

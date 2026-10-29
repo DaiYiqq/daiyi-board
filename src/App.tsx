@@ -4,7 +4,9 @@ import {
   Camera,
   Check,
   CircleHelp,
+  Download,
   Eraser,
+  ExternalLink,
   FilePenLine,
   FolderOpen,
   GripVertical,
@@ -16,6 +18,7 @@ import {
   Pencil,
   Plus,
   Redo2,
+  RefreshCw,
   Save,
   Settings,
   SlidersHorizontal,
@@ -31,10 +34,12 @@ import {
   Play,
 } from 'lucide-react';
 import CameraStage from './components/CameraStage';
+import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
 
 declare global {
   interface Window {
-    boardDesktop?: { platform: string; version: string; quit: () => Promise<boolean> };
+    boardDesktop?: DesktopUpdaterApi;
+    boardPwaUpdates?: PwaUpdaterApi;
   }
 }
 
@@ -53,7 +58,8 @@ type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: To
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.4.0';
+const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const COLORS = [
   '#FFFFFF',
   '#000000',
@@ -215,6 +221,11 @@ export default function App() {
   } | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [startupProgress, setStartupProgress] = useState(0);
+  const [updateState, setUpdateState] = useState<UpdateSnapshot>(() => ({
+    source: window.boardDesktop ? 'desktop' : 'pwa',
+    status: 'idle',
+  }));
+  const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
   const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(10 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -382,6 +393,25 @@ export default function App() {
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    const showIfReady = (snapshot: UpdateSnapshot): void => {
+      setUpdateState(snapshot);
+      if (['available', 'downloading', 'downloaded'].includes(snapshot.status))
+        setUpdateNoticeVisible(true);
+    };
+    const desktop = window.boardDesktop;
+    if (desktop) {
+      const unsubscribe = desktop.subscribeUpdateState(showIfReady);
+      void desktop.getUpdateState().then(showIfReady).catch(() => undefined);
+      return unsubscribe;
+    }
+    const pwa = window.boardPwaUpdates;
+    if (pwa) {
+      const unsubscribe = pwa.subscribeUpdateState(showIfReady);
+      showIfReady(pwa.getUpdateState());
+      return unsubscribe;
+    }
   }, []);
   useEffect(() => {
     if (!timerRunning) return;
@@ -710,6 +740,57 @@ export default function App() {
     }
     window.alert('浏览器不允许网页关闭自身。请使用浏览器的关闭按钮或关闭当前标签页退出 DY Board。');
   };
+  const checkForUpdates = async () => {
+    setPanel(null);
+    setUpdateNoticeVisible(true);
+    if (window.boardDesktop) {
+      setUpdateState({ source: 'desktop', status: 'checking' });
+      try {
+        const started = await window.boardDesktop.checkForUpdates();
+        if (!started) setUpdateState(await window.boardDesktop.getUpdateState());
+      } catch {
+        setUpdateState({
+          source: 'desktop',
+          status: 'error',
+          message: '更新检查失败，请检查网络后重试。',
+        });
+      }
+      return;
+    }
+    if (window.boardPwaUpdates) {
+      setUpdateState(await window.boardPwaUpdates.checkForUpdates());
+      return;
+    }
+    setUpdateState({
+      source: 'pwa',
+      status: 'unsupported',
+      message: '当前环境未启用 PWA 更新服务，请打开在线版后重试。',
+    });
+  };
+  const downloadUpdate = async () => {
+    const desktop = window.boardDesktop;
+    if (!desktop) return;
+    if (!(await desktop.downloadUpdate())) setUpdateState(await desktop.getUpdateState());
+  };
+  const installUpdate = async () => {
+    const desktop = window.boardDesktop;
+    if (desktop && !(await desktop.installUpdate())) setUpdateState(await desktop.getUpdateState());
+  };
+  const applyPwaUpdate = () => {
+    if (!window.boardPwaUpdates?.applyUpdate())
+      setUpdateState({
+        source: 'pwa',
+        status: 'error',
+        message: '未找到待应用的更新，请重新检查。',
+      });
+  };
+  const openReleasePage = async () => {
+    if (window.boardDesktop) {
+      await window.boardDesktop.openReleasePage();
+      return;
+    }
+    window.open(RELEASE_URL, '_blank', 'noopener,noreferrer');
+  };
   const toggleFullscreen = async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
@@ -735,6 +816,39 @@ export default function App() {
     weekday: 'short',
   });
   const timerText = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
+  const updateHeading =
+    updateState.status === 'checking'
+      ? '正在检查更新'
+      : updateState.status === 'available'
+        ? updateState.version
+          ? `发现新版本 ${updateState.version}`
+          : '有新版本可用'
+        : updateState.status === 'downloading'
+          ? '正在下载更新'
+          : updateState.status === 'downloaded'
+            ? '更新已下载'
+            : updateState.status === 'not-available'
+              ? '当前已是最新版本'
+              : updateState.status === 'unsupported'
+                ? '需要手动更新'
+                : '更新检查失败';
+  const updateDescription =
+    updateState.message ??
+    (updateState.status === 'checking'
+      ? '正在连接更新源，请稍候。'
+      : updateState.status === 'available'
+        ? updateState.source === 'pwa'
+          ? '新版已就绪；刷新应用后生效。'
+          : '下载后可选择合适的时间重启安装。'
+        : updateState.status === 'downloading'
+          ? `更新包下载进度 ${Math.round(updateState.percent ?? 0)}%。`
+          : updateState.status === 'downloaded'
+            ? '重启 DY Board 完成安装；当前白板内容已保存在本机。'
+            : updateState.status === 'not-available'
+              ? `当前版本 ${APP_VERSION}。`
+              : updateState.status === 'unsupported'
+                ? '此安装方式不支持应用内更新。'
+                : '请检查网络连接后重试。');
 
   function startTimer() {
     if (timerSeconds <= 0) return;
@@ -1070,6 +1184,13 @@ export default function App() {
                     <span>
                       <b>设置</b>
                       <small>画布、工具栏和界面</small>
+                    </span>
+                  </button>
+                  <button className="menu-item" onClick={() => void checkForUpdates()}>
+                    <RefreshCw size={18} />
+                    <span>
+                      <b>检查更新</b>
+                      <small>自动检查与在线升级</small>
                     </span>
                   </button>
                   <button
@@ -1486,10 +1607,71 @@ export default function App() {
               <span>全屏时钟、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
             </p>
             <div className="modal-bottom">
-              白板工程自动保存在本设备；菜单中可设置、查看关于或退出软件。
+              白板工程自动保存在本设备；菜单中可设置、检查更新、查看关于或退出软件。
             </div>
           </section>
         </div>
+      )}
+      {updateNoticeVisible && updateState.status !== 'idle' && (
+        <aside className="update-notice" role="status" aria-live="polite" aria-atomic="true">
+          <div className="update-notice-mark">
+            <RefreshCw size={18} />
+          </div>
+          <div className="update-notice-copy">
+            <b>{updateHeading}</b>
+            <span>{updateDescription}</span>
+            {updateState.status === 'downloading' && (
+              <div
+                className="update-progress"
+                role="progressbar"
+                aria-label="更新下载进度"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(updateState.percent ?? 0)}
+              >
+                <i style={{ width: `${Math.max(0, Math.min(100, updateState.percent ?? 0))}%` }} />
+              </div>
+            )}
+          </div>
+          <div className="update-notice-actions">
+            {updateState.status === 'available' &&
+              updateState.source === 'desktop' &&
+              updateState.action === 'download' && (
+                <button className="update-action-primary" onClick={() => void downloadUpdate()}>
+                  <Download size={15} /> 下载更新
+                </button>
+              )}
+            {((updateState.status === 'available' && updateState.action === 'release') ||
+              (updateState.status === 'unsupported' && updateState.action === 'release')) && (
+              <button className="update-action-primary" onClick={() => void openReleasePage()}>
+                <ExternalLink size={15} /> 打开 Release
+              </button>
+            )}
+            {updateState.status === 'available' && updateState.source === 'pwa' && (
+              <button className="update-action-primary" onClick={applyPwaUpdate}>
+                刷新应用
+              </button>
+            )}
+            {updateState.status === 'downloaded' && updateState.source === 'desktop' && (
+              <button className="update-action-primary" onClick={() => void installUpdate()}>
+                现在重启更新
+              </button>
+            )}
+            {updateState.status === 'error' && (
+              <button className="update-action-secondary" onClick={() => void checkForUpdates()}>
+                重新检查
+              </button>
+            )}
+            <button
+              className="update-dismiss"
+              onClick={() => setUpdateNoticeVisible(false)}
+              aria-label="关闭更新提示"
+              title="稍后处理"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </aside>
       )}
     </main>
   );
