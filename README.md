@@ -29,7 +29,7 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 - **macOS ARM64 桌面**：[`.dmg`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/DY-Board-0.5.0-mac-arm64.dmg) 或 [`.zip`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/DY-Board-0.5.0-mac-arm64.zip)。
 - **Linux x64 桌面**：[AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/DY-Board-0.5.0-linux-x86_64.AppImage) 或 [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/DY-Board-0.5.0-linux-amd64.deb)。
 - **完整 Release 清单**：[`SHA256SUMS`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/SHA256SUMS)、[Sigstore bundle](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.0/SHA256SUMS.sigstore.json)。
-- **浏览器、手机和平板**：通过[在线 PWA](https://baiboard-hesrkue5.manus.space)访问，并按各平台浏览器方式安装/添加到主屏幕。本项目没有单独构建 Android APK 或 iOS IPA。
+- **浏览器、手机和平板**：通过[在线 PWA](https://baiboard-hesrkue5.manus.space)访问，并按各平台浏览器方式安装/添加到主屏幕。本项目没有单独构建 Android APK 或 iOS IPA。当前在线网页仍为最近一次成功部署的版本；0.5.0 的新工具栏将在 Manus checkpoint 自动发布完成后上线。
 
 桌面版已配置的发布目标为 Windows x64、macOS ARM64、Linux x64；其它 CPU 架构以 Release 页面实际产物为准。普通网页不能在没有用户手势时强制隐藏浏览器界面；Electron 启动原生全屏，安装后的 PWA 请求 fullscreen 显示模式。
 
@@ -37,7 +37,7 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 
 ## 校验与签名
 
-版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.4.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Windows x64 安装器、macOS ARM64 DMG 与 Linux x64 AppImage 的 GitHub provenance 均已针对该仓库、发布工作流、`v0.4.0` 标签和源 commit `bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71` 验证成功。v0.5.0 继续使用相同签名和 provenance 工作流。
+版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.4.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Windows x64 安装器、macOS ARM64 DMG 与 Linux x64 AppImage 的 GitHub provenance 均已针对该仓库、发布工作流、`v0.4.0` 标签和源 commit `bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71` 验证成功。v0.5.0 Release 已由 workflow run `41073826206` 成功构建并发布到 `v0.5.0` 标签源 commit `91536530978d8bc71d7aab70c0d885c4bae22bbd`；SHA256 清单 12 项全部通过，Cosign 返回 `Verified OK`，Windows x64 安装器、macOS ARM64 DMG 和 Linux x64 AppImage 的 provenance 均按仓库、workflow、tag 与 source commit 验证成功；三份桌面 updater metadata 的版本号均为 `0.5.0`。
 
 下载 v0.5.0 Release 附件后，可按以下命令验证清单签名与 Linux AppImage provenance：
 
