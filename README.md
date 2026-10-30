@@ -2,9 +2,9 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **项目源码版本：0.4.0（新增更新能力，发布尚待同步）。最新公开安装包：v0.3.0。** [下载 v0.3.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.3.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.4.0。** [下载 v0.4.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.4.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
 
-## 0.3.0 新增与保留功能
+## 0.4.0 新增与保留功能
 
 - **5 秒启动页和常驻时间胶囊**：启动时显示“DY Board 正在启动”、倒计时与进度条；随后进入画布。屏幕顶部中央的胶囊每秒刷新本地系统时间。
 - **设置归菜单、笔迹归独立框**：主菜单提供设置、帮助、关于/开发者、全屏切换和退出。画笔颜色与粗细放入独立笔设置框，底部工具带保留绘图工具、页面、历史、展台、工程打开/保存及高级入口。
@@ -18,14 +18,14 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 - **桌面端自动检查**：已打包版本启动 12 秒后检查更新，运行期间每 6 小时复查；菜单也可手动“检查更新”。无更新时自动检查不打扰。发现新版后显示版本与状态，下载由用户点击，显示进度，下载完成后也只有用户点击“现在重启更新”才会安装/重启。
 - **桌面端平台范围**：Windows NSIS 与 Linux AppImage 支持应用内下载和用户确认安装。macOS 与 Linux `.deb` 同样自动检查新版，但因当前 macOS 安装包未配置 Apple Developer ID 签名、`.deb` 更新涉及系统级包安装，检测到新版时引导到 GitHub Release 手动安装，不静默提升权限或替换系统安装包。
 - **PWA 更新**：在线版启动时注册并检查新版 Service Worker，之后每 6 小时复查。发现新版后提示“刷新应用”；只有用户点击后才激活新版并重载页面。离线时继续用本地缓存，等待期间旧页面可继续使用；白板页面、偏好设置和工程 JSON 不会因更新被清除。
-- **首次过渡**：v0.3.0 桌面安装包不含更新器，因此必须先手动安装 v0.4.0 一次；后续版本再使用内置更新。桌面更新清单由 GitHub Release 工作流随安装包生成；源码变更推送到 GitHub 并完成 v0.4.0 Release 前，应用内检查无法获取该版本。
+- **首次过渡**：v0.3.0 桌面安装包不含更新器，因此从 v0.3.0 升级需先手动安装 v0.4.0 一次；后续版本再使用内置更新。桌面更新清单由 GitHub Release 工作流随安装包生成。
 
 ## 获取与安装
 
-- **Windows x64 桌面**：[下载安装向导 `.exe`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/DY-Board-0.3.0-win-x64.exe)，含许可说明、安装位置选择、快捷方式、安装后启动与卸载。
-- **macOS ARM64 桌面**：[`.dmg`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/DY-Board-0.3.0-mac-arm64.dmg) 或 [`.zip`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/DY-Board-0.3.0-mac-arm64.zip)。
-- **Linux x64 桌面**：[AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/DY-Board-0.3.0-linux-x86_64.AppImage) 或 [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/DY-Board-0.3.0-linux-amd64.deb)。
-- **完整 Release 清单**：[`SHA256SUMS`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/SHA256SUMS)、[Sigstore bundle](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.3.0/SHA256SUMS.sigstore.json)。
+- **Windows x64 桌面**：[下载安装向导 `.exe`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/DY-Board-0.4.0-win-x64.exe)，含许可说明、安装位置选择、快捷方式、安装后启动与卸载。
+- **macOS ARM64 桌面**：[`.dmg`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/DY-Board-0.4.0-mac-arm64.dmg) 或 [`.zip`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/DY-Board-0.4.0-mac-arm64.zip)。
+- **Linux x64 桌面**：[AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/DY-Board-0.4.0-linux-x86_64.AppImage) 或 [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/DY-Board-0.4.0-linux-amd64.deb)。
+- **完整 Release 清单**：[`SHA256SUMS`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/SHA256SUMS)、[Sigstore bundle](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.4.0/SHA256SUMS.sigstore.json)。
 - **浏览器、手机和平板**：通过[在线 PWA](https://baiboard-hesrkue5.manus.space)访问，并按各平台浏览器方式安装/添加到主屏幕。本项目没有单独构建 Android APK 或 iOS IPA。
 
 桌面版已配置的发布目标为 Windows x64、macOS ARM64、Linux x64；其它 CPU 架构以 Release 页面实际产物为准。普通网页不能在没有用户手势时强制隐藏浏览器界面；Electron 启动原生全屏，安装后的 PWA 请求 fullscreen 显示模式。
@@ -34,7 +34,7 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 
 ## 校验与签名
 
-版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.3.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Linux x64 AppImage 的 GitHub provenance 也已针对该仓库、发布工作流、`v0.3.0` 标签和源 commit `19f1bbfff83c524e8ba7910cf0e0ec62038b4c86` 验证成功。
+版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.4.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Windows x64 安装器、macOS ARM64 DMG 与 Linux x64 AppImage 的 GitHub provenance 均已针对该仓库、发布工作流、`v0.4.0` 标签和源 commit `bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71` 验证成功。
 
 下载 Release 附件后，可按以下示例验证清单签名与 Linux AppImage provenance：
 
@@ -42,14 +42,14 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 sha256sum -c SHA256SUMS
 cosign verify-blob \
   --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity-regexp '^https://github\.com/DaiYiqq/daiyi-board/.github/workflows/release\.yml@refs/tags/v0\.3\.0$' \
+  --certificate-identity-regexp '^https://github\.com/DaiYiqq/daiyi-board/.github/workflows/release\.yml@refs/tags/v0\.4\.0$' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   SHA256SUMS
-gh attestation verify DY-Board-0.3.0-linux-x86_64.AppImage \
+gh attestation verify DY-Board-0.4.0-linux-x86_64.AppImage \
   --repo DaiYiqq/daiyi-board \
   --signer-workflow DaiYiqq/daiyi-board/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.3.0 \
-  --source-digest 19f1bbfff83c524e8ba7910cf0e0ec62038b4c86
+  --source-ref refs/tags/v0.4.0 \
+  --source-digest bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71
 ```
 
 这属于**Release 资产签名**，不代表个人 Git commit 的 GPG/SSH 签名，也不代表 Windows 代码签名证书或 macOS Developer ID/公证。本仓库不含个人私钥或厂商代码签名凭证。
