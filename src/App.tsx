@@ -58,7 +58,7 @@ type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: To
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.4.0';
+const APP_VERSION = '0.5.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const COLORS = [
   '#FFFFFF',
@@ -1247,6 +1247,7 @@ export default function App() {
                       onDrop={() => moveTool(id)}
                       onDragEnd={() => setDragTool(null)}
                       className={`dock-button tool-button ${tool === id ? 'selected' : ''}`}
+                      aria-pressed={tool === id}
                       onClick={() => setTool(id)}
                       title={`${TOOL_LABEL[id]}（可拖动排序）`}
                       aria-label={TOOL_LABEL[id]}

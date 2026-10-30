@@ -547,12 +547,17 @@ export default function CameraStage({
           <RotateCw size={18} />
           <span>右转</span>
         </button>
-        <button onClick={toggleFreeze} title={frozen ? '继续（空格）' : '冻结（空格）'}>
+        <button
+          onClick={toggleFreeze}
+          aria-pressed={frozen}
+          title={frozen ? '继续（空格）' : '冻结（空格）'}
+        >
           {frozen ? <Play size={18} /> : <Pause size={18} />}
           <span>{frozen ? '继续' : '冻结'}</span>
         </button>
         <button
           className={mirror ? 'active' : ''}
+          aria-pressed={mirror}
           onClick={() => setMirror((m) => !m)}
           title="镜像"
         >
@@ -566,6 +571,7 @@ export default function CameraStage({
         <button
           onClick={() => setSettings((s) => !s)}
           className={settings ? 'active' : ''}
+          aria-pressed={settings}
           title="展台设置"
         >
           <Settings size={18} />
