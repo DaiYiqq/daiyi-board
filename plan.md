@@ -44,7 +44,7 @@
 - **桌面更新**：将 `electron-updater` 加入运行时依赖，`package.json` 为 GitHub 发布仓库 `DaiYiqq/daiyi-board` 声明 updater 发布源，以生成并随 release 发布 Electron 更新清单。`electron/main.cjs` 在打包版本启动后自动检查更新、定期复查，并提供受信任 IPC 请求；`electron/preload.cjs` 仅暴露检查、下载、安装/重启、状态订阅和打开 Release 页面所需 API。`src/App.tsx` 主菜单提供手动“检查更新”，新版本通知、下载进度与等待重启安装均由用户明确操作；不在白板绘制中途强制下载或重启。Windows 和 Linux AppImage 支持应用内下载/安装；当前 macOS 包未配置 Apple Developer ID 签名，检测到新版本后引导用户到 GitHub Release 手动安装；Linux `.deb` 可自动检查，但新版仅引导用户从 Release 手动更新，不替换系统包。
 - **PWA 更新**：`src/main.tsx` 注册时关闭 `sw.js` HTTP 缓存并检查新 Service Worker；应用启动以及其后定期请求更新。`public/sw.js` 缓存名随版本变化；已有控制器时让新版 Service Worker 暂停等待，页面通过同一更新提示告知用户，只有用户点击“刷新应用”才跳过等待、接管页面并重新加载。首次安装仍可直接激活。更新不删除 `localStorage` 中的白板与设置，不改变工程 JSON；离线时继续使用现有缓存。
 - **用户界面与提示**：沿用黑/白主题、青蓝焦点色和低干扰浮层。在桌面/PWA 新版就绪时显示版本、明确的“下载更新”“现在重启更新”或“刷新应用”按钮；“检查更新”需显示检查中、已是最新版本、下载进度/失败和 Linux `.deb` 手动更新说明。自动启动检查在没有更新时保持安静。
-- **资料和一次性迁移说明**：更新 `APP_VERSION`、Service Worker 缓存标识、`package.json` 和 `README.md` 至 0.4.0；保持现有 Release 签名与 provenance 工作流，并将 `v0.4.0` 发布到 GitHub。0.3.0 的既有安装包没有 updater 代码，必须先手动安装 0.4.0 一次；此后版本可由内置更新器获取。Manus 仍为项目 canonical 主仓，GitHub `DaiYiqq/daiyi-board` 保持公开发行镜像。
+- **资料和一次性迁移说明**：本计划阶段曾将 `APP_VERSION`、Service Worker 缓存标识、`package.json` 和 `README.md` 升至 0.4.0，并保持 Release 签名与 provenance 工作流。v0.3.0 及更早的既有桌面安装包没有 updater 代码；当前版本为 0.5.0，用户可直接手动安装当前版本一次，之后由内置更新器获取后续版本。Manus 仍为项目 canonical 主仓，GitHub `DaiYiqq/daiyi-board` 保持公开发行镜像。
 
 项目结构补充：`src/main.tsx` 管理 PWA Service Worker 注册、更新检测及安全激活；`public/sw.js` 管理带版本号的离线缓存与等待/激活；`electron/main.cjs` 和 `electron/preload.cjs` 实现桌面更新检查、下载、状态 IPC 和安装；`src/App.tsx` 与 `src/style.css` 提供统一更新入口和非打断式提示；`package.json` 声明 GitHub updater provider 与应用版本，现有 `.github/workflows/release.yml` 继续构建跨平台安装包、SHA256、Cosign 签名和 provenance。
 
