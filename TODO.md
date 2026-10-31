@@ -3,7 +3,7 @@
 ## 既有白板能力（继续保留）
 
 - [x] **白板页面、画布与撤销重做**：提供多页面白板画布，可新建、切换、清空和管理白板页面，并支持基础撤销与重做。已实现页面新建、切换、清空、重命名、删除与撤销/重做。
-- [x] **核心书写、选择与文件恢复**：提供画笔、橡皮擦、选择等核心白板工具；画笔支持多种颜色，并可调整笔触粗细。支持白板内容的选择、移动、缩放与删除，并提供白板工程的本地保存、打开及自动恢复能力。
+- [x] **核心书写、选择与文件恢复**：提供画笔、橡皮擦、选择等核心白板工具；画笔支持多种颜色，并可调整笔触粗细。支持白板内容的选择、移动、缩放与删除；白板工程仅在用户点击“保存”时写入本机并导出 JSON，支持本机旧存档读取和工程文件手动打开，不自动写入新改动。界面偏好仍单独保存在本机。
 - [x] **自定义界面与主题**：保留黑/白画布主题、常用工具配置、偏好保存、快捷键与响应式底部工具栏。
 - [x] **展台摄像模式基础能力**：自动发现已连接的视频设备、选择设备、实时预览和画面批注；摄像发现和访问受设备/系统授权影响。
 - [x] **应用内开发者信息**：展示戴亿、QQ 邮箱 1703205607@qq.com、QQ 1703205607、Gmail daiy91004@gmail.com、抖音 daiyi091004。
@@ -32,8 +32,8 @@
 - [x] **让按钮和主要操作面板统一为透明液态玻璃**：按 Apple 手机 UI 的半透明、背景模糊/饱和、细边缘高光和轻悬浮层次处理；不只底栏，也覆盖展台控件、菜单、设置/笔设置面板、提示卡、时钟胶囊和模态控件。黑色及白色画布主题下文字、选中、焦点、禁用及危险状态都保持清晰；支持键盘焦点、触摸尺寸和 `prefers-reduced-motion`，浏览器不支持背景模糊时仍显示清楚可用的半透明样式。展台控件、弹层、时钟和更新卡已统一使用黑白主题玻璃变量；按钮键盘/触摸状态保留，CSS 提供无 backdrop-filter 的可用回退。
 - [x] **跨平台版本与公开发行**：不改变现有白板内容、页面/笔迹存储、导入导出 JSON、摄像展台和按钮原有操作；版本更新为 0.5.0，README 同步视觉更新和安装链接。保留 Manus canonical 主项目及 `DaiYiqq/daiyi-board` 公开仓库，完成检查后提交并创建 `v0.5.0`，沿用 Windows/macOS/Linux 构建、SHA256、Cosign OIDC 签名与 provenance 工作流。GitHub Release run `41073826206` 成功；`v0.5.0` 指向构建源 commit `91536530978d8bc71d7aab70c0d885c4bae22bbd`，12 项 SHA256 全部通过，Cosign 返回 `Verified OK`，Windows x64、macOS ARM64 和 Linux x64 资产 provenance 均验证成功，桌面 updater 元数据版本均为 `0.5.0`。Manus checkpoint 与在线 PWA 部署另列如下。
 
-- [ ] **Manus 自动发布完成核验**：将 0.5.0 代码保存至 Manus canonical `main`，并由项目现有自动发布流程更新在线 PWA。Manus canonical 已推进到 `cf2e48056d6c45f7d9d5d0c050a7a7fe416c6abd`，平台确认 checkpoint 已保存且自动发布已提交；Dashboard 最终部署结果尚未由平台通知，未确认前不声明在线已更新。
-  - 状态：官方 Git helper 已恢复，`git fetch origin main` 成功，PWA 类型检查、正式构建和路由清单检查通过，canonical 快进推送成功。
+- [ ] **Manus 自动发布完成核验**：将最近的 0.5.1 版本保存到 Manus canonical `main` 并由项目自动发布流程更新在线 PWA。平台已接受 v0.5.1 源 commit `0cfff8021955e1fe616d7ccfacb6d92b21671718` 的 checkpoint 并提交自动发布；Dashboard 最终部署结果尚未通知，未确认前不声明在线已更新。
+  - 状态：官方 Git helper 已恢复；canonical 快进推送成功，PWA 类型检查、正式构建和路由清单检查通过。
   - 后续：只在 Dashboard 查看自动发布最终状态；不为同一 checkpoint 重复推送或重复提交发布。
 
 
@@ -42,4 +42,4 @@
 - [x] **按用户视频重新设计按钮材质和反馈**：白板、底部工具栏、展台和主要浮层中的操作按钮使用乳白透明底色；保留背景透色并加强背景模糊/饱和，添加细白边、柔和浮起阴影和内侧厚度高光。参考视频加入低频斜向流光从左向右掠过；悬停时提升亮度与阴影，按下时轻缩到约 0.95。文字/图标用深色保持可读，选中工具使用绿色描边/图标而不是实心色块，色板本身保持原色，减少动态偏好下停止流光。经用户预览反馈，按钮常态白色背景透明度已从 0.68 调整至 0.42，悬停/按下分别为 0.58/0.72；桌面 Preview 的 computed style 确认为 `rgba(255,255,255,0.42)` 且保留 22px 背景模糊。
 - [x] **取消白板内容自动保存，只允许手动保存工程**：页面、笔迹、活动页和撤销/重做后的白板工程不再随每次更改自动写入本机；不再以计时器自动清除“未保存”状态。继续读取已有的本机工程存档且不主动清理历史数据。只有用户点击底部“保存”时，才将当前工程明确写入本机存储并下载 `.daiyi-board.json` 备份；本机存储写入成功后清除未保存提示，若写入失败则虽下载 JSON 备份仍保留未保存提示并告知用户。打开工程/绘制/切页后显示未保存状态。独立界面偏好仍留存在本机。类型检查及前端生产构建通过，明确只在用户点击保存时写入白板工程。
 - [x] **先提供本地 Preview 等待用户验收**：最初不改变 `0.5.0` 版本号、不提交或推送、不创建 Release；先提供可检查预览。2026-10-31 用户已检查 Preview 并随后明确授权“打包推送至我的github仓库”；现按单独的 0.5.1 发行项继续。
-- [ ] **0.5.1 包构建与签名公开发行**：将 `package.json`、应用内版本号、Service Worker 缓存代号和 README 同步到 `0.5.1`；通过类型检查、前端构建和本地 Linux 安装包构建。保持 Manus canonical `main` 为主仓，不改变 `DaiYiqq/daiyi-board` 公开镜像；保存 Manus checkpoint 后，将意图明确的同一源 commit 快进推送 GitHub `main` 并创建 `v0.5.1` tag。由既有工作流产出 Windows x64、macOS ARM64、Linux x64 安装包及 GitHub updater metadata、SHA256SUMS、Cosign OIDC 签名和 provenance；发布后验证资产摘要、清单签名和三平台 provenance。不得 force-push 或覆盖既有 tag。
+- [x] **0.5.1 包构建与签名公开发行**：将 `package.json`、应用内版本号、Service Worker 缓存代号和 README 同步到 `0.5.1`；通过类型检查、前端构建和本地 Linux 安装包构建。保持 Manus canonical `main` 为主仓，不改变 `DaiYiqq/daiyi-board` 公开镜像；保存 Manus checkpoint 后，将意图明确的同一源 commit 快进推送 GitHub `main` 并创建 `v0.5.1` tag。由既有工作流产出 Windows x64、macOS ARM64、Linux x64 安装包及 GitHub updater metadata、SHA256SUMS、Cosign OIDC 签名和 provenance；发布后验证资产摘要、清单签名和三平台 provenance。不得 force-push 或覆盖既有 tag。Release workflow run `41160415039` 成功；`v0.5.1` 指向源 commit `0cfff8021955e1fe616d7ccfacb6d92b21671718`。SHA256 清单 12 项全通过，Cosign `verify-blob` 为 `Verified OK`；Windows x64 `.exe`、macOS ARM64 `.dmg`、Linux x64 AppImage 和 Debian `.deb` provenance 均验证通过；`latest.yml`、`latest-mac.yml`、`latest-linux.yml` 均为 `0.5.1`。
