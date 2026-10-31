@@ -57,4 +57,4 @@
 - [x] **统一全局乳白玻璃**：`src/style.css` 与 `src/components/CameraStage.css` 将底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时、展台控件统一为乳白（暖白 #FAF8F5）液态玻璃 + 深色墨水，消除「深色玻璃面板 + 白色玻璃按钮」两套混用。
 - [x] **原生 Demo 同步乳白底**：`native/winui3-liquid-glass-dock/` 渲染器新增 `GlassBaseOpacity` 乳白底色参数（默认 0.60），并同步调参面板。
 - [x] **版本号同步 0.7.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.0（源码开发中版本，未打 tag、未发布 Release）。
-- [ ] **（可选）0.7.0 打包与签名发行**：如后续需要，创建 `v0.7.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **0.7.0 打包与签名发行**：已创建 `v0.7.0` tag 并推送，GitHub Actions release workflow run `41179301246` 三平台构建成功并发布 Release；`SHA256SUMS` 12 项、Cosign 签名与 provenance 随 Release 产出。

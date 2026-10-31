@@ -84,4 +84,4 @@
 
 ## DY Board 0.7.0 全局乳白液态玻璃
 
-将网页版 `src/style.css` 与展台 `src/components/CameraStage.css` 的玻璃样式统一为**乳白（暖白 #FAF8F5）液态玻璃**：底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时与展台控件全部乳白半透明底 + 背景模糊 + 高饱和 + 细边高光，文字/图标改用深色墨水；去掉「深色玻璃面板 + 白色玻璃按钮」两套混用。原生 Demo 同步新增 `GlassBaseOpacity` 乳白底色参数。版本号同步至 0.7.0（仅源码，未打 tag、未发布）。
+将网页版 `src/style.css` 与展台 `src/components/CameraStage.css` 的玻璃样式统一为**乳白（暖白 #FAF8F5）液态玻璃**：底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时与展台控件全部乳白半透明底 + 背景模糊 + 高饱和 + 细边高光，文字/图标改用深色墨水；去掉「深色玻璃面板 + 白色玻璃按钮」两套混用。原生 Demo 同步新增 `GlassBaseOpacity` 乳白底色参数。版本号同步至 0.7.0；已创建 `v0.7.0` tag 并由 release workflow run `41179301246` 发布三平台安装包、`SHA256SUMS`、Cosign 签名与 provenance。
