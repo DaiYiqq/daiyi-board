@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import './MapStage.css';
 
-// ⚠ TODO：把这里替换成你的高德地图 JS API Key（用户稍后提供）
-const AMAP_KEY = 'YOUR_AMAP_KEY_HERE';
-// 可选：高德「安全密钥 jscode」，若你开启了安全密钥则填写
-const AMAP_SECURITY = '';
+// 高德地图 JS API Key 与安全密钥
+const AMAP_KEY = '4bf8ad81001dbcaaf1d623e12a35b7c0';
+const AMAP_SECURITY = '3fa94dace23e5db1f941e92fbd25cd2c';
 
 declare global {
   interface Window {
@@ -46,10 +45,12 @@ export default function MapStage({ onExit }: { onExit: () => void }) {
         document.head.appendChild(s);
       });
 
+    // 安全密钥须在加载 JS API 之前注入
+    if (AMAP_SECURITY) window._AMapSecurityConfig = { securityJsCode: AMAP_SECURITY };
+
     loadScript()
       .then(() => {
         if (cancelled || !containerRef.current || !window.AMap?.Map) return;
-        if (AMAP_SECURITY) window._AMapSecurityConfig = { securityJsCode: AMAP_SECURITY };
         map = new window.AMap.Map(containerRef.current, {
           zoom: 11,
           center: [116.397428, 39.90923], // 默认北京
