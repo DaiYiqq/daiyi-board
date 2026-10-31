@@ -2,7 +2,11 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.7.0。** [下载 v0.7.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.7.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.7.0。** [下载 v0.7.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.7.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.7.1**（原生 Demo 液态玻璃着色器重写，尚未打 tag / 发布）。
+
+## 0.7.1 原生 Demo 液态玻璃着色器重写
+
+- 原生 `native/winui3-liquid-glass-dock/` 改用真正的 **HLSL 像素着色器**（`LiquidGlassPill.hlsl` / `.cso`）实现边缘折射、RGB 色散与流动镜面高光，抛弃「半透明 + 模糊 + 白边」的毛玻璃卡片观感；底栏改为悬浮胶囊（Pill），每个工具按钮是独立小胶囊（`LiquidGlassPillButton`），支持悬停透镜光斑、按压 Q 弹回弹；新增 `UseShader` 在「着色器 / 内置效果」间 A/B 切换。本项仅改原生参考 Demo，不影响 Electron/PWA 主应用。
 
 ## 0.7.0 全局乳白液态玻璃
 

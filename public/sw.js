@@ -1,4 +1,4 @@
-const CACHE = 'dy-board-shell-v0.7.0';
+const CACHE = 'dy-board-shell-v0.7.1';
 const SHELL = ['./', './manifest.webmanifest', './board-mark.svg'];
 async function cacheAppShell() {
   const cache = await caches.open(CACHE);
