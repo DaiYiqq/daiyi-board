@@ -58,7 +58,7 @@ type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: To
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.6.0';
+const APP_VERSION = '0.7.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const COLORS = [
   '#FFFFFF',

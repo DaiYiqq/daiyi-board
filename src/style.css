@@ -1741,3 +1741,134 @@ input:focus-visible {
     background: rgba(255, 255, 255, 0.82);
   }
 }
+
+
+/* =====================================================================
+   DY Board 0.7.0 — 全局乳白液态玻璃
+   统一所有玻璃表面为乳白底 + 深色墨水，并把启动层 / 全屏模式也玻璃化。
+   乳白底色：#FAF8F5（暖白，非纯白、非冷灰），背景模糊 + 高饱和 + 细边高光。
+   ===================================================================== */
+.app-shell {
+  --glass-panel: rgba(250, 248, 245, 0.68);
+  --glass-panel-strong: rgba(253, 251, 248, 0.9);
+  --glass-edge: rgba(255, 255, 255, 0.55);
+  --glass-highlight: rgba(255, 255, 255, 0.88);
+  --glass-control: rgba(255, 255, 255, 0.4);
+  --glass-control-hover: rgba(255, 255, 255, 0.66);
+  --glass-shadow: 0 18px 48px rgba(42, 50, 62, 0.18);
+  --glass-ink: rgba(30, 32, 38, 0.94);
+  --glass-ink-muted: rgba(78, 83, 92, 0.94);
+  --glass-ink-quiet: rgba(112, 117, 125, 0.94);
+  --glass-button-bg: rgba(252, 250, 247, 0.5);
+  --glass-button-hover: rgba(255, 255, 255, 0.72);
+  --glass-button-pressed: rgba(255, 255, 255, 0.88);
+  --glass-button-ink: rgba(30, 32, 38, 0.94);
+  --glass-button-edge: rgba(255, 255, 255, 0.9);
+}
+.app-shell.theme-light {
+  --glass-panel: rgba(255, 254, 252, 0.58);
+  --glass-panel-strong: rgba(255, 254, 252, 0.9);
+  --glass-edge: rgba(92, 98, 108, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-control: rgba(255, 255, 255, 0.52);
+  --glass-control-hover: rgba(255, 255, 255, 0.84);
+  --glass-shadow: 0 16px 40px rgba(60, 70, 86, 0.14);
+}
+
+/* 玻璃表面内统一使用深色墨水，保证乳白玻璃上的可读性 */
+.bottom-dock,
+.toolbar-popover,
+.toolbar-menu,
+.customizer-popover,
+.info-modal,
+.update-notice,
+.time-island,
+.mode-close,
+.timer-controls,
+.advanced-overlay {
+  --text: var(--glass-ink);
+  --muted: var(--glass-ink-muted);
+  --quiet: var(--glass-ink-quiet);
+  color: var(--glass-ink);
+}
+
+/* 底栏：乳白玻璃 */
+.bottom-dock {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
+.bottom-dock .dock-button { color: var(--glass-ink-muted); }
+.bottom-dock .dock-button:hover { color: var(--glass-ink); }
+.bottom-dock .dock-button.selected { color: var(--dock-active-ink); }
+.bottom-dock .dock-divider { background: rgba(30, 32, 38, 0.12); }
+.bottom-dock .dock-select { color: var(--glass-ink); background: var(--glass-control); border-color: var(--glass-edge); }
+.bottom-dock .dock-page-count,
+.bottom-dock .dock-save-state { color: var(--glass-ink-quiet); }
+.bottom-dock .dock-zoom-value { color: var(--glass-ink-muted); }
+
+/* 浮层 / 菜单 / 弹层：更强玻璃 + 深色墨水 */
+.toolbar-popover,
+.toolbar-menu,
+.customizer-popover,
+.info-modal,
+.update-notice {
+  background: var(--glass-panel-strong);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(34px) saturate(180%);
+  backdrop-filter: blur(34px) saturate(180%);
+}
+
+/* 时间胶囊 */
+.time-island {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  backdrop-filter: blur(24px) saturate(175%);
+}
+.time-island small { color: var(--glass-ink-muted); }
+.island-separator { background: rgba(30, 32, 38, 0.16); }
+
+/* 模式返回 / 计时器按钮 */
+.mode-close,
+.timer-controls button,
+.timer-reset {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  color: var(--glass-ink);
+}
+.timer-controls .timer-primary { color: #fff; }
+
+/* 启动层：乳白玻璃（不再是不透明黑） */
+.startup-overlay {
+  background: var(--glass-panel-strong);
+  -webkit-backdrop-filter: blur(32px) saturate(175%);
+  backdrop-filter: blur(32px) saturate(175%);
+  color: var(--glass-ink);
+}
+.startup-title { color: var(--glass-ink); }
+.startup-caption { color: var(--glass-ink-muted); }
+.startup-countdown { color: var(--glass-ink-quiet); }
+.startup-logo {
+  color: var(--glass-ink);
+  background: linear-gradient(145deg, #ffffff, #efece6);
+  border-color: var(--glass-edge);
+}
+.startup-progress { background: rgba(30, 32, 38, 0.1); }
+
+/* 全屏时钟 / 倒计时：乳白玻璃 */
+.advanced-overlay {
+  background: var(--glass-panel-strong);
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+  backdrop-filter: blur(30px) saturate(175%);
+}
+.clock-mode-time,
+.timer-mode-time { color: var(--glass-ink); }
+.clock-mode-date,
+.timer-mode > p { color: var(--glass-ink-muted); }
+.clock-mode .eyebrow,
+.timer-mode .eyebrow { color: var(--glass-ink-quiet); }
+
+/* 开发者标记 / 帮助弹层内的次要面板 */
+.developer-mark { background: linear-gradient(145deg, #ffffff, #f0ede8); }

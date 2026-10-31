@@ -76,6 +76,15 @@
 
                 <StackPanel Spacing="3">
                     <Grid>
+                        <TextBlock Text="乳白底色 GlassBaseOpacity" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding GlassBaseOpacity, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Value="{Binding GlassBaseOpacity, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
                         <TextBlock Text="染色强度 TintStrength" FontSize="12" Foreground="#C9D0D8" />
                         <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
                                    Text="{Binding TintStrength, StringFormat='{}{0:F2}'}" />

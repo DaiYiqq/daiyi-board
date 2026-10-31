@@ -41,7 +41,11 @@ public sealed class LiquidGlassParameters : INotifyPropertyChanged
     public float GlareFollow { get => _glareFollow; set => Set(ref _glareFollow, value); }
 
     // ---------------- 染色 ----------------
-    private float _tintStrength = 0.16f;
+    private float _glassBaseOpacity = 0.60f;
+    /// <summary>乳白玻璃底色强度（0..1）。越大玻璃越“奶白”越不透明；0 则完全透出背景。</summary>
+    public float GlassBaseOpacity { get => _glassBaseOpacity; set => Set(ref _glassBaseOpacity, value); }
+
+    private float _tintStrength = 0.12f;
     /// <summary>采样背景色并融入自身色调的强度（0..1）。</summary>
     public float TintStrength { get => _tintStrength; set => Set(ref _tintStrength, value); }
 

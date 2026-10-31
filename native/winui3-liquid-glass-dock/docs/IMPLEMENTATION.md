@@ -103,8 +103,9 @@ public sealed class LiquidGlassParameters : INotifyPropertyChanged
     public float GlareRange   { get; set; } = 0.30f; // 高光向下衰减范围(占高度)
     public float GlareFollow  { get; set; } = 0.16f; // 指针跟随平滑系数
     // 染色
-    public float TintStrength { get; set; } = 0.16f; // 染色强度
-    public float Desaturation { get; set; } = 0.55f; // 去饱和(0..1)
+    public float GlassBaseOpacity { get; set; } = 0.60f; // 乳白玻璃底色强度(0..1)
+    public float TintStrength     { get; set; } = 0.12f; // 背景色相融入强度
+    public float Desaturation     { get; set; } = 0.55f; // 去饱和(0..1)
     // 模糊 / 滑动 / 书写 / 性能
     public float CenterBlur       { get; set; } = 10f;
     public float SpringStiffness  { get; set; } = 560f;

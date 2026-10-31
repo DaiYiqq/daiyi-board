@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.5.1。** [下载 v0.5.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.5.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.6.0**（尚未打 tag / 发布）。
+> **最新公开版本：v0.5.1。** [下载 v0.5.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.5.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.7.0**（尚未打 tag / 发布）。
+
+## 0.7.0 全局乳白液态玻璃
+
+- **统一全局乳白玻璃**：底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时、展台控件全部统一为**乳白（暖白 #FAF8F5）液态玻璃**——乳白半透明底 + 背景模糊 + 高饱和 + 细边高光，文字/图标改用深色墨水保证可读；不再混用「深色玻璃面板 + 白色玻璃按钮」两套样式。
+- **原生 Demo 同步乳白底**：`native/winui3-liquid-glass-dock/` 的玻璃渲染器新增 `GlassBaseOpacity` 乳白底色参数（默认 0.60），观感与网页版一致。
 
 ## 0.6.0 原生 WinUI 3 液态玻璃参考实现（开发中）
 

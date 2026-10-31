@@ -162,7 +162,13 @@ public sealed class LiquidGlassEffectRenderer
             var srcInCrop = new Rect(margin, margin, destRect.Width, destRect.Height);
             ds.DrawImage(graded, destRect, srcInCrop, 1f, CanvasImageInterpolation.HighQualityCubic);
 
-            // 动态染色（去饱和后的背景平均色，轻微叠加）
+            // 乳白玻璃底色（暖白 #FAF8F5，叠加在折射背景上形成“奶白”质感；书写时更透）
+            float baseAlpha = p.GlassBaseOpacity * (isWriting ? 0.72f : 1f);
+            if (baseAlpha > 0.004f)
+                ds.FillRoundedRectangle(destRect, cornerRadius, cornerRadius,
+                    Color.FromArgb((byte)Math.Clamp(baseAlpha * 255f, 0, 255), 250, 248, 245));
+
+            // 动态染色（去饱和后的背景平均色，仅作极轻的色相融入）
             if (tintStrength > 0.002f)
                 ds.FillRoundedRectangle(destRect, cornerRadius, cornerRadius,
                     Color.FromArgb((byte)Math.Clamp(tintStrength * 255f, 0, 255), tintColor.R, tintColor.G, tintColor.B));

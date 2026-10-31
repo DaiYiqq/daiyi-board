@@ -50,3 +50,11 @@
 - [x] **新增 WinUI 3 液态玻璃底部工具栏 Demo**：`native/winui3-liquid-glass-dock/` 提供可运行的 WinUI 3 / Windows App SDK + Win2D 白板底部按钮栏，真实采样白板背景做位移折射/色散/去饱和染色/镜面高光，支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。仅作参考实现，不改动 Electron/PWA 主应用。
 - [x] **版本号同步 0.6.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.6.0（源码开发中版本，未打 tag、未发布 Release）。
 - [ ] **（可选）0.6.0 打包与签名发行**：如后续需要，创建 `v0.6.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+
+
+## DY Board 0.7.0 全局乳白液态玻璃
+
+- [x] **统一全局乳白玻璃**：`src/style.css` 与 `src/components/CameraStage.css` 将底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时、展台控件统一为乳白（暖白 #FAF8F5）液态玻璃 + 深色墨水，消除「深色玻璃面板 + 白色玻璃按钮」两套混用。
+- [x] **原生 Demo 同步乳白底**：`native/winui3-liquid-glass-dock/` 渲染器新增 `GlassBaseOpacity` 乳白底色参数（默认 0.60），并同步调参面板。
+- [x] **版本号同步 0.7.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.0（源码开发中版本，未打 tag、未发布 Release）。
+- [ ] **（可选）0.7.0 打包与签名发行**：如后续需要，创建 `v0.7.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。

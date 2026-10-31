@@ -80,3 +80,8 @@
 ## DY Board 0.6.0 原生 WinUI 3 液态玻璃参考实现（开发中）
 
 新增 `native/winui3-liquid-glass-dock/` 独立 WinUI 3 / Windows App SDK + Win2D 参考项目：用「白板离屏快照 + 位移折射 + 三通道色散 + 去饱和染色 + 镜面高光 + 柔和阴影」实现接近 Apple Liquid Glass 的底部工具栏，支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。该 Demo 不影响现有 Electron/PWA 主应用，不改变 Web 端产物；版本号同步至 0.6.0（仅源码，未打 tag、未构建安装包、未发布 Release）。
+
+
+## DY Board 0.7.0 全局乳白液态玻璃
+
+将网页版 `src/style.css` 与展台 `src/components/CameraStage.css` 的玻璃样式统一为**乳白（暖白 #FAF8F5）液态玻璃**：底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时与展台控件全部乳白半透明底 + 背景模糊 + 高饱和 + 细边高光，文字/图标改用深色墨水；去掉「深色玻璃面板 + 白色玻璃按钮」两套混用。原生 Demo 同步新增 `GlassBaseOpacity` 乳白底色参数。版本号同步至 0.7.0（仅源码，未打 tag、未发布）。
