@@ -82,3 +82,11 @@
 - [x] **实时状态**：按系统时间识别单/双周与当前节次，区分「上课中 / 休息中 / 已下课 / 无课」并提示距离下节课分钟数；启动页与灵动岛同步显示。
 - [x] **版本号同步 0.9.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.9.0。
 - [x] **0.9.0 打包与签名发行**：已创建 `v0.9.0` tag 并推送，GitHub Actions release workflow run `41190431106` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 1.0.0 教学工具与地理地图
+
+- [x] **教学工具（地理地图）**：高级菜单新增「教学工具」，内置「地理地图」——基于高德地图（AMap，含 Key 与安全密钥），支持全屏查看与返回白板。
+- [x] **界面修复**：玻璃表面作用域内统一浅色控件面/边框，修复课程表编辑器「黑字黑框」对比度问题。
+- [x] **版本号同步 1.0.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.0。
+- [ ] **1.0.0 打包与签名发行**：待创建 `v1.0.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。

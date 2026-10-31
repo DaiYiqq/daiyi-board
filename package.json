@@ -1,6 +1,6 @@
 {
   "name": "daiyi-board",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": false,
   "description": "A full-screen black or white blank board with document-camera mode by Dai Yi.",
   "homepage": "https://github.com/DaiYiqq/daiyi-board",

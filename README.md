@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.9.0。** [下载 v0.9.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.9.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.9.0。** [下载 v0.9.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.9.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v1.0.0**（教学工具与地理地图，尚未打 tag / 发布）。
+
+## 1.0.0 教学工具与地理地图
+
+- **教学工具**：高级菜单新增「教学工具」，内置「地理地图」——基于高德地图（AMap），支持全屏查看与返回白板。
+- **界面修复**：课程表网格编辑器在乳白玻璃下的输入框/边框改为「深字浅底」，修复「黑字黑框看不见」的对比度问题。
 
 ## 0.9.0 课程表网格化（单双周 + 节次）
 
