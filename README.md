@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.8.0。** [下载 v0.8.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.8.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.8.0。** [下载 v0.8.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.8.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.9.0**（课程表网格化，尚未打 tag / 发布）。
+
+## 0.9.0 课程表网格化（单双周 + 节次）
+
+- **网格课表**：课程表从列表升级为「节次 1–9 × 周一~周日」的网格，支持单双周两套课表；设置里打开网格编辑器，可点击单元格编辑课程、快速填充、修改每节起止时间并在保存时校验格式。
+- **实时状态**：按系统时间自动识别单/双周与当前节次，区分「上课中 / 休息中 / 已下课 / 无课」，并提示距离下节课的分钟数；启动页与顶部灵动岛同步显示。
 
 ## 0.8.0 内置课程表
 
