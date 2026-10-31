@@ -561,3 +561,23 @@
     background-color: rgba(24, 29, 38, 0.96);
   }
 }
+
+
+/* Keep camera actions on the same white translucent glass as the main dock. */
+.app-shell .camera-stage .camera-stage-toolbar button.active:not([style*='background']) {
+  color: #0b7547;
+  background: var(--glass-button-bg, rgba(255, 255, 255, 0.42));
+  border-color: rgba(26, 149, 91, 0.62);
+  box-shadow:
+    0 5px 17px rgba(17, 125, 75, 0.16),
+    inset 0 0 0 1px rgba(26, 149, 91, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+.app-shell .camera-stage .camera-stage-toolbar .camera-stage-shutter:not([style*='background']) {
+  color: #0b7547;
+  font-weight: 650;
+}
+.app-shell .camera-stage .camera-stage-toolbar .camera-stage-exit:not([style*='background']),
+.app-shell .camera-stage .camera-stage-error button:not([style*='background']) {
+  color: #a82d35;
+}

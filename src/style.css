@@ -1618,3 +1618,126 @@ input:focus-visible {
 .app-shell .mode-close {
   position: absolute;
 }
+
+
+/* DY Board local preview — video-matched white liquid-glass buttons */
+.app-shell {
+  --glass-button-bg: rgba(255, 255, 255, 0.42);
+  --glass-button-hover: rgba(255, 255, 255, 0.58);
+  --glass-button-pressed: rgba(255, 255, 255, 0.72);
+  --glass-button-ink: rgba(23, 27, 33, 0.92);
+  --glass-button-edge: rgba(255, 255, 255, 0.82);
+  --glass-button-shadow:
+    0 7px 22px rgba(10, 18, 28, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(31, 39, 50, 0.1);
+}
+
+.app-shell button:not(.swatch):not(.dock-swatch):not([style*='background']) {
+  overflow: hidden;
+  border: 1px solid var(--glass-button-edge);
+  border-radius: 14px;
+  color: var(--glass-button-ink);
+  background: var(--glass-button-bg);
+  box-shadow: var(--glass-button-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  backdrop-filter: blur(22px) saturate(185%);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    transform 0.16s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.app-shell button:not(.swatch):not(.dock-swatch):not([style*='background'])::before {
+  inset: 0 -110%;
+  border-radius: inherit;
+  background: linear-gradient(
+    108deg,
+    transparent 37%,
+    rgba(255, 255, 255, 0.96) 49%,
+    rgba(255, 255, 255, 0.28) 53%,
+    transparent 66%
+  );
+  opacity: 0;
+  transform: translateX(-68%) skewX(-16deg);
+  animation: dy-glass-sheen 7.4s ease-in-out infinite;
+}
+
+@keyframes dy-glass-sheen {
+  0%,
+  73%,
+  100% {
+    opacity: 0;
+    transform: translateX(-68%) skewX(-16deg);
+  }
+  77% {
+    opacity: 0.48;
+  }
+  91% {
+    opacity: 0.1;
+    transform: translateX(68%) skewX(-16deg);
+  }
+}
+
+.app-shell button:not(.swatch):not(.dock-swatch):not([style*='background']):hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.98);
+  color: #12171e;
+  background: var(--glass-button-hover);
+  box-shadow:
+    0 10px 28px rgba(10, 18, 28, 0.19),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(31, 39, 50, 0.12);
+  transform: translateY(-1px);
+}
+
+.app-shell button:not(.swatch):not(.dock-swatch):not([style*='background']):active:not(:disabled) {
+  background: var(--glass-button-pressed);
+  box-shadow:
+    0 2px 7px rgba(10, 18, 28, 0.15),
+    inset 0 2px 5px rgba(28, 36, 46, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  transform: scale(0.95);
+}
+
+.app-shell .bottom-dock .dock-button.selected:not([style*='background']) {
+  color: #0b7547;
+  background: var(--glass-button-bg);
+  border-color: rgba(26, 149, 91, 0.62);
+  box-shadow:
+    0 5px 17px rgba(17, 125, 75, 0.16),
+    inset 0 0 0 1px rgba(26, 149, 91, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+
+.app-shell .bottom-dock .dock-button.dock-danger,
+.app-shell .bottom-dock .dock-button.dock-exit:hover:not(:disabled),
+.app-shell .camera-stage-toolbar .camera-stage-exit {
+  color: #a82d35;
+}
+
+.app-shell .bottom-dock .dock-save-button {
+  position: relative;
+}
+.app-shell .dock-save-indicator {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  background: #e19a25;
+  box-shadow: 0 1px 4px rgba(18, 25, 35, 0.35);
+  pointer-events: none;
+}
+.app-shell .dock-save-state.is-dirty {
+  color: #9b6712;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-shell button:not(.swatch):not(.dock-swatch):not([style*='background']) {
+    background: rgba(255, 255, 255, 0.82);
+  }
+}

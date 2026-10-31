@@ -58,7 +58,7 @@ type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: To
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.5.0';
+const APP_VERSION = '0.5.1';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const COLORS = [
   '#FFFFFF',
@@ -161,7 +161,7 @@ function readBoard(): BoardData {
         };
     }
   } catch {
-    /* Ignore a corrupt autosave and start with a clean board. */
+    /* Ignore an invalid saved board and start with a clean board. */
   }
   const page = { id: 'welcome-board', title: '白板 01', marks: [] };
   return { version: 1, pages: [page], activePage: page.id };
@@ -203,7 +203,7 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
   const [dirty, setDirty] = useState(false);
-  const [savedAt, setSavedAt] = useState('已自动保存');
+  const [savedAt, setSavedAt] = useState('点击底部“保存”手动保存工程');
   const [dragTool, setDragTool] = useState<Tool | null>(null);
   const [layoutTick, setLayoutTick] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -359,23 +359,12 @@ export default function App() {
   }, [active, selected, panel, zoom, pages, layoutTick]);
 
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ version: 1, pages, activePage } satisfies BoardData),
-    );
-    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-  }, [pages, activePage, prefs]);
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      if (dirty) {
-        setSavedAt(
-          `刚刚保存 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`,
-        );
-        setDirty(false);
-      }
-    }, 1200);
-    return () => window.clearInterval(timer);
-  }, [dirty]);
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    } catch {
+      /* Interface preferences are optional; board content is saved only on explicit action. */
+    }
+  }, [prefs]);
   useEffect(() => {
     const resize = () => setLayoutTick((tick) => tick + 1);
     window.addEventListener('resize', resize);
@@ -682,7 +671,14 @@ export default function App() {
     }
   };
   const saveFile = () => {
-    const file = new Blob([JSON.stringify({ version: 1, pages, activePage }, null, 2)], {
+    const board: BoardData = { version: 1, pages, activePage };
+    let savedToDevice = true;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
+    } catch {
+      savedToDevice = false;
+    }
+    const file = new Blob([JSON.stringify(board, null, 2)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(file);
@@ -691,8 +687,10 @@ export default function App() {
     a.download = `白板工程-${new Date().toISOString().slice(0, 10)}.daiyi-board.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setSavedAt('工程已导出');
-    setDirty(false);
+    setSavedAt(savedToDevice ? '已手动保存到本机并导出备份' : '已导出备份；本机存储不可用');
+    setDirty(!savedToDevice);
+    if (!savedToDevice)
+      window.alert('工程 JSON 备份已下载，但本机存储不可用。请妥善保存下载的工程文件。');
   };
   const openFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -709,7 +707,7 @@ export default function App() {
       commit(parsed.pages);
       setActivePage(nextActive);
       activeRef.current = nextActive;
-      setSavedAt('工程已打开');
+      setSavedAt('工程已打开，尚未手动保存');
     } catch {
       window.alert('无法打开该白板工程。请确认文件来自 DY Board 导出的 .json 文件。');
     }
@@ -1286,6 +1284,7 @@ export default function App() {
                     setActivePage(e.target.value);
                     activeRef.current = e.target.value;
                     setSelected(null);
+                    setDirty(true);
                   }}
                   aria-label="当前白板页面"
                 >
@@ -1402,16 +1401,17 @@ export default function App() {
                   <span>打开</span>
                 </button>
                 <button
-                  className="dock-button dock-secondary"
+                  className={`dock-button dock-secondary dock-save-button${dirty ? ' is-dirty' : ''}`}
                   onClick={saveFile}
-                  title={savedAt}
-                  aria-label="保存工程"
+                  title={dirty ? '有未保存更改；点击后保存到本机并下载 JSON 备份' : savedAt}
+                  aria-label={dirty ? '手动保存工程；当前有未保存更改' : '手动保存白板工程'}
                 >
                   <Save size={17} />
                   <span>保存</span>
+                  {dirty && <i className="dock-save-indicator" aria-hidden="true" />}
                 </button>
-                <span className="dock-save-state" aria-live="polite">
-                  {savedAt}
+                <span className={`dock-save-state${dirty ? ' is-dirty' : ''}`} aria-live="polite">
+                  {dirty ? '有未保存更改' : savedAt}
                 </span>
                 <button
                   className={`dock-button ${panel === 'advanced' ? 'selected' : ''}`}
@@ -1608,7 +1608,7 @@ export default function App() {
               <span>全屏时钟、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
             </p>
             <div className="modal-bottom">
-              白板工程自动保存在本设备；菜单中可设置、检查更新、查看关于或退出软件。
+              白板工程不会自动保存；点击底部“保存”可保存到本机并下载 JSON 备份。界面偏好会单独记忆；菜单中可设置、检查更新、查看关于或退出软件。
             </div>
           </section>
         </div>

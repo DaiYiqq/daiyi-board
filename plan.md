@@ -64,3 +64,14 @@
 采用原生 Web CSS `backdrop-filter`、高饱和背景采样、淡色调、内侧高光、柔和边缘和轻微悬浮阴影，统一应用于主工具栏、展台工具栏、所有交互按钮、菜单与设置浮层、提示卡片、时钟胶囊及模态面板。黑白画布主题各自选取足够不透明的玻璃底色与文字颜色，活动工具沿用参考图片中的绿色强调；键盘焦点、禁用/危险操作、触摸尺寸和减少动态效果偏好保持可识别。`backdrop-filter` 不受支持时退化为稳定的不透明度较高的半透明底色，确保 Electron、现代浏览器、PWA 和低性能设备仍可用。
 
 用户提供的参考链接 `https://github.com/pratikone/liquid-glass-WinUI` 是 WinUI 3/Win2D 原生演示，使用实时背景取样与 blur/turbulence/displacement/tint/blend 效果链。该工程的 C#/Win2D GPU 实现不直接移植；DY Board 使用 CSS 近似模糊、饱和与高光，不引入 Windows 专属依赖或把工具条重效果渲染叠加到白板画布上。完成后将应用版本升至 0.5.0，README/待办同步视觉变化，在 Manus 保持 canonical 的前提下提交 GitHub 公开仓库与签名 Release。
+
+
+## 用户视频参考的按钮材质与手动保存预览（未发布）
+
+用户于 2026-10-31 提供本地视频 `SVID_20261031_094613_1.mp4`，分析显示按钮为乳白半透明面（约 0.4–0.6 alpha）、20px 左右背景模糊与饱和、细白边缘高光、柔和 5–10px 悬浮阴影、斜向白色流光由左至右扫过；交互含 hover 增亮/扩散阴影与按下缩至约 0.95。此次预览把这些视觉用于白板、展台和主要弹层中的非色板按钮，底色统一为白色透明、深灰图标/文字，选中态保留绿色描边/图标提示，不用实心绿色/蓝色覆盖玻璃底色；流光克制且支持 `prefers-reduced-motion`，无 `backdrop-filter` 时仍有足够清晰的白玻璃底。
+
+关闭白板工程 pages/activePage 的自动写入与定时清除 dirty 的计时器；保留旧 `localStorage` 数据读取，不升级时清空任何数据。用户点击“手动保存”时才将当前工程写入本机 `STORAGE_KEY` 并下载 `.daiyi-board.json`，显示未保存/已保存状态。个人界面偏好（主题、紧凑模式和工具可见性）仍沿用其独立本机偏好存储。该改动最初仅做本地 Preview；2026-10-31 用户确认效果后授权打包并推送 GitHub，Preview-only 限制现已由该新授权取代。
+
+## DY Board 0.5.1 打包与发行
+
+将 `package.json`、应用关于/更新提示中的 `APP_VERSION` 与 Service Worker 缓存代号同步为 0.5.1；README 在正式资产可用后更新到 v0.5.1。保留既有 0.5.0 tag 和完整 Git 历史。先在 Manus canonical `main` 集成并保存本次意图明确的源文件，按项目已启用的 auto-publish 保存 checkpoint；再将相同源 commit 与 `v0.5.1` tag 快进同步至用户指定的公开仓库 `DaiYiqq/daiyi-board`，由现有 GitHub Actions 为 Windows、macOS 和 Linux 构建安装包、SHA256 清单、Cosign OIDC 签名和 provenance。任何一端非快进时停止并保留双方历史；不切换 Manus canonical 到 GitHub、不 force-push。
