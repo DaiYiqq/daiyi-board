@@ -65,4 +65,4 @@
 - [x] **HLSL 像素着色器**：`native/winui3-liquid-glass-dock/` 新增 `Shaders/LiquidGlassPill.hlsl`（fxc 编译为 `.cso`，已随仓库提交）实现边缘折射、RGB 色散、流动镜面高光；`LiquidGlassShaderEffect.cs` 封装 Win2D `PixelShaderEffect`。
 - [x] **胶囊按钮与 A/B 切换**：`GlassDock` 的工具按钮全部换成 `LiquidGlassPillButton` 独立小胶囊；新增 `UseShader` 参数与调参开关，可在「HLSL 着色器 / 内置效果」间切换。本项仅改原生 Demo，不影响 Electron/PWA 主应用。
 - [x] **版本号同步 0.7.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.1。
-- [ ] **0.7.1 打包与签名发行**：待创建 `v0.7.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **0.7.1 打包与签名发行**：已创建 `v0.7.1` tag 并推送，GitHub Actions release workflow run `41184165911` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
