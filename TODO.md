@@ -43,3 +43,10 @@
 - [x] **取消白板内容自动保存，只允许手动保存工程**：页面、笔迹、活动页和撤销/重做后的白板工程不再随每次更改自动写入本机；不再以计时器自动清除“未保存”状态。继续读取已有的本机工程存档且不主动清理历史数据。只有用户点击底部“保存”时，才将当前工程明确写入本机存储并下载 `.daiyi-board.json` 备份；本机存储写入成功后清除未保存提示，若写入失败则虽下载 JSON 备份仍保留未保存提示并告知用户。打开工程/绘制/切页后显示未保存状态。独立界面偏好仍留存在本机。类型检查及前端生产构建通过，明确只在用户点击保存时写入白板工程。
 - [x] **先提供本地 Preview 等待用户验收**：最初不改变 `0.5.0` 版本号、不提交或推送、不创建 Release；先提供可检查预览。2026-10-31 用户已检查 Preview 并随后明确授权“打包推送至我的github仓库”；现按单独的 0.5.1 发行项继续。
 - [x] **0.5.1 包构建与签名公开发行**：将 `package.json`、应用内版本号、Service Worker 缓存代号和 README 同步到 `0.5.1`；通过类型检查、前端构建和本地 Linux 安装包构建。保持 Manus canonical `main` 为主仓，不改变 `DaiYiqq/daiyi-board` 公开镜像；保存 Manus checkpoint 后，将意图明确的同一源 commit 快进推送 GitHub `main` 并创建 `v0.5.1` tag。由既有工作流产出 Windows x64、macOS ARM64、Linux x64 安装包及 GitHub updater metadata、SHA256SUMS、Cosign OIDC 签名和 provenance；发布后验证资产摘要、清单签名和三平台 provenance。不得 force-push 或覆盖既有 tag。Release workflow run `41160415039` 成功；`v0.5.1` 指向源 commit `0cfff8021955e1fe616d7ccfacb6d92b21671718`。SHA256 清单 12 项全通过，Cosign `verify-blob` 为 `Verified OK`；Windows x64 `.exe`、macOS ARM64 `.dmg`、Linux x64 AppImage 和 Debian `.deb` provenance 均验证通过；`latest.yml`、`latest-mac.yml`、`latest-linux.yml` 均为 `0.5.1`。
+
+
+## DY Board 0.6.0 原生 WinUI 3 液态玻璃参考实现
+
+- [x] **新增 WinUI 3 液态玻璃底部工具栏 Demo**：`native/winui3-liquid-glass-dock/` 提供可运行的 WinUI 3 / Windows App SDK + Win2D 白板底部按钮栏，真实采样白板背景做位移折射/色散/去饱和染色/镜面高光，支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。仅作参考实现，不改动 Electron/PWA 主应用。
+- [x] **版本号同步 0.6.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.6.0（源码开发中版本，未打 tag、未发布 Release）。
+- [ ] **（可选）0.6.0 打包与签名发行**：如后续需要，创建 `v0.6.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。

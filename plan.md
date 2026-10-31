@@ -75,3 +75,8 @@
 ## DY Board 0.5.1 打包与发行
 
 将 `package.json`、应用关于/更新提示中的 `APP_VERSION` 与 Service Worker 缓存代号同步为 0.5.1；README 在正式资产可用后更新到 v0.5.1。保留既有 0.5.0 tag 和完整 Git 历史。先在 Manus canonical `main` 集成并保存本次意图明确的源文件，按项目已启用的 auto-publish 保存 checkpoint；再将相同源 commit 与 `v0.5.1` tag 快进同步至用户指定的公开仓库 `DaiYiqq/daiyi-board`，由现有 GitHub Actions 为 Windows、macOS 和 Linux 构建安装包、SHA256 清单、Cosign OIDC 签名和 provenance。任何一端非快进时停止并保留双方历史；不切换 Manus canonical 到 GitHub、不 force-push。
+
+
+## DY Board 0.6.0 原生 WinUI 3 液态玻璃参考实现（开发中）
+
+新增 `native/winui3-liquid-glass-dock/` 独立 WinUI 3 / Windows App SDK + Win2D 参考项目：用「白板离屏快照 + 位移折射 + 三通道色散 + 去饱和染色 + 镜面高光 + 柔和阴影」实现接近 Apple Liquid Glass 的底部工具栏，支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。该 Demo 不影响现有 Electron/PWA 主应用，不改变 Web 端产物；版本号同步至 0.6.0（仅源码，未打 tag、未构建安装包、未发布 Release）。

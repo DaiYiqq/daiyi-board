@@ -1,0 +1,88 @@
+<UserControl
+    x:Class="LiquidGlassDock.Controls.GlassDock"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml">
+
+    <UserControl.Resources>
+        <!-- 玻璃工具栏按钮：透明底（玻璃由背后 CanvasControl 统一绘制），深色墨水保证可读 -->
+        <Style x:Key="GlassToolButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#22262E" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="GlassToolLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,3,0,0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid
+        x:Name="LayoutRoot"
+        Background="Transparent"
+        PointerPressed="OnSlidePressed"
+        PointerMoved="OnPointerMoved"
+        PointerReleased="OnSlideReleased"
+        PointerCanceled="OnSlideReleased"
+        PointerExited="OnPointerExited">
+
+        <!-- 玻璃背景：由 LiquidGlassEffectRenderer 真实采样白板快照 -->
+        <canvas:CanvasControl
+            x:Name="GlassSurface"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+
+        <!-- 按钮行（透明，玻璃在其下方连续透过） -->
+        <StackPanel
+            x:Name="ButtonRow"
+            Orientation="Horizontal"
+            Spacing="3"
+            Padding="14,9"
+            Background="Transparent">
+
+            <Button x:Name="BtnSelect" Style="{StaticResource GlassToolButton}" Tag="Select" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE7A8;" FontSize="20" />
+                    <TextBlock Text="选择" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnPen" Style="{StaticResource GlassToolButton}" Tag="Pen" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE70F;" FontSize="20" />
+                    <TextBlock Text="画笔" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnEraser" Style="{StaticResource GlassToolButton}" Tag="Eraser" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE75C;" FontSize="20" />
+                    <TextBlock Text="橡皮" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnNote" Style="{StaticResource GlassToolButton}" Tag="Note" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE70B;" FontSize="20" />
+                    <TextBlock Text="便签" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnShape" Style="{StaticResource GlassToolButton}" Tag="Shape" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE91C;" FontSize="20" />
+                    <TextBlock Text="形状" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="BtnText" Style="{StaticResource GlassToolButton}" Tag="Text" Click="OnToolClick">
+                <StackPanel Orientation="Vertical" Spacing="0" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE8D2;" FontSize="20" />
+                    <TextBlock Text="文字" Style="{StaticResource GlassToolLabel}" />
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

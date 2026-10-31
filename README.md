@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.5.1。** [下载 v0.5.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.5.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.5.1。** [下载 v0.5.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.5.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.6.0**（尚未打 tag / 发布）。
+
+## 0.6.0 原生 WinUI 3 液态玻璃参考实现（开发中）
+
+- 新增 [`native/winui3-liquid-glass-dock/`](native/winui3-liquid-glass-dock/)：一个独立的 WinUI 3 / Windows App SDK + Win2D 白板底部工具栏 Demo，以「真实采样白板背景 + 位移折射 + 三通道色散 + 去饱和染色 + 镜面高光 + 柔和阴影」逼近 Apple Liquid Glass 质感，并支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。
+- 这是桌面原生化方向的参考实现，**不影响**现有 Electron/PWA 版本；构建与运行见 [`native/winui3-liquid-glass-dock/README.md`](native/winui3-liquid-glass-dock/README.md)，完整实现说明见 [`native/winui3-liquid-glass-dock/docs/IMPLEMENTATION.md`](native/winui3-liquid-glass-dock/docs/IMPLEMENTATION.md)。
 
 ## 0.5.1 液态玻璃透明度与手动保存
 

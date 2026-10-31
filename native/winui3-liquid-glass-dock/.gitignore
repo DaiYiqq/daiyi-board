@@ -1,0 +1,7 @@
+# .NET / Visual Studio build artifacts (WinUI 3 demo)
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs

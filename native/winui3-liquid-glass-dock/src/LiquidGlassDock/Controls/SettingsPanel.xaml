@@ -1,0 +1,139 @@
+<UserControl
+    x:Class="LiquidGlassDock.Controls.SettingsPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border
+        x:Name="Root"
+        Width="300"
+        Padding="16"
+        CornerRadius="16"
+        Background="#EE15181D"
+        BorderBrush="#33FFFFFF"
+        BorderThickness="1">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+                <TextBlock Text="液态玻璃参数" FontWeight="SemiBold" FontSize="15" Foreground="#EDEFF3" />
+                <TextBlock Text="折射" Opacity="0.55" FontSize="11" Foreground="#9AA3AE" />
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="边缘厚度 RefThickness" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding RefThickness, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0.02" Maximum="0.6" StepFrequency="0.01" Value="{Binding RefThickness, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="折射强度 RefFactor" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding RefFactor, StringFormat='{}{0:F3}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="0.15" StepFrequency="0.005" Value="{Binding RefFactor, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="色散强度 Dispersion" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding Dispersion, StringFormat='{}{0:F3}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="0.05" StepFrequency="0.002" Value="{Binding Dispersion, Mode=TwoWay}" />
+                </StackPanel>
+
+                <TextBlock Text="高光" Opacity="0.55" FontSize="11" Foreground="#9AA3AE" Margin="0,4,0,0" />
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="高光强度 GlareFactor" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding GlareFactor, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Value="{Binding GlareFactor, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="高光范围 GlareRange" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding GlareRange, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0.02" Maximum="0.9" StepFrequency="0.02" Value="{Binding GlareRange, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="高光跟随 GlareFollow" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding GlareFollow, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0.02" Maximum="0.6" StepFrequency="0.02" Value="{Binding GlareFollow, Mode=TwoWay}" />
+                </StackPanel>
+
+                <TextBlock Text="染色" Opacity="0.55" FontSize="11" Foreground="#9AA3AE" Margin="0,4,0,0" />
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="染色强度 TintStrength" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding TintStrength, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="0.5" StepFrequency="0.01" Value="{Binding TintStrength, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="去饱和 Desaturation" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding Desaturation, StringFormat='{}{0:F2}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="1" StepFrequency="0.02" Value="{Binding Desaturation, Mode=TwoWay}" />
+                </StackPanel>
+
+                <TextBlock Text="模糊 / 滑动 / 书写" Opacity="0.55" FontSize="11" Foreground="#9AA3AE" Margin="0,4,0,0" />
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="中心模糊 CenterBlur" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding CenterBlur, StringFormat='{}{0:F0}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="30" StepFrequency="1" Value="{Binding CenterBlur, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="回弹刚度 SpringStiffness" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding SpringStiffness, StringFormat='{}{0:F0}'}" />
+                    </Grid>
+                    <Slider Minimum="100" Maximum="2000" StepFrequency="10" Value="{Binding SpringStiffness, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="回弹阻尼 SpringDamping" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding SpringDamping, StringFormat='{}{0:F0}'}" />
+                    </Grid>
+                    <Slider Minimum="5" Maximum="80" StepFrequency="1" Value="{Binding SpringDamping, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="3">
+                    <Grid>
+                        <TextBlock Text="最大滑动偏移 MaxSlideOffset" FontSize="12" Foreground="#C9D0D8" />
+                        <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="#7F8894"
+                                   Text="{Binding MaxSlideOffset, StringFormat='{}{0:F0}'}" />
+                    </Grid>
+                    <Slider Minimum="0" Maximum="120" StepFrequency="2" Value="{Binding MaxSlideOffset, Mode=TwoWay}" />
+                </StackPanel>
+
+                <ToggleSwitch Header="简化玻璃 LowQuality" OnContent="低配" OffContent="完整"
+                              IsOn="{Binding LowQuality, Mode=TwoWay}" />
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>
