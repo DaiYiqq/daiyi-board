@@ -46,6 +46,8 @@
 .map-stage-container {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 .map-stage-status {
   position: absolute;
