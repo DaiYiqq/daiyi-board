@@ -89,4 +89,4 @@
 - [x] **教学工具（地理地图）**：高级菜单新增「教学工具」，内置「地理地图」——基于高德地图（AMap，含 Key 与安全密钥），支持全屏查看与返回白板。
 - [x] **界面修复**：玻璃表面作用域内统一浅色控件面/边框，修复课程表编辑器「黑字黑框」对比度问题。
 - [x] **版本号同步 1.0.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.0。
-- [ ] **1.0.0 打包与签名发行**：待创建 `v1.0.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **1.0.0 打包与签名发行**：已创建 `v1.0.0` tag 并推送，GitHub Actions release workflow run `41192853827` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
