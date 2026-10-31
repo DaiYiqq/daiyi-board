@@ -7,15 +7,16 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Windows.Foundation;
 using Windows.UI;
 
 namespace LiquidGlassDock.Controls;
 
 /// <summary>
-/// 底部透明液态玻璃按钮栏。玻璃背景由 <see cref="LiquidGlassEffectRenderer"/> 真实采样白板快照，
-/// 支持：横向弹性滑动（回弹）、指针高光跟随、滑动方向折射拉伸、书写态退后。
+/// 底部透明液态玻璃胶囊工具栏。玻璃背景可走两条管线：
+///   · UseShader=true  → HLSL 像素着色器（折射 + 色散 + 流动高光，首选）
+///   · UseShader=false → LiquidGlassEffectRenderer 内置效果（兜底）
+/// 每个工具按钮都是独立的 <see cref="LiquidGlassPillButton"/> 胶囊。
 /// </summary>
 public sealed partial class GlassDock : UserControl
 {
@@ -37,6 +38,7 @@ public sealed partial class GlassDock : UserControl
     public event Action<DockTool>? ToolSelected;
 
     private DockTool _selectedTool = DockTool.Pen;
+    private readonly List<LiquidGlassPillButton> _pillButtons = new();
 
     // 交互状态
     private bool _dragging;
@@ -56,19 +58,41 @@ public sealed partial class GlassDock : UserControl
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private double _lastDt;
 
-    private static readonly Color DefaultInk = Color.FromArgb(255, 34, 38, 46);
-    private static readonly Color SelectedInk = Color.FromArgb(255, 11, 117, 71);
+    private CanvasRenderTarget? _crop;   // 着色器路径的裁剪缓冲
 
     public GlassDock()
     {
         InitializeComponent();
         GlassSurface.Draw += OnGlassDraw;
-        UpdateSelection();
+        WirePillButtons();
 
         _timer = DispatcherQueue.GetForCurrentThread().CreateTimer();
         _timer.Interval = TimeSpan.FromMilliseconds(16);
         _timer.IsRepeating = true;
         _timer.Tick += (_, _) => OnTick();
+    }
+
+    private void WirePillButtons()
+    {
+        foreach (var child in ButtonRow.Children)
+        {
+            if (child is LiquidGlassPillButton pill)
+            {
+                pill.Parameters = Parameters;   // 共享同一份参数
+                pill.Click += OnPillClick;
+                _pillButtons.Add(pill);
+            }
+        }
+        UpdateSelection();
+    }
+
+    private void SyncPillBackdrops()
+    {
+        foreach (var pill in _pillButtons)
+        {
+            pill.Backdrop = Backdrop;
+            pill.BackdropRoot = BackdropRoot;
+        }
     }
 
     /// <summary>背景（白板）变化后由 MainWindow 调用：重新采样染色并重绘。</summary>
@@ -79,6 +103,7 @@ public sealed partial class GlassDock : UserControl
             var avg = Renderer.SampleAverageColor(Backdrop, GetSourceRect());
             _tintColor = LiquidGlassEffectRenderer.Desaturate(avg, Parameters.Desaturation);
         }
+        SyncPillBackdrops();
         GlassSurface.Invalidate();
     }
 
@@ -102,27 +127,79 @@ public sealed partial class GlassDock : UserControl
 
         // 参数快照，避免绘制途中参数被 UI 线程改动。
         var p = Parameters.Clone();
-
         var pointerLocal = new Vector2((float)_pointerX, (float)_pointerY);
 
-        Renderer.Draw(
-            ds, Backdrop, GetSourceRect(), destRect,
-            cornerRadius: (float)ActualHeight / 2f,   // 胶囊（Pill）：圆角 = 半高
-            p, pointerLocal, _slideOffset, _slideVelocity, _timeSec, _tintColor, writing);
+        if (p.UseShader)
+        {
+            DrawShaderGlass(ds, p, pointerLocal);
+        }
+        else
+        {
+            Renderer.Draw(
+                ds, Backdrop, GetSourceRect(), destRect,
+                cornerRadius: (float)ActualHeight / 2f,   // 胶囊（Pill）：圆角 = 半高
+                p, pointerLocal, _slideOffset, _slideVelocity, _timeSec, _tintColor, writing);
+        }
+    }
+
+    private void DrawShaderGlass(CanvasDrawingSession ds, LiquidGlassParameters p, Vector2 pointerLocal)
+    {
+        float w = (float)ActualWidth, h = (float)ActualHeight;
+        if (w < 2 || h < 2) return;
+        var dest = new Rect(0, 0, w, h);
+        var src = GetSourceRect();
+
+        float margin = 28f;
+        var cropRect = new Rect(src.X + _slideOffset - margin, src.Y - margin, src.Width + margin * 2, src.Height + margin * 2);
+        var crop = EnsureCrop(Backdrop!, cropRect);
+
+        var pointerUV = new Vector2((float)(_pointerX / w), (float)(_pointerY / h));
+
+        var effect = LiquidGlassShaderEffect.Create(
+            background: crop,
+            refractionStrength: p.RefractionStrength,
+            dispersion: p.DispersionPx,
+            pointerUV: pointerUV,
+            glareAngleRadians: p.GlareAngle * MathF.PI / 180f,
+            glareRange: p.GlareRange,
+            glareStrength: p.GlareFactor,
+            pillHalf: new Vector2(0.48f, 0.48f),
+            pillRadius: p.PillRadius,
+            edgeSoftness: p.EdgeSoftness);
+
+        ds.DrawImage(effect, dest, new Rect(margin, margin, w, h), 1f, CanvasImageInterpolation.HighQualityCubic);
+    }
+
+    private CanvasRenderTarget EnsureCrop(CanvasRenderTarget backdrop, Rect cropRect)
+    {
+        var bs = backdrop.Size;
+        cropRect = Intersect(cropRect, new Rect(0, 0, bs.Width, bs.Height));
+        if (cropRect.Width <= 0 || cropRect.Height <= 0) cropRect = new Rect(0, 0, 1, 1);
+
+        if (_crop == null || MathF.Abs((float)_crop.Size.Width - (float)cropRect.Width) > 1f
+            || MathF.Abs((float)_crop.Size.Height - (float)cropRect.Height) > 1f)
+        {
+            _crop?.Dispose();
+            _crop = new CanvasRenderTarget(CanvasDevice.GetSharedDevice(), cropRect.Width, cropRect.Height, backdrop.Dpi);
+        }
+        using var cds = _crop.CreateDrawingSession();
+        cds.Clear(Color.FromArgb(0, 0, 0, 0));
+        cds.DrawImage(backdrop, new Rect(0, 0, cropRect.Width, cropRect.Height), cropRect, 1f, CanvasImageInterpolation.Linear);
+        return _crop;
     }
 
     // ---------------------------------------------------------------- 交互
 
     private void OnSlidePressed(object sender, PointerRoutedEventArgs e)
     {
-        // 不拦截按钮点击：按在按钮（或其子元素）上时，交给按钮处理，不启动滑动。
+        // 不拦截按钮点击：按在胶囊按钮（或其子元素）上时，交给按钮处理，不启动滑动。
         if (e.OriginalSource is DependencyObject src && IsWithinButton(src)) return;
 
         var pt = e.GetCurrentPoint(LayoutRoot);
         _dragging = true;
         _dragLastX = pt.Position.X;
         _lastMoveAt = _clock.Elapsed.TotalSeconds;
-        _slideSpring.Target = _slideOffset; // 保持当前偏移，松手后回弹
+        _slideSpring.Target = _slideOffset;
         LayoutRoot.CapturePointer(e.Pointer);
         EnsureTimerRunning();
     }
@@ -131,7 +208,7 @@ public sealed partial class GlassDock : UserControl
     {
         while (node != null)
         {
-            if (node is Button) return true;
+            if (node is Button or LiquidGlassPillButton) return true;
             node = VisualTreeHelper.GetParent(node);
         }
         return false;
@@ -152,9 +229,9 @@ public sealed partial class GlassDock : UserControl
             _dragLastX = pt.Position.X;
             float max = Parameters.MaxSlideOffset * 1.5f;
             _slideOffset = Math.Clamp(_slideOffset + (float)dx * 0.85f, -max, max);
-            _slideVelocity = (float)(dx / moveDt); // DIP/s，供边缘折射拉伸
+            _slideVelocity = (float)(dx / moveDt);
         }
-        EnsureTimerRunning(); // 高光跟随也需要计时器
+        EnsureTimerRunning();
     }
 
     private void OnSlideReleased(object sender, PointerRoutedEventArgs e)
@@ -162,7 +239,6 @@ public sealed partial class GlassDock : UserControl
         if (!_dragging) return;
         _dragging = false;
         LayoutRoot.ReleasePointerCapture(e.Pointer);
-        // 松手后弹簧回弹到 0：先复位位置/速度，再把目标设为 0。
         _slideSpring.SetImmediate(_slideOffset);
         _slideSpring.Target = 0f;
         EnsureTimerRunning();
@@ -173,7 +249,7 @@ public sealed partial class GlassDock : UserControl
         _pointerX = -1;
         _pointerY = -1;
         _glareSpring.Target = -1f;
-        EnsureTimerRunning(); // 让弹簧回落并重绘，隐藏高光
+        EnsureTimerRunning();
     }
 
     // ---------------------------------------------------------------- 动画循环
@@ -191,7 +267,7 @@ public sealed partial class GlassDock : UserControl
         if (!_dragging)
         {
             _slideOffset = _slideSpring.Step(fdt, Parameters.SpringStiffness, Parameters.SpringDamping);
-            _slideVelocity *= 0.90f; // 衰减
+            _slideVelocity *= 0.90f;
         }
 
         _glareSpring.Step(fdt, 240f, 22f);
@@ -211,9 +287,9 @@ public sealed partial class GlassDock : UserControl
 
     // ---------------------------------------------------------------- 工具按钮
 
-    private void OnToolClick(object sender, RoutedEventArgs e)
+    private void OnPillClick(object? sender, EventArgs e)
     {
-        if (sender is Button { Tag: string tag } && Enum.TryParse<DockTool>(tag, out var tool))
+        if (sender is FrameworkElement { Tag: string tag } && Enum.TryParse<DockTool>(tag, out var tool))
         {
             _selectedTool = tool;
             UpdateSelection();
@@ -223,14 +299,18 @@ public sealed partial class GlassDock : UserControl
 
     private void UpdateSelection()
     {
-        foreach (var child in ButtonRow.Children)
+        foreach (var pill in _pillButtons)
         {
-            if (child is Button { Tag: string tag } btn)
-            {
-                bool on = tag == _selectedTool.ToString();
-                btn.Foreground = new SolidColorBrush(on ? SelectedInk : DefaultInk);
-                btn.FontWeight = on ? Microsoft.UI.Text.FontWeights.SemiBold : Microsoft.UI.Text.FontWeights.Normal;
-            }
+            pill.IsSelected = (pill.Tag as string) == _selectedTool.ToString();
         }
+    }
+
+    private static Rect Intersect(Rect a, Rect b)
+    {
+        double x = Math.Max(a.X, b.X), y = Math.Max(a.Y, b.Y);
+        double r = Math.Min(a.X + a.Width, b.X + b.Width);
+        double bot = Math.Min(a.Y + a.Height, b.Y + b.Height);
+        if (r <= x || bot <= y) return new Rect(0, 0, 0, 0);
+        return new Rect(x, y, r - x, bot - y);
     }
 }

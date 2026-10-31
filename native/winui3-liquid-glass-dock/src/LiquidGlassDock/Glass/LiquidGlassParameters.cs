@@ -85,6 +85,11 @@ public sealed class LiquidGlassParameters : INotifyPropertyChanged
     /// <summary>简化玻璃模式：关掉色散三通道，降低位移图分辨率。</summary>
     public bool LowQuality { get => _lowQuality; set => Set(ref _lowQuality, value); }
 
+    // ---------------- 渲染路径 ----------------
+    private bool _useShader = true;
+    /// <summary>true=HLSL 像素着色器（折射 + 色散 + 高光，首选）；false=内置效果管线（兜底）。</summary>
+    public bool UseShader { get => _useShader; set => Set(ref _useShader, value); }
+
     // ---------------- 着色器（HLSL 像素着色器参数） ----------------
     private float _refractionStrength = 5.0f;
     /// <summary>折射强度（像素）。越大边缘透镜弯曲越明显。</summary>

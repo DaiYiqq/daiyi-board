@@ -142,6 +142,9 @@
                 <ToggleSwitch Header="简化玻璃 LowQuality" OnContent="低配" OffContent="完整"
                               IsOn="{Binding LowQuality, Mode=TwoWay}" />
 
+                <ToggleSwitch Header="渲染路径 UseShader" OnContent="HLSL 着色器" OffContent="内置效果"
+                              IsOn="{Binding UseShader, Mode=TwoWay}" />
+
             </StackPanel>
         </ScrollViewer>
     </Border>

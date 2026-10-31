@@ -12,7 +12,8 @@
         PointerExited="OnPointerExited"
         PointerPressed="OnPointerPressed"
         PointerReleased="OnPointerReleased"
-        PointerMoved="OnPointerMoved">
+        PointerMoved="OnPointerMoved"
+        Tapped="OnTapped">
         <Grid.RenderTransform>
             <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" />
         </Grid.RenderTransform>

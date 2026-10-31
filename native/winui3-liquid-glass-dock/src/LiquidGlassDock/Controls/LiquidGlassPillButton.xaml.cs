@@ -26,7 +26,7 @@ public sealed partial class LiquidGlassPillButton : UserControl
     /// <summary>快照坐标参照根。</summary>
     public UIElement? BackdropRoot { get; set; }
 
-    public LiquidGlassParameters Parameters { get; } = new();
+    public LiquidGlassParameters Parameters { get; set; } = new();
 
     private bool _isSelected;
     public bool IsSelected
@@ -37,6 +37,9 @@ public sealed partial class LiquidGlassPillButton : UserControl
 
     public string Glyph { get => Icon.Glyph; set => Icon.Glyph = value; }
     public string Text { get => Label.Text; set => Label.Text = value; }
+
+    /// <summary>点击（轻触）事件。</summary>
+    public event EventHandler? Click;
 
     // 指针（按钮本地 UV，用于高光跟随）
     private double _pointerX = -1, _pointerY = -1;
@@ -175,6 +178,11 @@ public sealed partial class LiquidGlassPillButton : UserControl
         _scaleSpring.Target = 1f;      // 松手 Q 弹回弹
         EnsureTimer();
         GlassSurface.Invalidate();
+    }
+
+    private void OnTapped(object sender, TappedRoutedEventArgs e)
+    {
+        Click?.Invoke(this, EventArgs.Empty);
     }
 
     private void EnsureTimer() { if (!_timer.IsRunning) _timer.Start(); }
