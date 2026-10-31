@@ -90,3 +90,8 @@
 ## DY Board 0.7.1 原生 Demo 液态玻璃着色器重写
 
 原生 `native/winui3-liquid-glass-dock/` 改用 HLSL 像素着色器（`LiquidGlassPill.hlsl` 经 fxc 编译为 `.cso`，随仓库提交）实现边缘折射、RGB 色散与流动镜面高光；底栏改为悬浮胶囊，工具按钮换成 `LiquidGlassPillButton` 独立小胶囊，支持悬停光斑、按压回弹与 `UseShader` A/B 切换。本项仅改原生参考 Demo，不影响 Electron/PWA 主应用；版本号同步至 0.7.1。
+
+
+## DY Board 0.8.0 内置课程表
+
+在设置面板内置课程表：手动添加/编辑/删除课程（课程名、开始/结束时间、星期），支持 JSON 导入，数据存本机 `localStorage`。按「星期几 + 时分」自动识别系统时间匹配当前课程；启动动画下方显示「本节课：xx」；顶部灵动岛放大，上课中显示当前课程名，当天课程结束后显示「已下课」。版本号同步至 0.8.0。

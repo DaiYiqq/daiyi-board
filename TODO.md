@@ -66,3 +66,11 @@
 - [x] **胶囊按钮与 A/B 切换**：`GlassDock` 的工具按钮全部换成 `LiquidGlassPillButton` 独立小胶囊；新增 `UseShader` 参数与调参开关，可在「HLSL 着色器 / 内置效果」间切换。本项仅改原生 Demo，不影响 Electron/PWA 主应用。
 - [x] **版本号同步 0.7.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.1。
 - [x] **0.7.1 打包与签名发行**：已创建 `v0.7.1` tag 并推送，GitHub Actions release workflow run `41184165911` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 0.8.0 内置课程表
+
+- [x] **设置内课程表**：设置面板新增课程表，可手动添加/编辑/删除课程（课程名、开始/结束时间、星期），支持 JSON 导入，数据存本机 `localStorage`。
+- [x] **自动识别系统时间**：按「星期几 + 时分」自动匹配当前课程；启动动画下方显示「本节课：xx」；灵动岛放大，上课中显示当前课程名，当天课程结束后显示「已下课」。
+- [x] **版本号同步 0.8.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.8.0。
+- [ ] **0.8.0 打包与签名发行**：待创建 `v0.8.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。

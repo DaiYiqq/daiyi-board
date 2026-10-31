@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.7.1。** [下载 v0.7.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.7.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v0.7.1。** [下载 v0.7.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.7.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v0.8.0**（内置课程表，尚未打 tag / 发布）。
+
+## 0.8.0 内置课程表
+
+- **设置内课程表**：设置面板新增课程表，可手动添加/编辑/删除课程（课程名、开始/结束时间、星期），支持 JSON 导入；数据保存在本机。
+- **自动识别系统时间**：按「星期几 + 时分」自动匹配当前课程；启动动画下方显示「本节课：xx」，顶部灵动岛放大并显示当前课程，当天课程全部结束后显示「已下课」。
 
 ## 0.7.1 原生 Demo 液态玻璃着色器重写
 

@@ -65,7 +65,7 @@ type ClassEntry = {
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.7.1';
+const APP_VERSION = '0.8.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const SCHEDULE_KEY = 'daiyi-board-schedule-v1';
 const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
