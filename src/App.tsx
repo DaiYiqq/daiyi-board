@@ -55,20 +55,38 @@ type Page = { id: string; title: string; marks: Mark[] };
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
 type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
-type ClassEntry = {
-  id: string;
+type Period = { index: number; start: string; end: string };
+type WeekParity = 'odd' | 'even';
+type Schedule = {
+  periods: Period[];
+  odd: Record<string, string>; // "d-p" -> 课程名（d=1..7，p=1..9）
+  even: Record<string, string>;
+};
+type ClassStatus = {
+  state: 'in-class' | 'break' | 'dismissed' | 'no-schedule';
   name: string;
-  start: string; // "HH:MM"
-  end: string; // "HH:MM"
-  days: number[]; // 0=周日..6=周六；空数组 = 每天
+  period?: Period;
+  nextName?: string;
+  nextInMinutes?: number;
 };
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
 const APP_VERSION = '0.8.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
-const SCHEDULE_KEY = 'daiyi-board-schedule-v1';
-const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
+const SCHEDULE_KEY = 'daiyi-board-schedule-v2';
+const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']; // 周一..周日（1..7）
+const DEFAULT_PERIODS: Period[] = [
+  { index: 1, start: '08:00', end: '08:45' },
+  { index: 2, start: '08:55', end: '09:40' },
+  { index: 3, start: '10:00', end: '10:45' },
+  { index: 4, start: '10:55', end: '11:40' },
+  { index: 5, start: '14:00', end: '14:45' },
+  { index: 6, start: '14:55', end: '15:40' },
+  { index: 7, start: '16:00', end: '16:45' },
+  { index: 8, start: '16:55', end: '17:40' },
+  { index: 9, start: '19:00', end: '19:45' },
+];
 const COLORS = [
   '#FFFFFF',
   '#000000',
@@ -196,58 +214,94 @@ const toMinutes = (t: string) => {
   const [h, m] = t.split(':').map((v) => Number(v));
   return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
 };
-const classActiveOn = (entry: ClassEntry, dow: number) =>
-  entry.days.length === 0 || entry.days.includes(dow);
-const parseSchedule = (raw: unknown): ClassEntry[] => {
-  if (!Array.isArray(raw)) return [];
-  const result: ClassEntry[] = [];
-  for (const value of raw) {
-    if (!value || typeof value !== 'object') continue;
-    const v = value as Record<string, unknown>;
-    if (
-      typeof v.name !== 'string' || !v.name.trim() || v.name.length > 60 ||
-      typeof v.start !== 'string' || !/^\d{1,2}:\d{2}$/.test(v.start) ||
-      typeof v.end !== 'string' || !/^\d{1,2}:\d{2}$/.test(v.end)
-    )
-      continue;
-    const days = Array.isArray(v.days)
-      ? v.days
-          .filter((d): d is number => Number.isInteger(d) && Number(d) >= 0 && Number(d) <= 6)
-          .map(Number)
-      : [];
-    result.push({
-      id: typeof v.id === 'string' && v.id ? v.id : crypto.randomUUID(),
-      name: v.name.trim(),
-      start: v.start,
-      end: v.end,
-      days,
-    });
-  }
-  return result;
+const isValidTime = (t: string) => {
+  if (!/^\d{1,2}:\d{2}$/.test(t)) return false;
+  const [h, m] = t.split(':').map(Number);
+  return h >= 0 && h < 24 && m >= 0 && m < 60;
 };
-function readSchedule(): ClassEntry[] {
+const cellKey = (day: number, period: number) => `${day}-${period}`;
+const weekParityOf = (now: Date): WeekParity => {
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return weekNo % 2 === 1 ? 'odd' : 'even';
+};
+const defaultSchedule = (): Schedule => ({
+  periods: DEFAULT_PERIODS.map((p) => ({ ...p })),
+  odd: {},
+  even: {},
+});
+const parseSchedule = (raw: unknown): Schedule => {
+  const base = defaultSchedule();
+  if (!raw || typeof raw !== 'object') return base;
+  const v = raw as Record<string, unknown>;
+  if (Array.isArray(v.periods)) {
+    const periods: Period[] = [];
+    for (const p of v.periods) {
+      if (!p || typeof p !== 'object') continue;
+      const pp = p as Record<string, unknown>;
+      const index = Number(pp.index);
+      const start = typeof pp.start === 'string' && isValidTime(pp.start) ? pp.start : '';
+      const end = typeof pp.end === 'string' && isValidTime(pp.end) ? pp.end : '';
+      if (Number.isInteger(index) && index >= 1 && index <= 12 && start && end)
+        periods.push({ index, start, end });
+    }
+    if (periods.length) base.periods = periods.sort((a, b) => a.index - b.index);
+  }
+  const readGrid = (g: unknown): Record<string, string> => {
+    const out: Record<string, string> = {};
+    if (g && typeof g === 'object') {
+      for (const [k, val] of Object.entries(g as Record<string, unknown>)) {
+        if (/^[1-7]-[0-9]+$/.test(k) && typeof val === 'string' && val.trim()) out[k] = val.trim();
+      }
+    }
+    return out;
+  };
+  base.odd = readGrid(v.odd);
+  base.even = readGrid(v.even);
+  return base;
+};
+function readSchedule(): Schedule {
   try {
-    return parseSchedule(JSON.parse(localStorage.getItem(SCHEDULE_KEY) ?? '[]'));
+    return parseSchedule(JSON.parse(localStorage.getItem(SCHEDULE_KEY) ?? '{}'));
   } catch {
-    return [];
+    return defaultSchedule();
   }
 }
-const currentClassFor = (schedule: ClassEntry[], now: Date): ClassEntry | null => {
-  const dow = now.getDay();
+const classStatusOf = (schedule: Schedule, now: Date): ClassStatus => {
+  const parity = weekParityOf(now);
+  const grid = schedule[parity];
+  const day = now.getDay() === 0 ? 7 : now.getDay();
   const m = now.getHours() * 60 + now.getMinutes();
-  return (
-    schedule.find((c) => classActiveOn(c, dow) && m >= toMinutes(c.start) && m < toMinutes(c.end)) ??
-    null
-  );
-};
-const nextClassFor = (schedule: ClassEntry[], now: Date): ClassEntry | null => {
-  const dow = now.getDay();
-  const m = now.getHours() * 60 + now.getMinutes();
-  return (
-    schedule
-      .filter((c) => classActiveOn(c, dow) && m < toMinutes(c.start))
-      .sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0] ?? null
-  );
+  const periods = schedule.periods;
+  if (!periods.length) return { state: 'no-schedule', name: '' };
+  const current = periods.find((p) => m >= toMinutes(p.start) && m < toMinutes(p.end)) ?? null;
+  const name = current ? grid[cellKey(day, current.index)] ?? '' : '';
+  const upcoming =
+    periods
+      .filter((p) => toMinutes(p.start) > m)
+      .map((p) => ({ p, n: grid[cellKey(day, p.index)] ?? '' }))
+      .find((x) => x.n) ?? null;
+  if (current && name) {
+    return {
+      state: 'in-class',
+      name,
+      period: current,
+      nextName: upcoming?.n,
+      nextInMinutes: upcoming ? toMinutes(upcoming.p.start) - m : undefined,
+    };
+  }
+  if (upcoming) {
+    return {
+      state: 'break',
+      name: '',
+      nextName: upcoming.n,
+      nextInMinutes: toMinutes(upcoming.p.start) - m,
+    };
+  }
+  return { state: 'dismissed', name: '' };
 };
 
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -265,7 +319,7 @@ export default function App() {
   const [width, setWidth] = useState(4);
   const [prefs, setPrefs] = useState<Preferences>(readPrefs);
   const [panel, setPanel] = useState<
-    'menu' | 'pen' | 'customize' | 'advanced' | 'developer' | 'help' | 'camera' | null
+    'menu' | 'pen' | 'customize' | 'advanced' | 'developer' | 'help' | 'camera' | 'schedule' | null
   >(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
@@ -288,7 +342,9 @@ export default function App() {
     bounds?: ReturnType<typeof boundsFor>;
   } | null>(null);
   const [now, setNow] = useState(() => new Date());
-  const [schedule, setSchedule] = useState<ClassEntry[]>(readSchedule);
+  const [schedule, setSchedule] = useState<Schedule>(readSchedule);
+  const [scheduleWeek, setScheduleWeek] = useState<WeekParity>('odd');
+  const [quickFill, setQuickFill] = useState('');
   const [startupProgress, setStartupProgress] = useState(0);
   const [updateState, setUpdateState] = useState<UpdateSnapshot>(() => ({
     source: window.boardDesktop ? 'desktop' : 'pwa',
@@ -806,33 +862,46 @@ export default function App() {
     if (!visible.length) return;
     setPrefs({ ...prefs, visibleTools: visible });
   };
-  const addClass = () =>
-    setSchedule((s) => [
+  const updatePeriod = (index: number, field: 'start' | 'end', value: string) =>
+    setSchedule((s) => ({
       ...s,
-      { id: crypto.randomUUID(), name: '', start: '08:00', end: '09:40', days: [1, 2, 3, 4, 5] },
-    ]);
-  const removeClass = (id: string) => setSchedule((s) => s.filter((c) => c.id !== id));
-  const updateClass = (id: string, patch: Partial<Omit<ClassEntry, 'id'>>) =>
-    setSchedule((s) => s.map((c) => (c.id === id ? { ...c, ...patch } : c)));
-  const toggleDay = (id: string, dow: number) =>
-    setSchedule((s) =>
-      s.map((c) => {
-        if (c.id !== id) return c;
-        const has = c.days.includes(dow);
-        return { ...c, days: has ? c.days.filter((d) => d !== dow) : [...c.days, dow].sort() };
-      }),
-    );
+      periods: s.periods.map((p) => (p.index === index ? { ...p, [field]: value } : p)),
+    }));
+  const setCell = (day: number, period: number) => {
+    const key = cellKey(day, period);
+    const fill = quickFill.trim();
+    if (fill) {
+      setSchedule((s) => ({ ...s, [scheduleWeek]: { ...s[scheduleWeek], [key]: fill } }));
+      return;
+    }
+    const name = window.prompt('课程名称', schedule[scheduleWeek][key] ?? '');
+    if (name === null) return;
+    setSchedule((s) => {
+      const grid = { ...s[scheduleWeek] };
+      if (name.trim()) grid[key] = name.trim();
+      else delete grid[key];
+      return { ...s, [scheduleWeek]: grid };
+    });
+  };
+  const saveSchedule = () => {
+    for (const p of schedule.periods) {
+      if (!isValidTime(p.start) || !isValidTime(p.end) || toMinutes(p.start) >= toMinutes(p.end)) {
+        window.alert(`第 ${p.index} 节时间格式不正确：需为 HH:MM 且开始早于结束。`);
+        return;
+      }
+    }
+    setPanel(null);
+    window.alert('课表已保存。');
+  };
   const importScheduleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
       if (file.size > 2 * 1024 * 1024) throw new Error('文件过大');
-      const entries = parseSchedule(JSON.parse(await file.text()));
-      if (!entries.length) throw new Error('没有有效课程');
-      setSchedule(entries);
-      window.alert(`已导入 ${entries.length} 门课程。`);
+      setSchedule(parseSchedule(JSON.parse(await file.text())));
+      window.alert('课表已导入。');
     } catch {
-      window.alert('导入失败：请使用 JSON 数组，每项含 name、start、end（可选 days，0=周日…6=周六）。');
+      window.alert('导入失败：请使用 { periods:[{index,start,end}], odd:{}, even:{} } 格式。');
     }
     event.target.value = '';
   };
@@ -919,14 +988,23 @@ export default function App() {
     day: '2-digit',
     weekday: 'short',
   });
-  const currentClass = currentClassFor(schedule, now);
-  const nextClass = nextClassFor(schedule, now);
-  const hasClassToday = schedule.some((c) => classActiveOn(c, now.getDay()));
-  const islandClassText = currentClass
-    ? currentClass.name
-    : hasClassToday && !nextClass
-      ? '已下课'
-      : '';
+  const classStatus = classStatusOf(schedule, now);
+  const islandClassText =
+    classStatus.state === 'in-class'
+      ? classStatus.name
+      : classStatus.state === 'break' && classStatus.nextName
+        ? '休息中'
+        : classStatus.state === 'dismissed'
+          ? '已下课'
+          : '';
+  const startupClassText =
+    classStatus.state === 'in-class'
+      ? `本节课：${classStatus.name}（${classStatus.period?.start ?? ''}-${classStatus.period?.end ?? ''}）`
+      : classStatus.state === 'break' && classStatus.nextName
+        ? `下节课：${classStatus.nextName}（${classStatus.nextInMinutes ?? 0} 分钟后）`
+        : classStatus.state === 'dismissed'
+          ? '今日课程已结束'
+          : '无课';
   const timerText = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
   const updateHeading =
     updateState.status === 'checking'
@@ -1207,57 +1285,10 @@ export default function App() {
                   </div>
                   <div className="setting-group schedule-group">
                     <div className="setting-label">课程表</div>
-                    {schedule.length === 0 ? (
-                      <div className="setting-sub">还没有课程，可手动添加或导入 JSON。</div>
-                    ) : (
-                      schedule.map((c) => (
-                        <div className="schedule-row" key={c.id}>
-                          <input
-                            className="schedule-name"
-                            value={c.name}
-                            placeholder="课程名"
-                            maxLength={60}
-                            onChange={(e) => updateClass(c.id, { name: e.target.value })}
-                          />
-                          <input
-                            className="schedule-time"
-                            type="time"
-                            value={c.start}
-                            onChange={(e) => updateClass(c.id, { start: e.target.value })}
-                          />
-                          <span className="schedule-dash">—</span>
-                          <input
-                            className="schedule-time"
-                            type="time"
-                            value={c.end}
-                            onChange={(e) => updateClass(c.id, { end: e.target.value })}
-                          />
-                          <button
-                            className="schedule-delete"
-                            onClick={() => removeClass(c.id)}
-                            aria-label="删除课程"
-                          >
-                            <X size={13} />
-                          </button>
-                          <div className="schedule-days">
-                            {WEEKDAY_LABELS.map((label, dow) => (
-                              <button
-                                key={dow}
-                                className={`schedule-day ${c.days.includes(dow) ? 'is-on' : ''}`}
-                                onClick={() => toggleDay(c.id, dow)}
-                                title={`周${label}`}
-                                aria-pressed={c.days.includes(dow)}
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))
-                    )}
+                    <div className="setting-sub schedule-current">{startupClassText}</div>
                     <div className="schedule-actions">
-                      <button className="schedule-add" onClick={addClass}>
-                        + 添加课程
+                      <button className="schedule-add" onClick={() => setPanel('schedule')}>
+                        编辑课程表
                       </button>
                       <button className="schedule-import" onClick={() => scheduleFileRef.current?.click()}>
                         导入 JSON
@@ -1270,15 +1301,6 @@ export default function App() {
                       accept=".json,application/json"
                       onChange={importScheduleFile}
                     />
-                    <div className="setting-sub schedule-current">
-                      {currentClass
-                        ? `本节课：${currentClass.name}（${currentClass.start}–${currentClass.end}）`
-                        : nextClass
-                          ? `下节课：${nextClass.name}（${nextClass.start}–${nextClass.end}）`
-                          : hasClassToday
-                            ? '今日课程已结束'
-                            : '今日无课程'}
-                    </div>
                   </div>
                   <div className="popover-foot">
                     <GripVertical size={14} />
@@ -1722,7 +1744,7 @@ export default function App() {
             <div className="startup-countdown">
               {Math.max(0, Math.ceil((100 - startupProgress) / 20))} 秒
             </div>
-            <div className="startup-class">本节课：{currentClass ? currentClass.name : '无'}</div>
+            <div className="startup-class">{startupClassText}</div>
           </div>
         </div>
       )}
@@ -1810,6 +1832,112 @@ export default function App() {
             </p>
             <div className="modal-bottom">
               白板工程不会自动保存；点击底部“保存”可保存到本机并下载 JSON 备份。界面偏好会单独记忆；菜单中可设置、检查更新、查看关于或退出软件。
+            </div>
+          </section>
+        </div>
+      )}
+      {panel === 'schedule' && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setPanel(null);
+          }}
+        >
+          <section className="info-modal schedule-modal">
+            <button className="modal-close" onClick={() => setPanel(null)} aria-label="关闭">
+              <X size={18} />
+            </button>
+            <span className="eyebrow">DY BOARD</span>
+            <h2>课程表</h2>
+
+            <div className="schedule-week-switch">
+              <button
+                className={scheduleWeek === 'odd' ? 'is-on' : ''}
+                onClick={() => setScheduleWeek('odd')}
+              >
+                单周
+              </button>
+              <button
+                className={scheduleWeek === 'even' ? 'is-on' : ''}
+                onClick={() => setScheduleWeek('even')}
+              >
+                双周
+              </button>
+            </div>
+
+            <div className="schedule-quickfill">
+              <input
+                className="schedule-fill-input"
+                placeholder="快速填充：输入课程名后点击下方单元格批量填充"
+                value={quickFill}
+                onChange={(e) => setQuickFill(e.target.value)}
+              />
+            </div>
+
+            <div className="schedule-grid-wrap">
+              <div className="schedule-grid">
+                <div className="schedule-grid-head">
+                  <span className="schedule-grid-corner">节次</span>
+                  {WEEKDAYS.map((w) => (
+                    <span key={w} className="schedule-grid-day">
+                      周{w}
+                    </span>
+                  ))}
+                </div>
+                {schedule.periods.map((p) => (
+                  <div className="schedule-grid-row" key={p.index}>
+                    <span className="schedule-grid-period">
+                      {p.index}
+                      <small>
+                        {p.start}-{p.end}
+                      </small>
+                    </span>
+                    {WEEKDAYS.map((_, di) => {
+                      const day = di + 1;
+                      const name = schedule[scheduleWeek][cellKey(day, p.index)] ?? '';
+                      return (
+                        <button
+                          key={day}
+                          className={`schedule-cell ${name ? 'has-course' : ''}`}
+                          onClick={() => setCell(day, p.index)}
+                          title={`周${WEEKDAYS[di]} 第${p.index}节`}
+                        >
+                          {name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="schedule-periods">
+              <div className="setting-label">节次时间</div>
+              {schedule.periods.map((p) => (
+                <div className="schedule-period-row" key={p.index}>
+                  <span className="schedule-period-index">第 {p.index} 节</span>
+                  <input
+                    type="time"
+                    value={p.start}
+                    onChange={(e) => updatePeriod(p.index, 'start', e.target.value)}
+                  />
+                  <span>—</span>
+                  <input
+                    type="time"
+                    value={p.end}
+                    onChange={(e) => updatePeriod(p.index, 'end', e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="schedule-modal-foot">
+              <button className="schedule-save" onClick={saveSchedule}>
+                保存
+              </button>
+              <span className="schedule-tip">
+                点击单元格编辑课程；「快速填充」输入名称后点击单元格可批量填充。
+              </span>
             </div>
           </section>
         </div>

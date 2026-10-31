@@ -2007,3 +2007,149 @@ input:focus-visible {
   margin-top: 8px;
   color: var(--accent);
 }
+
+/* 课程表网格编辑器 */
+.schedule-modal {
+  width: min(720px, 100%);
+}
+.schedule-week-switch {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+.schedule-week-switch button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 13px;
+}
+.schedule-week-switch button.is-on {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.schedule-quickfill {
+  margin-bottom: 10px;
+}
+.schedule-fill-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+}
+.schedule-grid-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.schedule-grid {
+  min-width: 560px;
+  display: grid;
+  grid-template-columns: 92px repeat(7, 1fr);
+  gap: 3px;
+}
+.schedule-grid-head,
+.schedule-grid-row {
+  display: contents;
+}
+.schedule-grid-corner,
+.schedule-grid-day {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.schedule-grid-period {
+  min-height: 40px;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.1;
+}
+.schedule-grid-period small {
+  color: var(--quiet);
+  font-size: 9px;
+  font-weight: 400;
+}
+.schedule-cell {
+  min-height: 40px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.schedule-cell:hover {
+  border-color: var(--accent);
+}
+.schedule-cell.has-course {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.schedule-periods {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.schedule-period-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 10px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--quiet);
+  font-size: 11px;
+}
+.schedule-period-row input {
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.schedule-save {
+  min-height: 36px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #286da8;
+  font-size: 13px;
+}
+.schedule-save:hover {
+  background: #347fbf;
+}
+.schedule-tip {
+  color: var(--quiet);
+  font-size: 11px;
+}
