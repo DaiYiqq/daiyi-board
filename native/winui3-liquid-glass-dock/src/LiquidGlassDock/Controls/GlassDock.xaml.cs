@@ -107,7 +107,7 @@ public sealed partial class GlassDock : UserControl
 
         Renderer.Draw(
             ds, Backdrop, GetSourceRect(), destRect,
-            cornerRadius: 24f,
+            cornerRadius: (float)ActualHeight / 2f,   // 胶囊（Pill）：圆角 = 半高
             p, pointerLocal, _slideOffset, _slideVelocity, _timeSec, _tintColor, writing);
     }
 

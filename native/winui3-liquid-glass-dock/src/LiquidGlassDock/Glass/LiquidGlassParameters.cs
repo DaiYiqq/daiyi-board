@@ -41,8 +41,8 @@ public sealed class LiquidGlassParameters : INotifyPropertyChanged
     public float GlareFollow { get => _glareFollow; set => Set(ref _glareFollow, value); }
 
     // ---------------- 染色 ----------------
-    private float _glassBaseOpacity = 0.60f;
-    /// <summary>乳白玻璃底色强度（0..1）。越大玻璃越“奶白”越不透明；0 则完全透出背景。</summary>
+    private float _glassBaseOpacity = 0.15f;
+    /// <summary>玻璃底色强度（0..1）。默认极低——“极度通透”，只留一层极淡的透白，不做厚重底色块。</summary>
     public float GlassBaseOpacity { get => _glassBaseOpacity; set => Set(ref _glassBaseOpacity, value); }
 
     private float _tintStrength = 0.12f;
@@ -84,6 +84,23 @@ public sealed class LiquidGlassParameters : INotifyPropertyChanged
     private bool _lowQuality = false;
     /// <summary>简化玻璃模式：关掉色散三通道，降低位移图分辨率。</summary>
     public bool LowQuality { get => _lowQuality; set => Set(ref _lowQuality, value); }
+
+    // ---------------- 着色器（HLSL 像素着色器参数） ----------------
+    private float _refractionStrength = 5.0f;
+    /// <summary>折射强度（像素）。越大边缘透镜弯曲越明显。</summary>
+    public float RefractionStrength { get => _refractionStrength; set => Set(ref _refractionStrength, value); }
+
+    private float _dispersionPx = 0.8f;
+    /// <summary>色散强度（像素，RGB 分裂量）。边缘红蓝光晕，保持克制。</summary>
+    public float DispersionPx { get => _dispersionPx; set => Set(ref _dispersionPx, value); }
+
+    private float _pillRadius = 0.46f;
+    /// <summary>胶囊圆角半径（归一化 UV，近 0.5 = 完整胶囊）。</summary>
+    public float PillRadius { get => _pillRadius; set => Set(ref _pillRadius, value); }
+
+    private float _edgeSoftness = 0.06f;
+    /// <summary>边缘柔化宽度（SDF 距离，越小折射带越锐利）。</summary>
+    public float EdgeSoftness { get => _edgeSoftness; set => Set(ref _edgeSoftness, value); }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

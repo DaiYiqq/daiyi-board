@@ -30,4 +30,11 @@
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- 编译好的液态玻璃像素着色器，作为嵌入资源在运行时加载 -->
+    <EmbeddedResource Include="Shaders\LiquidGlassPill.cso" />
+    <!-- HLSL 源码：仅作参考/编辑，不参与 .NET 编译 -->
+    <None Include="Shaders\LiquidGlassPill.hlsl" />
+  </ItemGroup>
+
 </Project>
