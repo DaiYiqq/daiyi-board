@@ -32,8 +32,10 @@ import {
   Maximize2,
   Pause,
   Play,
+  Map as MapIcon,
 } from 'lucide-react';
 import CameraStage from './components/CameraStage';
+import MapStage from './components/MapStage';
 import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
 
 declare global {
@@ -319,7 +321,16 @@ export default function App() {
   const [width, setWidth] = useState(4);
   const [prefs, setPrefs] = useState<Preferences>(readPrefs);
   const [panel, setPanel] = useState<
-    'menu' | 'pen' | 'customize' | 'advanced' | 'developer' | 'help' | 'camera' | 'schedule' | null
+    | 'menu'
+    | 'pen'
+    | 'customize'
+    | 'advanced'
+    | 'developer'
+    | 'help'
+    | 'camera'
+    | 'schedule'
+    | 'teaching'
+    | null
   >(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [zoom, setZoom] = useState(100);
@@ -351,7 +362,7 @@ export default function App() {
     status: 'idle',
   }));
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
-  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | null>(null);
+  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | 'map' | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(10 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerDeadlineRef = useRef<number | null>(null);
@@ -1382,6 +1393,46 @@ export default function App() {
                       <small>跟随指针放大局部画面</small>
                     </span>
                   </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => setPanel('teaching')}
+                  >
+                    <MapIcon size={18} />
+                    <span>
+                      <b>教学工具</b>
+                      <small>地理地图等课堂工具</small>
+                    </span>
+                  </button>
+                </div>
+              )}
+              {panel === 'teaching' && (
+                <div className="toolbar-menu teaching-menu" onClick={(e) => e.stopPropagation()}>
+                  <div className="toolbar-popover-title">
+                    <div>
+                      <span className="eyebrow">DY BOARD</span>
+                      <h3>教学工具</h3>
+                    </div>
+                    <button
+                      className="popover-close"
+                      onClick={() => setPanel(null)}
+                      aria-label="关闭教学工具"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <button
+                    className="menu-item"
+                    onClick={() => {
+                      setAdvancedMode('map');
+                      setPanel(null);
+                    }}
+                  >
+                    <MapIcon size={18} />
+                    <span>
+                      <b>地理地图</b>
+                      <small>高德地图，查看地理位置</small>
+                    </span>
+                  </button>
                 </div>
               )}
               {panel === 'menu' && (
@@ -1659,18 +1710,20 @@ export default function App() {
         )}
       </section>
       {advancedMode && (
-        <div className="advanced-overlay">
-          <button
-            className="mode-close"
-            onClick={() => {
-              setAdvancedMode(null);
-              pauseTimer();
-            }}
-            aria-label="返回白板"
-          >
-            <X size={21} />
-            <span>返回白板</span>
-          </button>
+        <div className={`advanced-overlay${advancedMode === 'map' ? ' map-overlay' : ''}`}>
+          {advancedMode !== 'map' && (
+            <button
+              className="mode-close"
+              onClick={() => {
+                setAdvancedMode(null);
+                pauseTimer();
+              }}
+              aria-label="返回白板"
+            >
+              <X size={21} />
+              <span>返回白板</span>
+            </button>
+          )}
           {advancedMode === 'clock' ? (
             <div className="clock-mode">
               <span className="eyebrow">DY BOARD · 全屏时钟</span>
@@ -1684,7 +1737,7 @@ export default function App() {
                 })}
               </div>
             </div>
-          ) : (
+          ) : advancedMode === 'timer' ? (
             <div className="timer-mode">
               <span className="eyebrow">DY BOARD · 课堂倒计时</span>
               <div className={`timer-mode-time ${timerSeconds === 0 ? 'timer-finished' : ''}`}>
@@ -1729,6 +1782,8 @@ export default function App() {
                 重置为 10 分钟
               </button>
             </div>
+          ) : (
+            <MapStage onExit={() => setAdvancedMode(null)} />
           )}
         </div>
       )}

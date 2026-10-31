@@ -1775,7 +1775,7 @@ input:focus-visible {
   --glass-shadow: 0 16px 40px rgba(60, 70, 86, 0.14);
 }
 
-/* 玻璃表面内统一使用深色墨水，保证乳白玻璃上的可读性 */
+/* 玻璃表面内统一使用深色墨水 + 浅色控件面/边框，保证乳白玻璃上的可读性 */
 .bottom-dock,
 .toolbar-popover,
 .toolbar-menu,
@@ -1789,6 +1789,9 @@ input:focus-visible {
   --text: var(--glass-ink);
   --muted: var(--glass-ink-muted);
   --quiet: var(--glass-ink-quiet);
+  --surface: rgba(255, 255, 255, 0.5);
+  --surface-raised: rgba(255, 255, 255, 0.74);
+  --line: rgba(30, 32, 38, 0.16);
   color: var(--glass-ink);
 }
 
@@ -2152,4 +2155,13 @@ input:focus-visible {
 .schedule-tip {
   color: var(--quiet);
   font-size: 11px;
+}
+
+/* 教学工具 / 地理地图 */
+.teaching-menu {
+  width: min(310px, calc(100vw - 24px));
+}
+.advanced-overlay.map-overlay {
+  display: block;
+  padding: 0;
 }
