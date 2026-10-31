@@ -55,11 +55,20 @@ type Page = { id: string; title: string; marks: Mark[] };
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
 type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
+type ClassEntry = {
+  id: string;
+  name: string;
+  start: string; // "HH:MM"
+  end: string; // "HH:MM"
+  days: number[]; // 0=周日..6=周六；空数组 = 每天
+};
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
 const APP_VERSION = '0.7.1';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
+const SCHEDULE_KEY = 'daiyi-board-schedule-v1';
+const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
 const COLORS = [
   '#FFFFFF',
   '#000000',
@@ -183,6 +192,64 @@ function readPrefs(): Preferences {
     return defaultPrefs;
   }
 }
+const toMinutes = (t: string) => {
+  const [h, m] = t.split(':').map((v) => Number(v));
+  return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+};
+const classActiveOn = (entry: ClassEntry, dow: number) =>
+  entry.days.length === 0 || entry.days.includes(dow);
+const parseSchedule = (raw: unknown): ClassEntry[] => {
+  if (!Array.isArray(raw)) return [];
+  const result: ClassEntry[] = [];
+  for (const value of raw) {
+    if (!value || typeof value !== 'object') continue;
+    const v = value as Record<string, unknown>;
+    if (
+      typeof v.name !== 'string' || !v.name.trim() || v.name.length > 60 ||
+      typeof v.start !== 'string' || !/^\d{1,2}:\d{2}$/.test(v.start) ||
+      typeof v.end !== 'string' || !/^\d{1,2}:\d{2}$/.test(v.end)
+    )
+      continue;
+    const days = Array.isArray(v.days)
+      ? v.days
+          .filter((d): d is number => Number.isInteger(d) && Number(d) >= 0 && Number(d) <= 6)
+          .map(Number)
+      : [];
+    result.push({
+      id: typeof v.id === 'string' && v.id ? v.id : crypto.randomUUID(),
+      name: v.name.trim(),
+      start: v.start,
+      end: v.end,
+      days,
+    });
+  }
+  return result;
+};
+function readSchedule(): ClassEntry[] {
+  try {
+    return parseSchedule(JSON.parse(localStorage.getItem(SCHEDULE_KEY) ?? '[]'));
+  } catch {
+    return [];
+  }
+}
+const currentClassFor = (schedule: ClassEntry[], now: Date): ClassEntry | null => {
+  const dow = now.getDay();
+  const m = now.getHours() * 60 + now.getMinutes();
+  return (
+    schedule.find((c) => classActiveOn(c, dow) && m >= toMinutes(c.start) && m < toMinutes(c.end)) ??
+    null
+  );
+};
+const nextClassFor = (schedule: ClassEntry[], now: Date): ClassEntry | null => {
+  const dow = now.getDay();
+  const m = now.getHours() * 60 + now.getMinutes();
+  return (
+    schedule
+      .filter((c) => classActiveOn(c, dow) && m < toMinutes(c.start))
+      .sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0] ?? null
+  );
+};
+
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export default function App() {
@@ -208,6 +275,7 @@ export default function App() {
   const [layoutTick, setLayoutTick] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const scheduleFileRef = useRef<HTMLInputElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const magnifierCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef<{
@@ -220,6 +288,7 @@ export default function App() {
     bounds?: ReturnType<typeof boundsFor>;
   } | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const [schedule, setSchedule] = useState<ClassEntry[]>(readSchedule);
   const [startupProgress, setStartupProgress] = useState(0);
   const [updateState, setUpdateState] = useState<UpdateSnapshot>(() => ({
     source: window.boardDesktop ? 'desktop' : 'pwa',
@@ -365,6 +434,13 @@ export default function App() {
       /* Interface preferences are optional; board content is saved only on explicit action. */
     }
   }, [prefs]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(SCHEDULE_KEY, JSON.stringify(schedule));
+    } catch {
+      /* 课程表为可选本地数据。 */
+    }
+  }, [schedule]);
   useEffect(() => {
     const resize = () => setLayoutTick((tick) => tick + 1);
     window.addEventListener('resize', resize);
@@ -730,6 +806,36 @@ export default function App() {
     if (!visible.length) return;
     setPrefs({ ...prefs, visibleTools: visible });
   };
+  const addClass = () =>
+    setSchedule((s) => [
+      ...s,
+      { id: crypto.randomUUID(), name: '', start: '08:00', end: '09:40', days: [1, 2, 3, 4, 5] },
+    ]);
+  const removeClass = (id: string) => setSchedule((s) => s.filter((c) => c.id !== id));
+  const updateClass = (id: string, patch: Partial<Omit<ClassEntry, 'id'>>) =>
+    setSchedule((s) => s.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+  const toggleDay = (id: string, dow: number) =>
+    setSchedule((s) =>
+      s.map((c) => {
+        if (c.id !== id) return c;
+        const has = c.days.includes(dow);
+        return { ...c, days: has ? c.days.filter((d) => d !== dow) : [...c.days, dow].sort() };
+      }),
+    );
+  const importScheduleFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > 2 * 1024 * 1024) throw new Error('文件过大');
+      const entries = parseSchedule(JSON.parse(await file.text()));
+      if (!entries.length) throw new Error('没有有效课程');
+      setSchedule(entries);
+      window.alert(`已导入 ${entries.length} 门课程。`);
+    } catch {
+      window.alert('导入失败：请使用 JSON 数组，每项含 name、start、end（可选 days，0=周日…6=周六）。');
+    }
+    event.target.value = '';
+  };
   const quitApplication = async () => {
     setPanel(null);
     if (window.boardDesktop?.quit) {
@@ -813,6 +919,14 @@ export default function App() {
     day: '2-digit',
     weekday: 'short',
   });
+  const currentClass = currentClassFor(schedule, now);
+  const nextClass = nextClassFor(schedule, now);
+  const hasClassToday = schedule.some((c) => classActiveOn(c, now.getDay()));
+  const islandClassText = currentClass
+    ? currentClass.name
+    : hasClassToday && !nextClass
+      ? '已下课'
+      : '';
   const timerText = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
   const updateHeading =
     updateState.status === 'checking'
@@ -868,12 +982,23 @@ export default function App() {
   return (
     <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}`}>
       <section className="workspace">
-        <div className="time-island" aria-label={`系统时间 ${clockText}`}>
+        <div
+          className="time-island"
+          aria-label={`系统时间 ${clockText}${islandClassText ? `，${islandClassText}` : ''}`}
+        >
           <span className="island-logo">Yi+</span>
           <span className="island-separator" />
           <Clock3 size={14} />
           <time>{clockText}</time>
           <small>{dateText}</small>
+          {islandClassText && (
+            <>
+              <span className="island-separator" />
+              <span className={`island-class${islandClassText === '已下课' ? ' is-dismissed' : ''}`}>
+                {islandClassText}
+              </span>
+            </>
+          )}
         </div>
         {panel === 'camera' ? (
           <CameraStage
@@ -1078,6 +1203,81 @@ export default function App() {
                           {TOOL_LABEL[id]}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                  <div className="setting-group schedule-group">
+                    <div className="setting-label">课程表</div>
+                    {schedule.length === 0 ? (
+                      <div className="setting-sub">还没有课程，可手动添加或导入 JSON。</div>
+                    ) : (
+                      schedule.map((c) => (
+                        <div className="schedule-row" key={c.id}>
+                          <input
+                            className="schedule-name"
+                            value={c.name}
+                            placeholder="课程名"
+                            maxLength={60}
+                            onChange={(e) => updateClass(c.id, { name: e.target.value })}
+                          />
+                          <input
+                            className="schedule-time"
+                            type="time"
+                            value={c.start}
+                            onChange={(e) => updateClass(c.id, { start: e.target.value })}
+                          />
+                          <span className="schedule-dash">—</span>
+                          <input
+                            className="schedule-time"
+                            type="time"
+                            value={c.end}
+                            onChange={(e) => updateClass(c.id, { end: e.target.value })}
+                          />
+                          <button
+                            className="schedule-delete"
+                            onClick={() => removeClass(c.id)}
+                            aria-label="删除课程"
+                          >
+                            <X size={13} />
+                          </button>
+                          <div className="schedule-days">
+                            {WEEKDAY_LABELS.map((label, dow) => (
+                              <button
+                                key={dow}
+                                className={`schedule-day ${c.days.includes(dow) ? 'is-on' : ''}`}
+                                onClick={() => toggleDay(c.id, dow)}
+                                title={`周${label}`}
+                                aria-pressed={c.days.includes(dow)}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    <div className="schedule-actions">
+                      <button className="schedule-add" onClick={addClass}>
+                        + 添加课程
+                      </button>
+                      <button className="schedule-import" onClick={() => scheduleFileRef.current?.click()}>
+                        导入 JSON
+                      </button>
+                    </div>
+                    <input
+                      ref={scheduleFileRef}
+                      className="hidden-input"
+                      type="file"
+                      accept=".json,application/json"
+                      onChange={importScheduleFile}
+                    />
+                    <div className="setting-sub schedule-current">
+                      {currentClass
+                        ? `本节课：${currentClass.name}（${currentClass.start}–${currentClass.end}）`
+                        : nextClass
+                          ? `下节课：${nextClass.name}（${nextClass.start}–${nextClass.end}）`
+                          : hasClassToday
+                            ? '今日课程已结束'
+                            : '今日无课程'}
                     </div>
                   </div>
                   <div className="popover-foot">
@@ -1522,6 +1722,7 @@ export default function App() {
             <div className="startup-countdown">
               {Math.max(0, Math.ceil((100 - startupProgress) / 20))} 秒
             </div>
+            <div className="startup-class">本节课：{currentClass ? currentClass.name : '无'}</div>
           </div>
         </div>
       )}

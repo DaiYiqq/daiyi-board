@@ -1872,3 +1872,138 @@ input:focus-visible {
 
 /* 开发者标记 / 帮助弹层内的次要面板 */
 .developer-mark { background: linear-gradient(145deg, #ffffff, #f0ede8); }
+
+
+/* =====================================================================
+   DY Board 0.7.1 — 课程表 + 灵动岛放大
+   ===================================================================== */
+.time-island {
+  min-width: 244px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 24px;
+  font-size: 13px;
+}
+.time-island time {
+  min-width: 72px;
+  font-size: 13px;
+}
+.time-island small {
+  font-size: 11px;
+}
+.island-class {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--accent);
+}
+.island-class.is-dismissed {
+  color: var(--danger);
+}
+
+.startup-class {
+  margin-top: 16px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd4df;
+  font-size: 13px;
+}
+
+/* 课程表设置 */
+.schedule-group .schedule-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+}
+.schedule-name {
+  width: 100%;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-time {
+  flex: 1;
+  min-width: 82px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-dash {
+  color: var(--quiet);
+  font-size: 11px;
+}
+.schedule-delete {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: var(--danger);
+  background: transparent;
+}
+.schedule-delete:hover {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+.schedule-days {
+  width: 100%;
+  display: flex;
+  gap: 4px;
+}
+.schedule-day {
+  flex: 1;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+}
+.schedule-day.is-on {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.schedule-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.schedule-add,
+.schedule-import {
+  flex: 1;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-add:hover,
+.schedule-import:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.schedule-current {
+  margin-top: 8px;
+  color: var(--accent);
+}
