@@ -2,7 +2,14 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v1.0.1。** [下载 v1.0.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v1.0.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开版本：v1.0.1。** [下载 v1.0.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v1.0.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。当前 `main` 上的开发中版本号为 **v2.0.1**（教学工具，尚未打 tag / 发布）。
+
+## 2.0.1 教学工具
+
+- **教学工具面板**：高级菜单新增「教学工具」，含学科分类、搜索、收藏、最近使用与工具卡片，可拖入白板或点击插入。
+- **teaching-tool 元素**：拖入后可选中 / 移动 / 缩放 / 删除 / 全屏 / 刷新 / 截图，支持撤销重做与保存恢复（旧存档自动兼容）。
+- **本地离线工具**：简谐振动、抛体运动、单摆、地球视距、函数绘图（MIT，断网可用）；另有多类外部工具卡片（新窗口打开）。
+- **高德地图自动定位**：进入地理地图自动定位到当前位置。
 
 ## 1.0.1 修复地理地图空白
 
