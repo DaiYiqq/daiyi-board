@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TEACHING_TOOLS, SUBJECTS, getTool } from './registry.ts';
+import { TEACHING_TOOLS, SUBJECTS, getTool } from '../src/teaching-tools/registry.ts';
 
 test('注册表：所有工具字段完整且合规', () => {
   const ids = new Set<string>();

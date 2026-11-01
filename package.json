@@ -24,7 +24,7 @@
     "desktop:mac": "pnpm build && electron-builder --publish never --mac dmg zip",
     "desktop:linux": "pnpm build && electron-builder --publish never --linux AppImage deb",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/teaching-tools/registry.test.ts"
+    "test": "node --test tests/registry.test.ts"
   },
   "dependencies": {
     "electron-updater": "^6.8.11",
