@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html,body{margin:0;height:100%;background:#10131a;overflow:hidden}
+  canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+  var cv = document.getElementById('c');
+  var ctx = cv.getContext('2d');
+  var P = { speed: 50, angle: 45 };
+  var shots = [];
+  var t0 = performance.now();
+
+  function send(type, data){ window.parent.postMessage(Object.assign({ type: type }, data || {}), '*'); }
+
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type === 'whiteboard:init') {
+      Object.assign(P, d.params || {});
+      send('tool:ready', { version: '1.0.0' });
+    } else if (d.type === 'whiteboard:set-params') {
+      Object.assign(P, d.params || {});
+    } else if (d.type === 'whiteboard:request-snapshot') {
+      send('tool:snapshot', { dataUrl: cv.toDataURL('image/png') });
+    }
+  });
+
+  function resize(){
+    var r = cv.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(r.width * dpr));
+    cv.height = Math.max(1, Math.round(r.height * dpr));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function fire(){
+    var a = P.angle * Math.PI / 180;
+    var vx = P.speed * Math.cos(a), vy = P.speed * Math.sin(a);
+    var g = 9.8, w = cv.width, h = cv.height;
+    var scale = Math.min(w,h) / 400;
+    var x = w*0.08, y = h*0.9;
+    var ux = vx * scale, uy = -vy * scale; // 像素/秒
+    var gy = g * scale;
+    shots.push({ x:x, y:y, ux:ux, uy:uy, t:performance.now() });
+  }
+
+  function loop(){
+    resize();
+    var w = cv.width, h = cv.height;
+    ctx.clearRect(0,0,w,h);
+    var now = performance.now();
+    // 地面
+    ctx.strokeStyle = '#4a5463'; ctx.lineWidth = Math.max(1,w/500);
+    ctx.beginPath(); ctx.moveTo(0, h*0.9); ctx.lineTo(w, h*0.9); ctx.stroke();
+    for (var i=0;i<shots.length;i++){
+      var s = shots[i];
+      var dt = (now - s.t)/1000;
+      var x = s.x + s.ux*dt;
+      var y = s.y + s.uy*dt + 0.5*gy*dt*dt;
+      if (y > h*0.9) { shots.splice(i,1); i--; continue; }
+      ctx.fillStyle = '#e2a35c';
+      ctx.beginPath(); ctx.arc(x, y, Math.max(4, w/80), 0, Math.PI*2); ctx.fill();
+    }
+    // 自动发射
+    if (shots.length === 0 && Math.floor(now/1200) !== Math.floor(t0/1200)) fire();
+    t0 = now;
+    requestAnimationFrame(loop);
+  }
+  fire();
+  loop();
+})();
+</script>
+</body>
+</html>
