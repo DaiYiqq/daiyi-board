@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Pendulum • Physics Notebook</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/article.css">
+    <style>
+        /* AI Links */
+        .ai-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        .ai-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-right: 0.2rem;
+            font-weight: 500;
+        }
+
+        .ai-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--line-subtle);
+            color: var(--text-muted);
+            min-width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0 8px;
+        }
+
+        .ai-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Theme Init -->
+    <script>
+        const savedTheme = localStorage.getItem('physics-notebook-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.body && document.body.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <!-- Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <nav class="sticky">
+        <div class="nav-bg"></div>
+        <a href="../index.html" class="logo">
+            <i data-lucide="arrow-left" width="16"></i>
+            Library
+        </a>
+        <button id="themeBtn">
+            <i data-lucide="moon" width="16"></i> Theme
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="text-reveal-wrapper">
+            <h1 class="hero-title">The Simple<br>Pendulum</h1>
+            <p style="margin-top: 2rem; font-size: 1.4rem; max-width: 40ch;">
+                A timeless demonstration of periodic motion, harmonic oscillation, and energy conservation.
+            </p>
+        </div>
+    </section>
+
+    <!-- SECTION 1: Basic Motion -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent);">01. Periodic Motion</h3>
+                <h2>Harmonic Oscillation</h2>
+                <p>
+                    A simple pendulum consists of a mass suspended from a fixed point by a massless string.
+                    When displaced from equilibrium and released, it exhibits <strong>periodic motion</strong>,
+                    swinging back and forth with a constant period.
+                </p>
+                <div class="math-block">
+                    $$T = 2\pi\sqrt{\frac{L}{g}}$$
+                </div>
+                <p>
+                    Here, $T$ is the period, $L$ is the length of the string, and $g$ is the acceleration due to
+                    gravity.
+                    Notice that the period is independent of the mass and, for small angles, independent of amplitude.
+                </p>
+
+                <div class="etu-card">
+                    <span class="etu-tag">Real World Analogy</span>
+                    <h4 style="margin-bottom:0.5rem;">The Grandfather Clock</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Pendulums have been used for centuries in clocks. The consistent period of oscillation
+                        makes them perfect timekeepers—change the length to adjust the time.
+                    </p>
+                </div>
+
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('motion', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('motion', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('motion', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('motion', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('motion', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+                <div class="sim-controls">
+                    <div class="slider-group">
+                        <label>Length (L) <span id="val-length">1.5</span>m</label>
+                        <input type="range" id="input-length" min="0.5" max="3.0" step="0.1" value="1.5">
+                    </div>
+                    <div class="slider-group">
+                        <label>Initial Angle (θ₀) <span id="val-angle">30</span>°</label>
+                        <input type="range" id="input-angle" min="10" max="80" step="5" value="30">
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-motion"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 2: Energy Conservation -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent-secondary);">02. Energy Transfer</h3>
+                <h2>Conservation of Energy</h2>
+                <p>
+                    As the pendulum swings, energy continuously converts between <strong>kinetic</strong> and
+                    <strong>potential energy</strong>. At the highest point of its swing, all energy is gravitational
+                    potential. At the lowest point, all energy is kinetic.
+                </p>
+                <div class="math-block">
+                    $$E_{total} = KE + PE = \frac{1}{2}mv^2 + mgh = \text{constant}$$
+                </div>
+                <p>
+                    The total mechanical energy remains constant in an ideal pendulum (no friction or air resistance).
+                    This interchange demonstrates one of physics' most fundamental principles: energy conservation.
+                </p>
+
+                <div class="etu-card">
+                    <span class="etu-tag">Deep Concept</span>
+                    <h4 style="margin-bottom:0.5rem;">Small Angle Approximation</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        For angles less than about 15°, we can approximate $\sin\theta \approx \theta$ (in radians).
+                        This simplification allows us to treat the pendulum as a simple harmonic oscillator with
+                        the restoring force $F = -mg\sin\theta \approx -mg\theta$.
+                    </p>
+                </div>
+
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('energy', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('energy', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('energy', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('energy', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('energy', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+                <div class="sim-controls">
+                    <div class="slider-group">
+                        <label>Gravity (g) <span id="val-gravity">9.8</span> m/s²</label>
+                        <input type="range" id="input-gravity" min="1.0" max="20.0" step="0.5" value="9.8">
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-energy"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 3: Damping and Resistance -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--text-muted);">03. Real-World Effects</h3>
+                <h2>Damping & Resistance</h2>
+                <p>
+                    In reality, no pendulum swings forever. <strong>Air resistance</strong> and
+                    <strong>friction</strong>
+                    at the pivot point gradually reduce the amplitude of oscillation. This energy loss is called
+                    <strong>damping</strong>.
+                </p>
+                <div class="math-block">
+                    $$F_{damping} = -b\dot{\theta}$$
+                </div>
+                <p>
+                    Here, $b$ is the damping coefficient and $\dot{\theta}$ is the angular velocity.
+                    The damping force opposes motion, causing the pendulum to eventually come to rest.
+                </p>
+
+                <div class="etu-card">
+                    <span class="etu-tag">Engineering Application</span>
+                    <h4 style="margin-bottom:0.5rem;">Shock Absorbers</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Car suspension systems use damped oscillators to absorb bumps smoothly.
+                        The damping prevents the car from bouncing indefinitely after hitting a pothole.
+                    </p>
+                </div>
+
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('damping', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('damping', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('damping', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('damping', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('damping', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+                <div class="sim-controls">
+                    <div class="slider-group">
+                        <label>Damping Coefficient <span id="val-damping">0.05</span></label>
+                        <input type="range" id="input-damping" min="0.0" max="0.2" step="0.01" value="0.05">
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-damping"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="references">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h3>Academic References</h3>
+            <ul>
+                <li><strong>Halliday, D., Resnick, R., & Walker, J.</strong> (2013). <em>Fundamentals of Physics</em>,
+                    10th Edition.</li>
+                <li><strong>French, A. P.</strong> (1971). <em>Vibrations and Waves</em>, MIT Introductory Physics
+                    Series.</li>
+            </ul>
+        </div>
+    </section>
+
+    <script src="../js/common.js"></script>
+    <script>
+        function openAI(topic, model) {
+            let prompt = "";
+            switch (topic) {
+                case 'motion':
+                    prompt = "Explain the simple pendulum motion and how the period depends on length and gravity, not mass or amplitude for small angles.";
+                    break;
+                case 'energy':
+                    prompt = "How does energy conservation work in a pendulum? Explain the conversion between kinetic and potential energy.";
+                    break;
+                case 'damping':
+                    prompt = "What is damping in pendulum motion? How do air resistance and friction affect a pendulum's oscillation over time?";
+                    break;
+            }
+            launchAIPrompt(model, prompt);
+        }
+
+        const APP = {
+            visuals: [],
+            observer: null,
+
+            init() {
+                this.setupObserver();
+                this.initVisuals();
+
+                window.addEventListener('theme-changed', (e) => {
+                    this.visuals.forEach(v => v.updateColors());
+                });
+            },
+
+            setupObserver() {
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const visual = this.visuals.find(v => v.canvas === entry.target);
+                        if (visual) visual.isVisible = entry.isIntersecting;
+                    });
+                }, { threshold: 0.1 });
+            },
+
+            initVisuals() {
+                this.addVisual(new MotionVisual('canvas-motion'));
+                this.addVisual(new EnergyVisual('canvas-energy'));
+                this.addVisual(new DampingVisual('canvas-damping'));
+            },
+
+            addVisual(visual) {
+                this.visuals.push(visual);
+                this.observer.observe(visual.canvas);
+            }
+        };
+
+        class BaseVisual {
+            constructor(id) {
+                this.canvas = document.getElementById(id);
+                this.ctx = this.canvas.getContext('2d');
+                this.isVisible = false;
+                this.updateColors();
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.loop();
+            }
+            updateColors() {
+                this.color = getComputedStyle(document.body).getPropertyValue('--text-main').trim();
+                this.bg = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+                this.accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+                this.secondary = getComputedStyle(document.body).getPropertyValue('--accent-secondary').trim();
+            }
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width * 2;
+                this.canvas.height = rect.height * 2;
+                this.scale = 2;
+                this.cx = this.canvas.width / 2;
+                this.cy = this.canvas.height / 2;
+            }
+            loop() {
+                if (this.isVisible) this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+            draw() { }
+        }
+
+        class MotionVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.time = 0;
+                this.length = 1.5;
+                this.angle = 30;
+
+                // Setup controls
+                const lengthInput = document.getElementById('input-length');
+                const angleInput = document.getElementById('input-angle');
+
+                lengthInput.addEventListener('input', (e) => {
+                    this.length = parseFloat(e.target.value);
+                    document.getElementById('val-length').textContent = e.target.value;
+                });
+
+                angleInput.addEventListener('input', (e) => {
+                    this.angle = parseFloat(e.target.value);
+                    document.getElementById('val-angle').textContent = e.target.value;
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.time += 0.03;
+
+                const maxAngle = this.angle * Math.PI / 180;
+                const currentAngle = maxAngle * Math.sin(this.time);
+
+                // Compute dynamic length so pendulum never swings off left/right/bottom edges
+                const maxAllowedWidth = (this.canvas.width / this.scale) * 0.45;
+                const maxAllowedHeight = (this.canvas.height / this.scale) - 80;
+                const baseLen = Math.min(this.cy * 0.6 / this.scale, maxAllowedHeight) * (this.length / 1.5);
+                const maxLenForWidth = maxAllowedWidth / Math.sin(Math.max(maxAngle, 0.1));
+                const len = Math.min(baseLen, maxLenForWidth) * this.scale;
+
+                const endX = this.cx + Math.sin(currentAngle) * len;
+                const endY = 50 * this.scale + Math.cos(currentAngle) * len;
+
+                // Draw string
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.cx, 50 * this.scale);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+
+                // Draw pivot point
+                this.ctx.fillStyle = this.color;
+                this.ctx.beginPath();
+                this.ctx.arc(this.cx, 50 * this.scale, 5 * this.scale, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Draw mass
+                this.ctx.fillStyle = this.accent;
+                this.ctx.beginPath();
+                this.ctx.arc(endX, endY, 12 * this.scale, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Draw arc showing max angle
+                this.ctx.strokeStyle = this.secondary;
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.lineWidth = 1 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.arc(this.cx, 50 * this.scale, len, Math.PI / 2 - maxAngle, Math.PI / 2 + maxAngle);
+                this.ctx.stroke();
+                this.ctx.globalAlpha = 1;
+            }
+        }
+
+        class EnergyVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.time = 0;
+                this.gravity = 9.8;
+
+                // Setup controls
+                const gravityInput = document.getElementById('input-gravity');
+                gravityInput.addEventListener('input', (e) => {
+                    this.gravity = parseFloat(e.target.value);
+                    document.getElementById('val-gravity').textContent = e.target.value;
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const speedFactor = Math.sqrt(this.gravity / 9.8);
+                this.time += 0.03 * speedFactor;
+
+                const maxAngle = 0.6;
+                const currentAngle = maxAngle * Math.sin(this.time);
+
+                // Compute length dynamically to make sure pendulum fits and does not collide with charts on the right
+                const maxHSpace = (this.canvas.width / this.scale < 500) ? (this.canvas.width / this.scale) * 0.32 : (this.canvas.width / this.scale) * 0.22;
+                const maxAllowedHeight = (this.canvas.height / this.scale) - 80;
+                const len = Math.min(this.cy * 0.6 / this.scale, maxAllowedHeight, maxHSpace / Math.sin(maxAngle)) * this.scale;
+
+                const endX = this.cx + Math.sin(currentAngle) * len;
+                const endY = 50 * this.scale + Math.cos(currentAngle) * len;
+
+                // Draw string
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.cx, 50 * this.scale);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+
+                // Draw mass
+                this.ctx.fillStyle = this.accent;
+                this.ctx.beginPath();
+                this.ctx.arc(endX, endY, 12 * this.scale, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Energy visualization - bar chart
+                const barX = this.canvas.width / this.scale > 500 ?
+                             this.cx + len + 30 * this.scale :
+                             this.canvas.width - 50 * this.scale;
+                const barMaxHeight = len;
+                const h = len * (1 - Math.cos(currentAngle));  // height above lowest point
+                const pe = h / (len - len * Math.cos(maxAngle));  // normalized PE
+                const ke = 1 - pe;  // normalized KE
+
+                // PE bar
+                this.ctx.fillStyle = this.secondary;
+                this.ctx.globalAlpha = 0.7;
+                this.ctx.fillRect(barX, endY - pe * barMaxHeight, 30 * this.scale, pe * barMaxHeight);
+
+                // KE bar
+                this.ctx.fillStyle = this.accent;
+                this.ctx.fillRect(barX, endY, 30 * this.scale, -ke * barMaxHeight);
+                this.ctx.globalAlpha = 1;
+
+                // Labels
+                this.ctx.fillStyle = this.color;
+                this.ctx.font = `${10 * this.scale}px Inter`;
+                this.ctx.fillText('PE', barX, endY - pe * barMaxHeight - 5 * this.scale);
+                this.ctx.fillText('KE', barX, endY - ke * barMaxHeight + 15 * this.scale);
+            }
+        }
+
+        class DampingVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.time = 0;
+                this.damping = 0.05;
+
+                // Setup controls
+                const dampingInput = document.getElementById('input-damping');
+                dampingInput.addEventListener('input', (e) => {
+                    this.damping = parseFloat(e.target.value);
+                    document.getElementById('val-damping').textContent = e.target.value;
+                    this.time = 0;  // Reset animation
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.time += 0.03;
+
+                const maxAngle = 0.7;
+                const decay = Math.exp(-this.damping * this.time);
+                const currentAngle = maxAngle * decay * Math.sin(this.time);
+                
+                const maxAllowedWidth = (this.canvas.width / this.scale) * 0.45;
+                const maxAllowedHeight = (this.canvas.height / this.scale) - 80;
+                const len = Math.min(this.cy * 0.6 / this.scale, maxAllowedHeight, maxAllowedWidth / Math.sin(maxAngle)) * this.scale;
+
+                const endX = this.cx + Math.sin(currentAngle) * len;
+                const endY = 50 * this.scale + Math.cos(currentAngle) * len;
+
+                // Draw envelope showing decay
+                this.ctx.strokeStyle = this.secondary;
+                this.ctx.globalAlpha = 0.3;
+                this.ctx.lineWidth = 1 * this.scale;
+                this.ctx.beginPath();
+                const envAngle = maxAngle * decay;
+                this.ctx.arc(this.cx, 50 * this.scale, len, Math.PI / 2 - envAngle, Math.PI / 2 + envAngle);
+                this.ctx.stroke();
+                this.ctx.globalAlpha = 1;
+
+                // Draw string
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.cx, 50 * this.scale);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+
+                // Draw mass
+                this.ctx.fillStyle = this.accent;
+                this.ctx.globalAlpha = Math.max(0.3, decay);
+                this.ctx.beginPath();
+                this.ctx.arc(endX, endY, 12 * this.scale, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.globalAlpha = 1;
+
+                // Draw amplitude indicator centered and safe from bottom edge
+                this.ctx.fillStyle = this.color;
+                this.ctx.font = `${10 * this.scale}px Inter`;
+                this.ctx.textAlign = 'center';
+                const textY = Math.min(50 * this.scale + len + 30 * this.scale, this.canvas.height - 15 * this.scale);
+                this.ctx.fillText(`Amplitude: ${(decay * 100).toFixed(0)}%`, this.cx, textY);
+            }
+        }
+
+        window.onload = () => APP.init();
+    </script>
+</body>
+
+</html>

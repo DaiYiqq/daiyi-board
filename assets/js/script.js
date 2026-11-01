@@ -1,7 +1,7 @@
 /* DY Board — 轻量交互：移动端菜单 + FAQ 手风琴 + 版本注入 */
 (function () {
   // 版本单一来源：未来在 GitHub 发布新版本时，只改这一处即可全站同步
-  var APP_VERSION = "2.0.1";
+  var APP_VERSION = "2.1.0";
 
   function injectVersion() {
     document.querySelectorAll("[data-version]").forEach(function (el) {
