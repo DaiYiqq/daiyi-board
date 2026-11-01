@@ -2,7 +2,14 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v2.0.1。** [下载 v2.0.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.0.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线网页/PWA：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)。
+> **最新公开版本：v2.0.1。** [下载 v2.0.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.0.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线网页/PWA：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)。当前 `main` 上的开发中版本号为 **v2.1.0**（教学工具重构与真实仓库接入，尚未打 tag / 发布）。
+
+## 2.1.0 教学工具重构与真实仓库接入
+
+- **注册表真实来源**：按附录地址清单接入 17 个工具，许可证已核对（MIT / CC BY-NC 4.0 / PyPI / 待核对）。
+- **P0 本地打包**：Open Lab Components（3 组件）、Physics Notebook（3 概念页）、cn-math-taxonomy（知识图谱）随应用打包、离线可用。
+- **白板元素增强**：截图作为独立图片元素插入；新增置顶层级、复制粘贴、双击全屏、重置参数、版本不兼容提示、postMessage origin/schema 校验、加载骨架屏。
+- **测试与文档**：新增注册表单元测试；文档含「如何新增工具」「postMessage 协议」「许可证注意事项」与第三方版权声明。
 
 ## 2.0.1 教学工具
 
