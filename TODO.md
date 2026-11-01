@@ -96,4 +96,4 @@
 
 - [x] **地图空白修复**：高德地图显式容器尺寸、等布局完成后再初始化、`ResizeObserver`/窗口 resize 自动 `map.resize()`，并浮出加载/初始化错误提示。
 - [x] **版本号同步 1.0.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.1。
-- [ ] **1.0.1 打包与签名发行**：待创建 `v1.0.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **1.0.1 打包与签名发行**：已创建 `v1.0.1` tag 并推送，GitHub Actions release workflow run `41275791040` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
