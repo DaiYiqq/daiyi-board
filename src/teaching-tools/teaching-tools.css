@@ -342,3 +342,105 @@
   height: 18px;
   accent-color: var(--accent);
 }
+.teaching-card-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+}
+.teaching-card-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 骨架屏 */
+.tool-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #151923 25%, #1f2735 50%, #151923 75%);
+  background-size: 200% 100%;
+  animation: tool-shimmer 1.2s linear infinite;
+}
+@keyframes tool-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 版本 / 缺失提示 */
+.tool-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4px 8px;
+  color: #ffd9a0;
+  background: rgba(120, 70, 0, 0.85);
+  font-size: 10px;
+  text-align: center;
+}
+
+/* 截图图片元素 */
+.image-element {
+  position: absolute;
+  z-index: 4;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #10131a;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+.image-element img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.image-element.is-selected {
+  outline: 2px solid var(--accent);
+}
+.image-element-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  color: #e8edf5;
+  background: rgba(16, 19, 26, 0.8);
+  font-size: 10px;
+  cursor: move;
+  touch-action: none;
+}
+.image-element-bar button {
+  height: 16px;
+  padding: 0 6px;
+  border: 1px solid #4a5463;
+  border-radius: 4px;
+  color: #cbd4df;
+  background: transparent;
+  font-size: 9px;
+}
+.image-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--accent) 50%);
+  border-bottom-right-radius: 6px;
+  touch-action: none;
+}

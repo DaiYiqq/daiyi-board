@@ -38,6 +38,7 @@ import CameraStage from './components/CameraStage';
 import MapStage from './components/MapStage';
 import TeachingToolsPanel from './teaching-tools/TeachingToolsPanel';
 import ToolElement, { type ToolElement as ToolElementData } from './teaching-tools/ToolElement';
+import ImageElement, { type ImageElement as ImageElementData } from './teaching-tools/ImageElement';
 import { getTool, pushRecent, type TeachingTool } from './teaching-tools/registry';
 import './teaching-tools/teaching-tools.css';
 import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
@@ -57,7 +58,13 @@ type Mark = {
   width: number;
   points: Point[];
 };
-type Page = { id: string; title: string; marks: Mark[]; tools: ToolElementData[] };
+type Page = {
+  id: string;
+  title: string;
+  marks: Mark[];
+  tools: ToolElementData[];
+  images: ImageElementData[];
+};
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
 type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
@@ -115,6 +122,7 @@ const newPage = (n: number): Page => ({
   title: `白板 ${String(n).padStart(2, '0')}`,
   marks: [],
   tools: [],
+  images: [],
 });
 const pressureWidth = (width: number, pressure = 0.5) =>
   width * (0.45 + Math.max(0, Math.min(1, pressure)) * 0.9);
@@ -151,6 +159,29 @@ const isValidToolElement = (value: unknown): value is ToolElementData => {
     t.h <= 1
   );
 };
+const isValidImageElement = (value: unknown): value is ImageElementData => {
+  if (!value || typeof value !== 'object') return false;
+  const im = value as ImageElementData;
+  return (
+    typeof im.id === 'string' &&
+    !!im.id &&
+    typeof im.src === 'string' &&
+    !!im.src &&
+    im.src.length <= 4_000_000 &&
+    Number.isFinite(im.x) &&
+    im.x >= 0 &&
+    im.x <= 1 &&
+    Number.isFinite(im.y) &&
+    im.y >= 0 &&
+    im.y <= 1 &&
+    Number.isFinite(im.w) &&
+    im.w > 0 &&
+    im.w <= 1 &&
+    Number.isFinite(im.h) &&
+    im.h > 0 &&
+    im.h <= 1
+  );
+};
 const isValidPage = (value: unknown): value is Page => {
   if (!value || typeof value !== 'object') return false;
   const page = value as Page;
@@ -166,6 +197,11 @@ const isValidPage = (value: unknown): value is Page => {
   if (
     page.tools !== undefined &&
     (!Array.isArray(page.tools) || page.tools.length > 200 || !page.tools.every(isValidToolElement))
+  )
+    return false;
+  if (
+    page.images !== undefined &&
+    (!Array.isArray(page.images) || page.images.length > 200 || !page.images.every(isValidImageElement))
   )
     return false;
   return page.marks.every((value: unknown) => {
@@ -217,7 +253,7 @@ function readBoard(): BoardData {
       if (isValidBoard(data))
         return {
           ...data,
-          pages: data.pages.map((page) => ({ ...page, tools: page.tools ?? [] })),
+          pages: data.pages.map((page) => ({ ...page, tools: page.tools ?? [], images: page.images ?? [] })),
           activePage: data.pages.some((page) => page.id === data.activePage)
             ? data.activePage
             : data.pages[0].id,
@@ -226,7 +262,7 @@ function readBoard(): BoardData {
   } catch {
     /* Ignore an invalid saved board and start with a clean board. */
   }
-  const page = { id: 'welcome-board', title: '白板 01', marks: [], tools: [] };
+  const page = { id: 'welcome-board', title: '白板 01', marks: [], tools: [], images: [] };
   return { version: 1, pages: [page], activePage: page.id };
 }
 function readPrefs(): Preferences {
@@ -369,6 +405,7 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
   const [focusToolId, setFocusToolId] = useState<string | null>(null);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(100);
   const [dirty, setDirty] = useState(false);
@@ -508,9 +545,81 @@ export default function App() {
   );
   const snapshotTool = useCallback(
     (id: string, dataUrl: string) => {
+      const tool = pagesRef.current
+        .find((p) => p.id === activeRef.current)
+        ?.tools?.find((t) => t.id === id);
+      const img: ImageElementData = {
+        id: crypto.randomUUID(),
+        src: dataUrl,
+        x: Math.min(0.7, (tool?.x ?? 0.3) + (tool?.w ?? 0.42) + 0.03),
+        y: tool?.y ?? 0.3,
+        w: 0.32,
+        h: 0.32,
+      };
       const next = pagesRef.current.map((p) =>
         p.id === activeRef.current
-          ? { ...p, tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, snapshot: dataUrl } : t)) }
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, snapshot: dataUrl } : t)),
+              images: [...(p.images ?? []), img],
+            }
+          : p,
+      );
+      commit(next);
+      setSelectedImageId(img.id);
+    },
+    [commit],
+  );
+  const updateImageLive = useCallback(
+    (id: string, patch: Partial<ImageElementData>) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? { ...p, images: (p.images ?? []).map((im) => (im.id === id ? { ...im, ...patch } : im)) }
+          : p,
+      );
+      setPagesLive(next);
+    },
+    [setPagesLive],
+  );
+  const deleteImage = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, images: (p.images ?? []).filter((im) => im.id !== id) } : p,
+      );
+      commit(next);
+      setSelectedImageId((cur) => (cur === id ? null : cur));
+    },
+    [commit],
+  );
+  const bringToolToFront = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) => {
+        if (p.id !== activeRef.current) return p;
+        const tools = p.tools ?? [];
+        const idx = tools.findIndex((t) => t.id === id);
+        if (idx < 0) return p;
+        const arr = [...tools];
+        arr.push(arr.splice(idx, 1)[0]);
+        return { ...p, tools: arr };
+      });
+      commit(next);
+    },
+    [commit],
+  );
+  const resetToolParams = useCallback(
+    (id: string) => {
+      const tool = getTool(
+        pagesRef.current.find((p) => p.id === activeRef.current)?.tools?.find((t) => t.id === id)
+          ?.toolId ?? '',
+      );
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) =>
+                t.id === id ? { ...t, params: { ...(tool?.defaultParams ?? {}) } } : t,
+              ),
+            }
           : p,
       );
       commit(next);
@@ -724,6 +833,35 @@ export default function App() {
       lens.height,
     );
   }, [magnifierEnabled, pointerPosition, active, selected, layoutTick]);
+  const clipboardRef = useRef<{ kind: 'tool' | 'image'; data: ToolElementData | ImageElementData } | null>(null);
+  const copySelected = useCallback(() => {
+    if (selectedToolId) {
+      const t = pagesRef.current.find((p) => p.id === activeRef.current)?.tools?.find((x) => x.id === selectedToolId);
+      if (t) clipboardRef.current = { kind: 'tool', data: structuredClone(t) };
+    } else if (selectedImageId) {
+      const im = pagesRef.current.find((p) => p.id === activeRef.current)?.images?.find((x) => x.id === selectedImageId);
+      if (im) clipboardRef.current = { kind: 'image', data: structuredClone(im) };
+    }
+  }, [selectedToolId, selectedImageId]);
+  const pasteClipboard = useCallback(() => {
+    const c = clipboardRef.current;
+    if (!c) return;
+    if (c.kind === 'tool') {
+      const src = c.data as ToolElementData;
+      const el: ToolElementData = { ...src, id: crypto.randomUUID(), x: Math.min(0.9, src.x + 0.03), y: Math.min(0.9, src.y + 0.03) };
+      const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, tools: [...(p.tools ?? []), el] } : p));
+      commit(next);
+      setSelectedToolId(el.id);
+      setSelectedImageId(null);
+    } else {
+      const src = c.data as ImageElementData;
+      const im: ImageElementData = { ...src, id: crypto.randomUUID(), x: Math.min(0.9, src.x + 0.03), y: Math.min(0.9, src.y + 0.03) };
+      const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, images: [...(p.images ?? []), im] } : p));
+      commit(next);
+      setSelectedImageId(im.id);
+      setSelectedToolId(null);
+    }
+  }, [commit]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -734,29 +872,38 @@ export default function App() {
         e.preventDefault();
         redo();
       }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        copySelected();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        pasteClipboard();
+      }
       if (e.key === 'Escape') {
         setPanel(null);
         setAdvancedMode(null);
         setSelectedToolId(null);
         setFocusToolId(null);
+        setSelectedImageId(null);
         pauseTimer();
         setLaserEnabled(false);
         setMagnifierEnabled(false);
       }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedToolId) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedToolId || selectedImageId)) {
         const target = e.target as HTMLElement | null;
         const inField =
           target &&
           (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
         if (!inField) {
           e.preventDefault();
-          deleteTool(selectedToolId);
+          if (selectedToolId) deleteTool(selectedToolId);
+          else if (selectedImageId) deleteImage(selectedImageId);
         }
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [undo, redo, selectedToolId, deleteTool]);
+  }, [undo, redo, selectedToolId, selectedImageId, deleteTool, deleteImage, copySelected, pasteClipboard]);
 
   const pointAt = (event: ReactPointerEvent<HTMLCanvasElement>): Point => {
     const r = event.currentTarget.getBoundingClientRect();
@@ -994,7 +1141,7 @@ export default function App() {
       const nextActive = parsed.pages.some((page) => page.id === parsed.activePage)
         ? parsed.activePage
         : parsed.pages[0].id;
-      commit(parsed.pages.map((page) => ({ ...page, tools: page.tools ?? [] })));
+      commit(parsed.pages.map((page) => ({ ...page, tools: page.tools ?? [], images: page.images ?? [] })));
       setActivePage(nextActive);
       activeRef.current = nextActive;
       setSavedAt('工程已打开，尚未手动保存');
@@ -1302,6 +1449,7 @@ export default function App() {
                       focused={isFocused}
                       onSelect={(id) => {
                         setSelectedToolId(id);
+                        setSelectedImageId(null);
                         setSelected(null);
                       }}
                       onBeforeChange={beginToolGesture}
@@ -1310,9 +1458,28 @@ export default function App() {
                       onSnapshot={snapshotTool}
                       onFocus={(id) => setFocusToolId(id)}
                       onExitFocus={() => setFocusToolId(null)}
+                      onBringToFront={bringToolToFront}
+                      onResetParams={resetToolParams}
                     />
                   );
                 })}
+                {(active?.images ?? []).map((im) => (
+                  <ImageElement
+                    key={im.id}
+                    image={im}
+                    stageW={stageSize.width}
+                    stageH={stageSize.height}
+                    selected={im.id === selectedImageId}
+                    onSelect={(id) => {
+                      setSelectedImageId(id);
+                      setSelectedToolId(null);
+                      setSelected(null);
+                    }}
+                    onBeforeChange={beginToolGesture}
+                    onUpdate={updateImageLive}
+                    onDelete={deleteImage}
+                  />
+                ))}
               </div>
               {selectedToolId &&
                 !focusToolId &&

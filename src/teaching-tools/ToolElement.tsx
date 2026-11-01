@@ -27,7 +27,16 @@ type Props = {
   onSnapshot: (id: string, dataUrl: string) => void;
   onFocus: (id: string) => void;
   onExitFocus: () => void;
+  onBringToFront: (id: string) => void;
+  onResetParams: (id: string) => void;
 };
+
+const ALLOWED_TOOL_MESSAGES = new Set(['tool:ready', 'tool:snapshot', 'tool:state-changed']);
+function isValidToolMessage(value: unknown): value is { type: string; dataUrl?: unknown; state?: unknown } {
+  if (!value || typeof value !== 'object') return false;
+  const type = (value as { type?: unknown }).type;
+  return typeof type === 'string' && ALLOWED_TOOL_MESSAGES.has(type);
+}
 
 export default function ToolElement({
   element,
@@ -42,11 +51,16 @@ export default function ToolElement({
   onSnapshot,
   onFocus,
   onExitFocus,
+  onBringToFront,
+  onResetParams,
 }: Props) {
   const tool: TeachingTool | undefined = getTool(element.toolId);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const missing = !tool;
+  const versionMismatch = !!tool && tool.version !== '-' && tool.version !== element.toolVersion;
 
   const src =
     tool?.loadMode === 'local-iframe'
@@ -67,7 +81,7 @@ export default function ToolElement({
     return () => iframe.removeEventListener('load', onLoad);
   }, [src, element.id]);
 
-  // 参数变化 → 下发 set-params（在 ready 之后才有效，但重复下发无害）
+  // 参数变化 → 下发 set-params（对实现了协议的工具有效）
   useEffect(() => {
     iframeRef.current?.contentWindow?.postMessage(
       { type: 'whiteboard:set-params', params: element.params },
@@ -75,11 +89,12 @@ export default function ToolElement({
     );
   }, [element.params]);
 
-  // 监听工具回传（ready / snapshot）
+  // 监听工具回传（带 origin/schema 校验）
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (e.source !== iframeRef.current?.contentWindow) return;
-      const d = e.data || {};
+      if (!isValidToolMessage(e.data)) return;
+      const d = e.data;
       if (d.type === 'tool:ready') setReady(true);
       else if (d.type === 'tool:snapshot') {
         if (typeof d.dataUrl === 'string' && d.dataUrl) onSnapshot(element.id, d.dataUrl);
@@ -89,7 +104,7 @@ export default function ToolElement({
     return () => window.removeEventListener('message', onMessage);
   }, [element.id, onSnapshot]);
 
-  // 加载超时 → 错误卡（仅本地 iframe；远程用 link 不走这里）
+  // 加载超时 → 错误卡
   useEffect(() => {
     setReady(false);
     setFailed(false);
@@ -104,7 +119,19 @@ export default function ToolElement({
   }, [src, tool?.loadMode]);
 
   const requestSnapshot = () => {
+    // 协议工具：请求快照
     iframeRef.current?.contentWindow?.postMessage({ type: 'whiteboard:request-snapshot' }, '*');
+    // 回退：同源本地 iframe 的 canvas 直接截图
+    try {
+      const doc = iframeRef.current?.contentDocument;
+      const canvas = doc?.querySelector('canvas') as HTMLCanvasElement | null;
+      if (canvas) {
+        const dataUrl = canvas.toDataURL('image/png');
+        if (dataUrl && dataUrl !== 'data:,') onSnapshot(element.id, dataUrl);
+      }
+    } catch {
+      /* 跨域或 sandbox 限制，忽略 */
+    }
   };
   const refresh = () => {
     const iframe = iframeRef.current;
@@ -175,8 +202,12 @@ export default function ToolElement({
         e.stopPropagation();
         onSelect(element.id);
       }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        onFocus(element.id);
+      }}
     >
-      {tool?.loadMode === 'local-iframe' ? (
+      {tool?.loadMode === 'local-iframe' || tool?.loadMode === 'remote-iframe' ? (
         <>
           <iframe
             ref={iframeRef}
@@ -189,7 +220,12 @@ export default function ToolElement({
           {failed && element.snapshot && (
             <img className="tool-fallback" src={element.snapshot} alt={tool?.name} />
           )}
-          {!ready && !failed && !element.snapshot && <div className="tool-loading">加载中…</div>}
+          {!ready && !failed && !element.snapshot && (
+            <div className="tool-loading">
+              <div className="tool-skeleton" />
+              <span>加载中…</span>
+            </div>
+          )}
           {failed && !element.snapshot && (
             <div className="tool-error">
               <span>加载失败</span>
@@ -206,19 +242,36 @@ export default function ToolElement({
         </div>
       )}
 
+      {(missing || versionMismatch) && (
+        <div className="tool-banner">
+          {missing
+            ? '工具已下架或不可用'
+            : `版本不兼容（保存 ${element.toolVersion}，当前 ${tool?.version}）`}
+        </div>
+      )}
+
       {selected && !focused && (
         <>
           <div className="tool-element-bar" onPointerDown={startMove}>
             <span>{tool?.name ?? '工具'}</span>
             <span className="tool-bar-actions">
               <button
-                title="截图"
+                title="截图插入白板"
                 onClick={(e) => {
                   e.stopPropagation();
                   requestSnapshot();
                 }}
               >
                 截图
+              </button>
+              <button
+                title="重置参数"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onResetParams(element.id);
+                }}
+              >
+                重置
               </button>
               <button
                 title="刷新"
@@ -228,6 +281,15 @@ export default function ToolElement({
                 }}
               >
                 刷新
+              </button>
+              <button
+                title="置顶"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBringToFront(element.id);
+                }}
+              >
+                置顶
               </button>
               <button
                 title="全屏"

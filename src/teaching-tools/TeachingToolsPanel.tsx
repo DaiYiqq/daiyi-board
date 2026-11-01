@@ -104,19 +104,30 @@ export default function TeachingToolsPanel({ onClose, onInsert }: Props) {
                 {t.offline ? <span className="badge-offline">离线</span> : <span className="badge-online">在线</span>}
                 <span className="teaching-card-subject">{t.subject}</span>
               </div>
-              <div className="teaching-card-body">
+              <div className="teaching-card-body" title={t.note}>
                 <b>{t.name}</b>
                 <p>{t.description}</p>
                 <div className="teaching-card-meta">
+                  <span>{t.sourceName}</span>
                   <span>{t.license}</span>
-                  <span>v{t.version}</span>
                 </div>
               </div>
               <div className="teaching-card-actions">
-                <button onClick={() => insert(t)}>拖入 / 插入</button>
+                <button onClick={() => insert(t)}>插入</button>
                 <button className={favorites.includes(t.id) ? 'is-fav' : ''} onClick={() => onFav(t.id)}>
                   {favorites.includes(t.id) ? '★ 已收藏' : '☆ 收藏'}
                 </button>
+                {t.entryUrl && (
+                  <a
+                    className="teaching-card-link"
+                    href={t.entryUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="打开来源"
+                  >
+                    来源
+                  </a>
+                )}
               </div>
             </div>
           ))}
