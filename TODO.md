@@ -90,3 +90,10 @@
 - [x] **界面修复**：玻璃表面作用域内统一浅色控件面/边框，修复课程表编辑器「黑字黑框」对比度问题。
 - [x] **版本号同步 1.0.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.0。
 - [x] **1.0.0 打包与签名发行**：已创建 `v1.0.0` tag 并推送，GitHub Actions release workflow run `41192853827` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 1.0.1 修复地理地图空白
+
+- [x] **地图空白修复**：高德地图显式容器尺寸、等布局完成后再初始化、`ResizeObserver`/窗口 resize 自动 `map.resize()`，并浮出加载/初始化错误提示。
+- [x] **版本号同步 1.0.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.1。
+- [ ] **1.0.1 打包与签名发行**：待创建 `v1.0.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
