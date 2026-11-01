@@ -115,4 +115,4 @@
 - [x] **白板元素增强**：截图作为独立图片元素（`Page.images`）插入；置顶层级、复制粘贴、双击全屏、重置参数、版本不兼容提示、postMessage origin/schema 校验、加载骨架屏。
 - [x] **测试与文档**：新增注册表单元测试（`node --test`）；文档含「如何新增工具」「postMessage 协议」「许可证注意事项」与第三方 `NOTICE.md`。
 - [x] **版本号同步 2.1.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.0。
-- [ ] **2.1.0 打包与签名发行**：待创建 `v2.1.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **2.1.0 打包与签名发行**：已创建 `v2.1.0` tag 并推送，GitHub Actions release workflow run `41284583706` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
