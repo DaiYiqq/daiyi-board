@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html,body{margin:0;height:100%;background:#10131a;overflow:hidden;color:#e8edf5;font-family:system-ui,sans-serif}
+  .wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:8px}
+  h1{font-size:14px;margin:0 0 6px;font-weight:600}
+  .num{font-size:26px;font-weight:700;color:#e2a35c}
+  .sub{font-size:11px;color:#8b93a3}
+  svg{width:100%;max-width:320px;height:120px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>地球视距</h1>
+  <div class="num" id="d">0.0 km</div>
+  <div class="sub">观察者高度 <span id="h">100</span> 米</div>
+  <svg viewBox="0 0 320 120" preserveAspectRatio="xMidYMid meet">
+    <circle cx="160" cy="420" r="400" fill="#1b232e" stroke="#4a5463" stroke-width="1.5"/>
+    <rect x="0" y="112" width="320" height="8" fill="#10131a"/>
+    <line id="hor" x1="0" y1="114" x2="320" y2="114" stroke="#e2a35c" stroke-width="2" stroke-dasharray="4 3"/>
+  </svg>
+</div>
+<script>
+(function(){
+  var P = { height: 100 };
+  var R = 6371000; // 米
+  function send(type, data){ window.parent.postMessage(Object.assign({ type: type }, data || {}), '*'); }
+
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type === 'whiteboard:init') {
+      Object.assign(P, d.params || {});
+      update();
+      send('tool:ready', { version: '1.0.0' });
+    } else if (d.type === 'whiteboard:set-params') {
+      Object.assign(P, d.params || {});
+      update();
+    } else if (d.type === 'whiteboard:request-snapshot') {
+      send('tool:snapshot', { dataUrl: null });
+    }
+  });
+
+  function update(){
+    var d = Math.sqrt(2 * R * P.height + P.height * P.height);
+    document.getElementById('d').textContent = (d/1000).toFixed(1) + ' km';
+    document.getElementById('h').textContent = P.height;
+  }
+  update();
+})();
+</script>
+</body>
+</html>

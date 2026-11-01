@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  html,body{margin:0;height:100%;background:#10131a;overflow:hidden}
+  canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function(){
+  var cv = document.getElementById('c');
+  var ctx = cv.getContext('2d');
+  var P = { amplitude: 45, frequency: 1, damping: 0 };
+  var t0 = performance.now();
+
+  function send(type, data){ window.parent.postMessage(Object.assign({ type: type }, data || {}), '*'); }
+
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if (d.type === 'whiteboard:init') {
+      Object.assign(P, d.params || {});
+      send('tool:ready', { version: '1.0.0' });
+    } else if (d.type === 'whiteboard:set-params') {
+      Object.assign(P, d.params || {});
+    } else if (d.type === 'whiteboard:request-snapshot') {
+      send('tool:snapshot', { dataUrl: cv.toDataURL('image/png') });
+    }
+  });
+
+  function resize(){
+    var r = cv.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(r.width * dpr));
+    cv.height = Math.max(1, Math.round(r.height * dpr));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function loop(){
+    resize();
+    var w = cv.width, h = cv.height;
+    ctx.clearRect(0,0,w,h);
+    var t = (performance.now() - t0) / 1000;
+    var decay = Math.exp(-P.damping * t);
+    var cx = w/2, cy = h/2;
+    var amp = P.amplitude * (h/300);
+    // 弹簧 + 质点
+    ctx.strokeStyle = '#7aa7d9'; ctx.lineWidth = Math.max(1, w/400);
+    ctx.beginPath();
+    for (var i=0;i<=40;i++){
+      var ux = cx - w*0.4 + (w*0.5)*i/40;
+      var uy = cy + Math.sin(i/40*Math.PI*8)*(amp*0.15);
+      if(i===0) ctx.moveTo(ux,uy); else ctx.lineTo(ux,uy);
+    }
+    ctx.stroke();
+    var x = cx + Math.sin(2*Math.PI*P.frequency*t)*amp*decay;
+    ctx.fillStyle = '#e2a35c';
+    ctx.beginPath(); ctx.arc(x, cy, Math.max(6, w/60), 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#8b93a3'; ctx.fillRect(cx - w*0.02, cy - h*0.01, w*0.04, h*0.02);
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

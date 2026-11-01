@@ -9,6 +9,11 @@ declare global {
   interface Window {
     AMap?: {
       Map: new (el: HTMLElement, opts?: Record<string, unknown>) => AMapMap;
+      Marker?: new (opts?: Record<string, unknown>) => { setMap: (m: AMapMap | null) => void };
+      Geolocation?: new (opts?: Record<string, unknown>) => {
+        getCurrentPosition: (cb: (status: string, result: unknown) => void) => void;
+      };
+      plugin?: (name: string, cb: () => void) => void;
     };
     _AMapSecurityConfig?: { securityJsCode?: string };
   }
@@ -16,6 +21,8 @@ declare global {
 interface AMapMap {
   resize?: () => void;
   destroy?: () => void;
+  setCenter?: (lnglat: [number, number]) => void;
+  setZoom?: (zoom: number) => void;
 }
 
 type Status = 'loading' | 'ready' | 'error';
@@ -31,6 +38,50 @@ export default function MapStage({ onExit }: { onExit: () => void }) {
     let observer: ResizeObserver | null = null;
 
     const onResize = () => mapRef.current?.resize?.();
+
+    const locate = (map: AMapMap) => {
+      const amapGeo = () => {
+        if (!window.AMap?.plugin || !window.AMap?.Geolocation) return;
+        window.AMap.plugin('AMap.Geolocation', () => {
+          if (cancelled) return;
+          try {
+            const geo = new window.AMap!.Geolocation!({ enableHighAccuracy: true, timeout: 8000 });
+            geo.getCurrentPosition((status, result) => {
+              if (status === 'complete' && result) {
+                const pos = (result as { position?: [number, number] }).position;
+                if (pos) {
+                  map.setCenter?.(pos);
+                  map.setZoom?.(14);
+                }
+              }
+            });
+          } catch {
+            /* 定位失败则保持默认中心 */
+          }
+        });
+      };
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            if (cancelled) return;
+            const lnglat: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+            map.setCenter?.(lnglat);
+            map.setZoom?.(14);
+            if (window.AMap?.Marker) {
+              try {
+                new window.AMap.Marker({ position: lnglat, title: '当前位置' }).setMap(map);
+              } catch {
+                /* 标记失败不影响定位 */
+              }
+            }
+          },
+          () => amapGeo(),
+          { timeout: 8000 },
+        );
+      } else {
+        amapGeo();
+      }
+    };
 
     const initMap = () => {
       const el = containerRef.current;
@@ -53,6 +104,7 @@ export default function MapStage({ onExit }: { onExit: () => void }) {
         });
         mapRef.current = map;
         setStatus('ready');
+        locate(map);
         // 容器尺寸变化时同步地图尺寸，避免空白
         if (typeof ResizeObserver !== 'undefined') {
           observer = new ResizeObserver(onResize);

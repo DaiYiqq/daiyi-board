@@ -36,6 +36,10 @@ import {
 } from 'lucide-react';
 import CameraStage from './components/CameraStage';
 import MapStage from './components/MapStage';
+import TeachingToolsPanel from './teaching-tools/TeachingToolsPanel';
+import ToolElement, { type ToolElement as ToolElementData } from './teaching-tools/ToolElement';
+import { getTool, pushRecent, type TeachingTool } from './teaching-tools/registry';
+import './teaching-tools/teaching-tools.css';
 import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
 
 declare global {
@@ -53,7 +57,7 @@ type Mark = {
   width: number;
   points: Point[];
 };
-type Page = { id: string; title: string; marks: Mark[] };
+type Page = { id: string; title: string; marks: Mark[]; tools: ToolElementData[] };
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
 type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
@@ -110,6 +114,7 @@ const newPage = (n: number): Page => ({
   id: crypto.randomUUID(),
   title: `白板 ${String(n).padStart(2, '0')}`,
   marks: [],
+  tools: [],
 });
 const pressureWidth = (width: number, pressure = 0.5) =>
   width * (0.45 + Math.max(0, Math.min(1, pressure)) * 0.9);
@@ -123,6 +128,29 @@ const boundsFor = (points: Point[]) => {
     maxY: Math.max(...ys),
   };
 };
+const isValidToolElement = (value: unknown): value is ToolElementData => {
+  if (!value || typeof value !== 'object') return false;
+  const t = value as ToolElementData;
+  return (
+    typeof t.id === 'string' &&
+    !!t.id &&
+    typeof t.toolId === 'string' &&
+    !!t.toolId &&
+    typeof t.toolVersion === 'string' &&
+    Number.isFinite(t.x) &&
+    t.x >= 0 &&
+    t.x <= 1 &&
+    Number.isFinite(t.y) &&
+    t.y >= 0 &&
+    t.y <= 1 &&
+    Number.isFinite(t.w) &&
+    t.w > 0 &&
+    t.w <= 1 &&
+    Number.isFinite(t.h) &&
+    t.h > 0 &&
+    t.h <= 1
+  );
+};
 const isValidPage = (value: unknown): value is Page => {
   if (!value || typeof value !== 'object') return false;
   const page = value as Page;
@@ -133,6 +161,11 @@ const isValidPage = (value: unknown): value is Page => {
     page.title.length > 80 ||
     !Array.isArray(page.marks) ||
     page.marks.length > 5000
+  )
+    return false;
+  if (
+    page.tools !== undefined &&
+    (!Array.isArray(page.tools) || page.tools.length > 200 || !page.tools.every(isValidToolElement))
   )
     return false;
   return page.marks.every((value: unknown) => {
@@ -184,6 +217,7 @@ function readBoard(): BoardData {
       if (isValidBoard(data))
         return {
           ...data,
+          pages: data.pages.map((page) => ({ ...page, tools: page.tools ?? [] })),
           activePage: data.pages.some((page) => page.id === data.activePage)
             ? data.activePage
             : data.pages[0].id,
@@ -192,7 +226,7 @@ function readBoard(): BoardData {
   } catch {
     /* Ignore an invalid saved board and start with a clean board. */
   }
-  const page = { id: 'welcome-board', title: '白板 01', marks: [] };
+  const page = { id: 'welcome-board', title: '白板 01', marks: [], tools: [] };
   return { version: 1, pages: [page], activePage: page.id };
 }
 function readPrefs(): Preferences {
@@ -333,6 +367,9 @@ export default function App() {
     | null
   >(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  const [focusToolId, setFocusToolId] = useState<string | null>(null);
+  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(100);
   const [dirty, setDirty] = useState(false);
   const [savedAt, setSavedAt] = useState('点击底部“保存”手动保存工程');
@@ -390,6 +427,92 @@ export default function App() {
   const replaceCurrent = useCallback(
     (marks: Mark[]) => {
       const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, marks } : p));
+      commit(next);
+    },
+    [commit],
+  );
+  const pushUndo = useCallback(() => {
+    undoStack.current.push({
+      version: 1,
+      pages: structuredClone(pagesRef.current),
+      activePage: activeRef.current,
+    });
+    if (undoStack.current.length > 60) undoStack.current.shift();
+    redoStack.current = [];
+  }, []);
+  const setPagesLive = useCallback((next: Page[]) => {
+    pagesRef.current = next;
+    setPages(next);
+    setDirty(true);
+  }, []);
+  const beginToolGesture = useCallback(() => pushUndo(), [pushUndo]);
+  const insertTool = useCallback(
+    (tool: TeachingTool, x: number, y: number) => {
+      const el: ToolElementData = {
+        id: crypto.randomUUID(),
+        toolId: tool.id,
+        toolVersion: tool.version,
+        params: { ...tool.defaultParams },
+        x: Math.max(0, Math.min(0.6, x - 0.21)),
+        y: Math.max(0, Math.min(0.6, y - 0.18)),
+        w: 0.42,
+        h: 0.36,
+      };
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, tools: [...(p.tools ?? []), el] } : p,
+      );
+      commit(next);
+      setSelected(null);
+      setSelectedToolId(el.id);
+      pushRecent(tool.id);
+    },
+    [commit],
+  );
+  const updateToolLive = useCallback(
+    (id: string, patch: Partial<ToolElementData>) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? { ...p, tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, ...patch } : t)) }
+          : p,
+      );
+      setPagesLive(next);
+    },
+    [setPagesLive],
+  );
+  const updateToolParams = useCallback(
+    (id: string, key: string, value: unknown) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) =>
+                t.id === id ? { ...t, params: { ...(t.params ?? {}), [key]: value } } : t,
+              ),
+            }
+          : p,
+      );
+      commit(next);
+    },
+    [commit],
+  );
+  const deleteTool = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, tools: (p.tools ?? []).filter((t) => t.id !== id) } : p,
+      );
+      commit(next);
+      setSelectedToolId((cur) => (cur === id ? null : cur));
+      setFocusToolId((cur) => (cur === id ? null : cur));
+    },
+    [commit],
+  );
+  const snapshotTool = useCallback(
+    (id: string, dataUrl: string) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? { ...p, tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, snapshot: dataUrl } : t)) }
+          : p,
+      );
       commit(next);
     },
     [commit],
@@ -514,6 +637,18 @@ export default function App() {
     return () => window.removeEventListener('resize', resize);
   }, []);
   useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setStageSize({ width: r.width, height: r.height });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
     const startedAt = performance.now();
     const timer = window.setInterval(() => {
       const elapsed = performance.now() - startedAt;
@@ -602,14 +737,26 @@ export default function App() {
       if (e.key === 'Escape') {
         setPanel(null);
         setAdvancedMode(null);
+        setSelectedToolId(null);
+        setFocusToolId(null);
         pauseTimer();
         setLaserEnabled(false);
         setMagnifierEnabled(false);
       }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedToolId) {
+        const target = e.target as HTMLElement | null;
+        const inField =
+          target &&
+          (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+        if (!inField) {
+          e.preventDefault();
+          deleteTool(selectedToolId);
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [undo, redo]);
+  }, [undo, redo, selectedToolId, deleteTool]);
 
   const pointAt = (event: ReactPointerEvent<HTMLCanvasElement>): Point => {
     const r = event.currentTarget.getBoundingClientRect();
@@ -847,7 +994,7 @@ export default function App() {
       const nextActive = parsed.pages.some((page) => page.id === parsed.activePage)
         ? parsed.activePage
         : parsed.pages[0].id;
-      commit(parsed.pages);
+      commit(parsed.pages.map((page) => ({ ...page, tools: page.tools ?? [] })));
       setActivePage(nextActive);
       activeRef.current = nextActive;
       setSavedAt('工程已打开，尚未手动保存');
@@ -1104,7 +1251,18 @@ export default function App() {
               ref={stageRef}
               onPointerMove={trackPointer}
               onPointerLeave={() => setPointerPosition(null)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('application/x-teaching-tool');
+                if (!id) return;
+                const tool = getTool(id);
+                if (!tool) return;
+                const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                insertTool(tool, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+              }}
               onClick={() => {
+                setSelectedToolId(null);
                 if (
                   panel === 'customize' ||
                   panel === 'menu' ||
@@ -1130,6 +1288,86 @@ export default function App() {
                   />
                 </div>
               </div>
+              <div className="tools-layer">
+                {(active?.tools ?? []).map((t) => {
+                  const isFocused = t.id === focusToolId;
+                  const el = isFocused ? { ...t, x: 0, y: 0, w: 1, h: 1 } : t;
+                  return (
+                    <ToolElement
+                      key={t.id}
+                      element={el}
+                      stageW={stageSize.width}
+                      stageH={stageSize.height}
+                      selected={t.id === selectedToolId}
+                      focused={isFocused}
+                      onSelect={(id) => {
+                        setSelectedToolId(id);
+                        setSelected(null);
+                      }}
+                      onBeforeChange={beginToolGesture}
+                      onUpdate={updateToolLive}
+                      onDelete={deleteTool}
+                      onSnapshot={snapshotTool}
+                      onFocus={(id) => setFocusToolId(id)}
+                      onExitFocus={() => setFocusToolId(null)}
+                    />
+                  );
+                })}
+              </div>
+              {selectedToolId &&
+                !focusToolId &&
+                (() => {
+                  const t = (active?.tools ?? []).find((x) => x.id === selectedToolId);
+                  if (!t) return null;
+                  const tool = getTool(t.toolId);
+                  if (!tool?.paramsSchema?.length) return null;
+                  return (
+                    <div className="params-panel" onClick={(e) => e.stopPropagation()}>
+                      <h3>{tool.name} 参数</h3>
+                      {tool.paramsSchema.map((f) => (
+                        <div className="params-field" key={f.key}>
+                          <label>{f.label}</label>
+                          {f.type === 'slider' && (
+                            <input
+                              type="range"
+                              min={f.min}
+                              max={f.max}
+                              step={f.step}
+                              value={Number(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, Number(e.target.value))}
+                            />
+                          )}
+                          {f.type === 'select' && (
+                            <select
+                              value={String(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.value)}
+                            >
+                              {f.options?.map((o) => (
+                                <option key={String(o.value)} value={String(o.value)}>
+                                  {o.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {f.type === 'toggle' && (
+                            <input
+                              type="checkbox"
+                              checked={Boolean(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.checked)}
+                            />
+                          )}
+                          {f.type === 'text' && (
+                            <input
+                              type="text"
+                              value={String(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               {laserEnabled && pointerPosition && (
                 <div
                   className="laser-pointer"
@@ -1400,26 +1638,9 @@ export default function App() {
                     <MapIcon size={18} />
                     <span>
                       <b>教学工具</b>
-                      <small>地理地图等课堂工具</small>
+                      <small>交互式可视化，可拖入白板</small>
                     </span>
                   </button>
-                </div>
-              )}
-              {panel === 'teaching' && (
-                <div className="toolbar-menu teaching-menu" onClick={(e) => e.stopPropagation()}>
-                  <div className="toolbar-popover-title">
-                    <div>
-                      <span className="eyebrow">DY BOARD</span>
-                      <h3>教学工具</h3>
-                    </div>
-                    <button
-                      className="popover-close"
-                      onClick={() => setPanel(null)}
-                      aria-label="关闭教学工具"
-                    >
-                      <X size={18} />
-                    </button>
-                  </div>
                   <button
                     className="menu-item"
                     onClick={() => {
@@ -1430,10 +1651,13 @@ export default function App() {
                     <MapIcon size={18} />
                     <span>
                       <b>地理地图</b>
-                      <small>高德地图，查看地理位置</small>
+                      <small>高德地图，自动定位</small>
                     </span>
                   </button>
                 </div>
+              )}
+              {panel === 'teaching' && (
+                <TeachingToolsPanel onClose={() => setPanel(null)} onInsert={(tool) => insertTool(tool, 0.5, 0.4)} />
               )}
               {panel === 'menu' && (
                 <div className="toolbar-menu main-menu" onClick={(e) => e.stopPropagation()}>
