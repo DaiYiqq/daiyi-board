@@ -1,16 +1,284 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="DY Board：全屏黑白空白板，专注书写与展台演示。" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="./board-mark.svg" />
-    <title>DY Board</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DY Board — 把任意屏幕变成课堂白板 | 免费开源教学白板软件</title>
+  <meta name="description" content="DY Board 是专为教学设计的一体化白板与展台演示软件。乳白液态玻璃界面，对标 Apple 纯净体验；支持 Windows、macOS、Linux 与 PWA，完全免费且基于 MIT 协议开源。" />
+  <meta name="keywords" content="DY Board,教学白板,课堂白板,展台演示,文档摄像,开源白板软件,屏幕批注,PWA,免费白板,戴亿" />
+  <meta name="author" content="戴亿 (DaiYiqq)" />
+  <link rel="canonical" href="https://daiyiqq.github.io/daiyi-board/" />
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DY Board" />
+  <meta property="og:title" content="DY Board — 把任意屏幕变成课堂白板" />
+  <meta property="og:description" content="专为教学设计的一体化白板与展台演示软件，乳白液态玻璃界面，跨平台免费开源。" />
+  <meta property="og:url" content="https://daiyiqq.github.io/daiyi-board/" />
+  <meta property="og:image" content="https://daiyiqq.github.io/daiyi-board/assets/img/logo.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DY Board",
+    "alternateName": "DY Board 白板",
+    "operatingSystem": "Windows, macOS, Linux, PWA",
+    "applicationCategory": "EducationalApplication",
+    "applicationSubCategory": "Whiteboard & Document Camera",
+    "softwareVersion": "1.0.0",
+    "license": "https://opensource.org/licenses/MIT",
+    "url": "https://daiyiqq.github.io/daiyi-board/",
+    "description": "DY Board 是专为教学设计的一体化白板与展台演示软件，乳白液态玻璃界面，跨平台免费开源。",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+    "author": { "@type": "Person", "name": "戴亿", "url": "https://github.com/DaiYiqq" }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- 导航 -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="index.html"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</a>
+      <nav>
+        <ul class="nav__links" data-nav-links>
+          <li><a href="features.html">功能</a></li>
+          <li><a href="download.html">下载</a></li>
+          <li><a href="#open-source">开源</a></li>
+          <li><a href="faq.html">常见问题</a></li>
+          <li><a href="about.html">关于</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn--primary btn--sm nav__cta" href="download.html">下载 <span data-version></span></a>
+      <button class="nav__menu-btn" data-menu-btn aria-label="菜单">☰</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <span class="hero__badge"><span data-version></span> 现已发布 · 免费且开源</span>
+      <h1 class="hero__title">把任意屏幕，变成你的课堂白板</h1>
+      <p class="hero__sub">DY Board 是专为教学设计的一体化白板与展台演示软件。乳白液态玻璃界面，对标 Apple 的纯净体验——打开即用，多平台免费。</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="download.html">免费下载 <span data-version></span></a>
+        <a class="btn btn--ghost" href="https://github.com/DaiYiqq/daiyi-board">在 GitHub 查看源码</a>
+      </div>
+
+      <div class="hero__visual">
+        <svg viewBox="0 0 980 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DY Board 白板演示">
+          <rect width="980" height="560" fill="#eef3fb"/>
+          <rect x="40" y="40" width="900" height="480" rx="24" fill="#ffffff" stroke="#e6e9f0"/>
+          <rect x="40" y="40" width="900" height="56" rx="24" fill="#f7f9fc" stroke="#e6e9f0"/>
+          <circle cx="76" cy="68" r="6" fill="#ff5f57"/><circle cx="98" cy="68" r="6" fill="#febc2e"/><circle cx="120" cy="68" r="6" fill="#28c840"/>
+          <rect x="700" y="56" width="210" height="26" rx="13" fill="#eef3fb"/>
+          <rect x="64" y="120" width="64" height="360" rx="18" fill="#f7f9fc" stroke="#e6e9f0"/>
+          <circle cx="96" cy="156" r="16" fill="#0066cc"/>
+          <rect x="80" y="196" width="32" height="32" rx="10" fill="#eef3fb"/>
+          <rect x="80" y="240" width="32" height="32" rx="10" fill="#eef3fb"/>
+          <rect x="80" y="284" width="32" height="32" rx="10" fill="#eef3fb"/>
+          <rect x="80" y="328" width="32" height="32" rx="10" fill="#eef3fb"/>
+          <rect x="80" y="372" width="32" height="32" rx="10" fill="#eef3fb"/>
+          <text x="170" y="150" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#1d1d1f">课程 · 二次函数图像与性质</text>
+          <line x1="200" y1="470" x2="860" y2="470" stroke="#d2d2d7" stroke-width="2"/>
+          <line x1="240" y1="200" x2="240" y2="470" stroke="#d2d2d7" stroke-width="2"/>
+          <path d="M280 450 Q560 180 840 450" fill="none" stroke="#0066cc" stroke-width="5" stroke-linecap="round"/>
+          <path d="M340 400 L500 270" stroke="#ff9f0a" stroke-width="4" stroke-dasharray="8 8"/>
+          <circle cx="500" cy="270" r="8" fill="#ff9f0a"/>
+          <text x="514" y="264" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#ff9f0a">顶点</text>
+          <rect x="650" y="200" width="190" height="120" rx="12" fill="#fff7d6" stroke="#f3e7a6"/>
+          <text x="672" y="234" font-family="Inter, sans-serif" font-size="15" fill="#7a6a2e">重点：开口方向</text>
+          <text x="672" y="262" font-family="Inter, sans-serif" font-size="15" fill="#7a6a2e">对称轴 x = -b/2a</text>
+          <text x="672" y="290" font-family="Inter, sans-serif" font-size="15" fill="#7a6a2e">顶点公式</text>
+          <rect x="600" y="64" width="120" height="36" rx="18" fill="#ffffff" stroke="#e2e2e7"/>
+          <circle cx="622" cy="82" r="5" fill="#34c759"/>
+          <text x="638" y="88" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#1d1d1f">10:24</text>
+          <rect x="340" y="474" width="300" height="36" rx="18" fill="#ffffff" stroke="#e6e9f0"/>
+          <g>
+            <rect x="360" y="482" width="24" height="22" rx="7" fill="#0066cc"/>
+            <rect x="396" y="482" width="24" height="22" rx="7" fill="#34c759"/>
+            <rect x="432" y="482" width="24" height="22" rx="7" fill="#ff9f0a"/>
+            <rect x="468" y="482" width="24" height="22" rx="7" fill="#bf5af2"/>
+            <rect x="504" y="482" width="24" height="22" rx="7" fill="#2997ff"/>
+            <rect x="540" y="482" width="24" height="22" rx="7" fill="#ff453a"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心功能三大图 -->
+  <section class="section">
+    <div class="container">
+      <div class="tiles">
+        <article class="tile">
+          <div>
+            <p class="eyebrow">界面</p>
+            <h2 class="tile__title">乳白液态玻璃，纯净如 Apple</h2>
+            <p class="tile__text">底栏、按钮、浮层、菜单、设置、展台控件，统一为乳白半透明液态玻璃——细边高光、柔和阴影。黑 / 白双主题始终保持清晰可读。</p>
+            <p class="tile__keywords">全局统一 · 黑 / 白双主题 · 悬停流光</p>
+          </div>
+          <div class="tile__visual bg-blue" aria-hidden="true">
+            <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="乳白液态玻璃界面">
+              <rect x="40" y="30" width="240" height="180" rx="18" fill="#ffffff" opacity="0.94"/>
+              <circle cx="62" cy="48" r="4" fill="#ff5f57"/><circle cx="76" cy="48" r="4" fill="#febc2e"/><circle cx="90" cy="48" r="4" fill="#28c840"/>
+              <rect x="56" y="78" width="60" height="116" rx="10" fill="#f5f5f7"/>
+              <rect x="68" y="92" width="36" height="8" rx="4" fill="#d2d2d7"/>
+              <rect x="68" y="112" width="36" height="8" rx="4" fill="#e2e2e7"/>
+              <rect x="68" y="132" width="36" height="8" rx="4" fill="#e2e2e7"/>
+              <rect x="68" y="160" width="36" height="20" rx="6" fill="#0066cc"/>
+              <rect x="132" y="80" width="128" height="100" rx="10" fill="#fafcff" stroke="#e2e2e7"/>
+              <path d="M148 160 Q196 100 268 158" fill="none" stroke="#0066cc" stroke-width="4"/>
+              <rect x="148" y="192" width="96" height="10" rx="5" fill="#e2e2e7"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="tile tile--dark">
+          <div>
+            <p class="eyebrow">文档摄像展台</p>
+            <h2 class="tile__title">把纸质讲义，投上大屏</h2>
+            <p class="tile__text">枚举并切换摄像设备，显示真实分辨率与帧率。支持拍照存档、左右旋转、镜像、冻结、自动与高清分辨率请求，并可在画面任意位置实时批注。视频与照片仅在本机处理，绝不上传。</p>
+            <p class="tile__keywords">本机处理 · 实时批注 · 隐私优先</p>
+          </div>
+          <div class="tile__visual" style="background:#15171f" aria-hidden="true">
+            <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="文档摄像展台">
+              <rect x="40" y="36" width="180" height="150" rx="10" fill="#0c0d12" stroke="#272729"/>
+              <rect x="56" y="54" width="120" height="12" rx="6" fill="#3a3d47"/>
+              <rect x="56" y="78" width="100" height="9" rx="4" fill="#2c2f38"/>
+              <rect x="56" y="98" width="130" height="9" rx="4" fill="#2c2f38"/>
+              <rect x="56" y="118" width="80" height="9" rx="4" fill="#2c2f38"/>
+              <path d="M70 158 L140 96" stroke="#ff9f0a" stroke-width="4" stroke-dasharray="8 8"/>
+              <circle cx="140" cy="96" r="7" fill="#ff9f0a"/>
+              <rect x="236" y="60" width="48" height="64" rx="10" fill="#272729"/>
+              <circle cx="260" cy="92" r="16" fill="#0c0d12" stroke="#3a3d47" stroke-width="3"/>
+              <circle cx="260" cy="92" r="6" fill="#3a3d47"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="tile tile--parchment">
+          <div>
+            <p class="eyebrow">课程表 · 教学工具</p>
+            <h2 class="tile__title">课程表网格，自动识别当前节次</h2>
+            <p class="tile__text">节次 × 星期网格，支持单双周两套课表；按系统时间自动识别上课 / 休息 / 已下课，并提示距下节课的分钟数。全屏时钟、课堂倒计时、激光指示、跟随指针的屏幕放大镜一应俱全。</p>
+            <p class="tile__keywords">单双周 · 实时状态 · 课堂工具箱</p>
+          </div>
+          <div class="tile__visual" style="background:#ffffff" aria-hidden="true">
+            <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="课程表与课堂工具">
+              <rect x="36" y="34" width="248" height="36" rx="10" fill="#0066cc"/>
+              <text x="56" y="58" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#fff">本周课表</text>
+              <rect x="36" y="80" width="52" height="30" rx="6" fill="#ff9f0a" opacity="0.9"/>
+              <rect x="96" y="80" width="52" height="30" rx="6" fill="#2997ff" opacity="0.9"/>
+              <rect x="156" y="80" width="52" height="30" rx="6" fill="#bf5af2" opacity="0.9"/>
+              <rect x="216" y="80" width="52" height="30" rx="6" fill="#34c759" opacity="0.9"/>
+              <rect x="36" y="118" width="52" height="30" rx="6" fill="#2997ff" opacity="0.6"/>
+              <rect x="96" y="118" width="52" height="30" rx="6" fill="#ff9f0a" opacity="0.6"/>
+              <rect x="156" y="118" width="52" height="30" rx="6" fill="#34c759" opacity="0.6"/>
+              <rect x="216" y="118" width="52" height="30" rx="6" fill="#bf5af2" opacity="0.6"/>
+              <circle cx="92" cy="186" r="26" fill="#0066cc"/>
+              <text x="92" y="192" text-anchor="middle" font-family="Inter, sans-serif" font-size="17" font-weight="700" fill="#fff">10:24</text>
+              <rect x="140" y="166" width="140" height="40" rx="10" fill="#f5f5f7"/>
+              <text x="156" y="191" font-family="Inter, sans-serif" font-size="13" fill="#86868b">距下节课 16 分钟</text>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 功能特性网格 -->
+  <section class="section section--parchment" id="features">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">功能特性</p>
+        <h2 class="h2">为课堂打磨的每一处细节</h2>
+        <p class="lead">从书写到演示，从展台到计时，DY Board 把教学需要的工具都收进一块白板。</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="card__icon">✎</div><h3 class="card__title">压感笔与多色</h3><p class="card__text">支持压感书写，多种颜色与粗细，板书自然顺手。</p></div>
+        <div class="card"><div class="card__icon">▦</div><h3 class="card__title">多页白板</h3><p class="card__text">无限页面随意切换，课堂节奏不被打断。</p></div>
+        <div class="card"><div class="card__icon">🔍</div><h3 class="card__title">光标放大镜</h3><p class="card__text">跟随指针的屏幕放大镜，后排也能看清细节。</p></div>
+        <div class="card"><div class="card__icon">🔦</div><h3 class="card__title">激光指示</h3><p class="card__text">虚拟激光笔，重点一目了然。</p></div>
+        <div class="card"><div class="card__icon">⏱</div><h3 class="card__title">全屏时钟与倒计时</h3><p class="card__text">大字号时钟与课堂倒计时，时间尽在掌握。</p></div>
+        <div class="card"><div class="card__icon">🎥</div><h3 class="card__title">展台实时批注</h3><p class="card__text">摄像头画面任意位置实时书写标注。</p></div>
+        <div class="card"><div class="card__icon">📡</div><h3 class="card__title">PWA 离线可用</h3><p class="card__text">安装为应用，断网也能照常使用。</p></div>
+        <div class="card"><div class="card__icon">🔄</div><h3 class="card__title">自动更新</h3><p class="card__text">新版本静默推送，始终用上最新功能。</p></div>
+        <div class="card"><div class="card__icon">🔒</div><h3 class="card__title">代码签名校验</h3><p class="card__text">Cosign 无密钥签名，安装包来源可信。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 开源亮点 -->
+  <section class="section section--dark" id="open-source">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">开源 · 可信</p>
+        <h2 class="h2">免费、开放、本地优先</h2>
+        <p class="lead">基于 MIT 协议开源，代码可被审阅；所有数据本机处理，隐私由你掌握。</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat__value">v1.0.0</div><div class="stat__label">最新公开版本</div></div>
+        <div class="stat"><div class="stat__value">4</div><div class="stat__label">支持平台 · Win / macOS / Linux / PWA</div></div>
+        <div class="stat"><div class="stat__value">MIT</div><div class="stat__label">开源许可证</div></div>
+        <div class="stat"><div class="stat__value">零</div><div class="stat__label">数据上传 · 本机处理</div></div>
+      </div>
+      <div class="oss-cards">
+        <div class="oss-card"><h3>自动更新</h3><p>新版本静默推送，无需手动下载安装包。</p></div>
+        <div class="oss-card"><h3>代码签名</h3><p>Cosign 无密钥签名校验，杜绝被篡改的安装包。</p></div>
+        <div class="oss-card"><h3>离线优先</h3><p>PWA 形式分发，断网环境下依然可用。</p></div>
+      </div>
+      <div class="oss-cta">
+        <a class="btn btn--ondark" href="https://github.com/DaiYiqq/daiyi-board">在 GitHub 上查看源码</a>
+        <span>MIT License · 持续维护更新</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 下载 -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">下载</p>
+        <h2 class="h2">选择你的平台</h2>
+        <p class="lead">完全免费，所有平台功能一致。安装包均经代码签名校验。</p>
+      </div>
+      <div class="dl-grid">
+        <div class="dl-card"><div class="dl-card__icon">⊞</div><h3 class="dl-card__title">Windows</h3><p class="dl-card__sub">Windows 10/11 · x64</p><a class="btn btn--primary btn--sm" href="download.html">下载 .exe</a><p class="dl-card__note">SHA-256 校验随包提供</p></div>
+        <div class="dl-card"><div class="dl-card__icon"> </div><h3 class="dl-card__title">macOS</h3><p class="dl-card__sub">macOS 12+ · Apple 芯片 / Intel</p><a class="btn btn--primary btn--sm" href="download.html">下载 .dmg</a><p class="dl-card__note">已签名 · 支持隔离验证</p></div>
+        <div class="dl-card"><div class="dl-card__icon">🐧</div><h3 class="dl-card__title">Linux</h3><p class="dl-card__sub">AppImage / deb / rpm</p><a class="btn btn--primary btn--sm" href="download.html">下载安装包</a><p class="dl-card__note">多种格式任选</p></div>
+        <div class="dl-card"><div class="dl-card__icon">🌐</div><h3 class="dl-card__title">PWA 在线</h3><p class="dl-card__sub">免安装 · 跨平台</p><a class="btn btn--ghost btn--sm" href="download.html">打开网页版</a><p class="dl-card__note">断网也可用</p></div>
+      </div>
+      <p class="dl-check">所有版本均基于 MIT 协议免费提供 · 安装包经 Cosign 签名校验</p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <div class="footer__brand"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</div>
+          <p class="footer__tagline">乳白液态玻璃白板 · 把任意屏幕变成课堂。</p>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col"><h4>产品</h4><a href="features.html">功能特性</a><a href="download.html">下载中心</a><a href="index.html#open-source">更新日志</a><a href="features.html">路线图</a></div>
+          <div class="footer__col"><h4>开源</h4><a href="https://github.com/DaiYiqq/daiyi-board">GitHub 仓库</a><a href="https://opensource.org/licenses/MIT">MIT 许可证</a><a href="about.html">贡献指南</a><a href="faq.html">问题反馈</a></div>
+          <div class="footer__col"><h4>资源</h4><a href="faq.html">使用文档</a><a href="faq.html">视频教程</a><a href="faq.html">常见问题</a><a href="about.html">联系我们</a></div>
+          <div class="footer__col"><h4>法律</h4><a href="about.html">使用协议</a><a href="about.html">隐私声明</a><a href="about.html">商标说明</a><a href="about.html">免责声明</a></div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2024–2025 DY Board · 基于 MIT License 开源发布</span>
+        <span>由 戴亿 (DaiYiqq) 设计与开发</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+</body>
 </html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>下载 DY Board — Windows / macOS / Linux / PWA 全平台</title>
+  <meta name="description" content="免费下载 DY Board 教学白板：支持 Windows、macOS、Linux 与 PWA 网页版，所有平台功能一致。安装包均经 Cosign 代码签名校验，支持自动更新。" />
+  <meta name="keywords" content="DY Board,下载,Windows,macOS,Linux,PWA,安装包,代码签名,自动更新,教学白板" />
+  <meta name="author" content="戴亿 (DaiYiqq)" />
+  <link rel="canonical" href="https://daiyiqq.github.io/daiyi-board/download.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DY Board" />
+  <meta property="og:title" content="下载 DY Board — 全平台免费" />
+  <meta property="og:description" content="Windows / macOS / Linux / PWA，功能一致，安装包经代码签名校验，支持自动更新。" />
+  <meta property="og:url" content="https://daiyiqq.github.io/daiyi-board/download.html" />
+  <meta property="og:image" content="https://daiyiqq.github.io/daiyi-board/assets/img/logo.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- 导航 -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="index.html"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</a>
+      <nav>
+        <ul class="nav__links" data-nav-links>
+          <li><a href="features.html">功能</a></li>
+          <li><a href="download.html">下载</a></li>
+          <li><a href="index.html#open-source">开源</a></li>
+          <li><a href="faq.html">常见问题</a></li>
+          <li><a href="about.html">关于</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn--primary btn--sm nav__cta" href="download.html">下载 <span data-version></span></a>
+      <button class="nav__menu-btn" data-menu-btn aria-label="菜单">☰</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="page-hero__badge">下载 · <span data-version></span></span>
+      <h1 class="page-hero__title">选择你的平台</h1>
+      <p class="page-hero__sub">完全免费，所有平台功能一致。安装包均经代码签名校验，并支持自动更新。</p>
+    </div>
+  </section>
+
+  <!-- 平台 -->
+  <section class="section">
+    <div class="container">
+      <div class="dl-grid">
+        <div class="dl-card">
+          <div class="dl-card__icon">⊞</div>
+          <h3 class="dl-card__title">Windows</h3>
+          <p class="dl-card__sub">Windows 10 / 11 · x64</p>
+          <a class="btn btn--primary btn--sm" href="https://github.com/DaiYiqq/daiyi-board/releases" target="_blank" rel="noopener">下载 .exe</a>
+          <p class="dl-card__note">SHA-256 校验随包提供</p>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card__icon"> </div>
+          <h3 class="dl-card__title">macOS</h3>
+          <p class="dl-card__sub">macOS 12+ · Apple 芯片 / Intel</p>
+          <a class="btn btn--primary btn--sm" href="https://github.com/DaiYiqq/daiyi-board/releases" target="_blank" rel="noopener">下载 .dmg</a>
+          <p class="dl-card__note">已签名 · 支持隔离验证</p>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card__icon">🐧</div>
+          <h3 class="dl-card__title">Linux</h3>
+          <p class="dl-card__sub">AppImage / deb / rpm</p>
+          <a class="btn btn--primary btn--sm" href="https://github.com/DaiYiqq/daiyi-board/releases" target="_blank" rel="noopener">下载安装包</a>
+          <p class="dl-card__note">多种格式任选</p>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card__icon">🌐</div>
+          <h3 class="dl-card__title">PWA 在线</h3>
+          <p class="dl-card__sub">免安装 · 跨平台</p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/DaiYiqq/daiyi-board" target="_blank" rel="noopener">打开网页版</a>
+          <p class="dl-card__note">断网也可用</p>
+        </div>
+      </div>
+      <p class="dl-check">所有版本均基于 MIT 协议免费提供 · 安装包经 Cosign 签名校验</p>
+    </div>
+  </section>
+
+  <!-- 系统要求 -->
+  <section class="section section--parchment">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">安装前须知</p>
+        <h2 class="h2">系统要求与说明</h2>
+      </div>
+      <ul class="req-list">
+        <li><strong>Windows：</strong>Windows 10 或 11（64 位）。双击 .exe 按提示安装即可。</li>
+        <li><strong>macOS：</strong>macOS 12 及以上，支持 Apple 芯片与 Intel 机型。首次打开若提示“无法验证开发者”，请在“系统设置 → 隐私与安全性”中允许。</li>
+        <li><strong>Linux：</strong>提供 AppImage（直接运行）、deb 与 rpm 包，适配主流发行版。</li>
+        <li><strong>PWA：</strong>使用支持的浏览器（Chrome / Edge / 桌面端 Safari）访问网页版，点击“安装”即可作为独立应用使用，离线也能运行。</li>
+        <li><strong>自动更新：</strong>桌面端内置自动更新，新版本发布后会静默推送，无需手动重新下载。</li>
+        <li><strong>隐私：</strong>所有板书、批注与展台画面均在本机处理，软件不会上传任何个人数据。</li>
+      </ul>
+      <p class="note"><strong>校验安装包：</strong> 每个发布包都附带 SHA-256 校验值与 Cosign 签名。若你重视安全，可在安装前核对校验值，确保安装包来自官方且未被篡改。</p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <div class="footer__brand"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</div>
+          <p class="footer__tagline">乳白液态玻璃白板 · 把任意屏幕变成课堂。</p>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col"><h4>产品</h4><a href="features.html">功能特性</a><a href="download.html">下载中心</a><a href="index.html#open-source">更新日志</a><a href="features.html">路线图</a></div>
+          <div class="footer__col"><h4>开源</h4><a href="https://github.com/DaiYiqq/daiyi-board">GitHub 仓库</a><a href="https://opensource.org/licenses/MIT">MIT 许可证</a><a href="about.html">贡献指南</a><a href="faq.html">问题反馈</a></div>
+          <div class="footer__col"><h4>资源</h4><a href="faq.html">使用文档</a><a href="faq.html">视频教程</a><a href="faq.html">常见问题</a><a href="about.html">联系我们</a></div>
+          <div class="footer__col"><h4>法律</h4><a href="about.html">使用协议</a><a href="about.html">隐私声明</a><a href="about.html">商标说明</a><a href="about.html">免责声明</a></div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2024–2025 DY Board · 基于 MIT License 开源发布</span>
+        <span>由 戴亿 (DaiYiqq) 设计与开发</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>

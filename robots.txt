@@ -1,0 +1,12 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+Disallow: /admin/
+
+Sitemap: https://daiyiqq.github.io/daiyi-board/sitemap.xml

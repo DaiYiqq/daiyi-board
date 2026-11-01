@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>常见问题 — DY Board 教学白板 FAQ</title>
+  <meta name="description" content="关于 DY Board 的常见问题：它是什么、支持哪些平台、是否免费、隐私如何保障、如何更新与校验安装包、如何参与开源贡献等。" />
+  <meta name="keywords" content="DY Board,常见问题,FAQ,免费,隐私,代码签名,自动更新,PWA,开源贡献" />
+  <meta name="author" content="戴亿 (DaiYiqq)" />
+  <link rel="canonical" href="https://daiyiqq.github.io/daiyi-board/faq.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DY Board" />
+  <meta property="og:title" content="常见问题 — DY Board FAQ" />
+  <meta property="og:description" content="关于平台、隐私、签名校验、自动更新与开源贡献的高频问题解答。" />
+  <meta property="og:url" content="https://daiyiqq.github.io/daiyi-board/faq.html" />
+  <meta property="og:image" content="https://daiyiqq.github.io/daiyi-board/assets/img/logo.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "DY Board 是什么？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DY Board 是一款面向教学的一体化白板与展台演示软件，提供乳白液态玻璃界面、压感书写、文档摄像展台、课程表与课堂工具等能力，支持 Windows、macOS、Linux 与 PWA。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "DY Board 支持哪些平台？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "目前支持 Windows 10/11、macOS 12 及以上（Apple 芯片与 Intel）、主流 Linux 发行版（AppImage / deb / rpm），以及免安装的 PWA 网页版。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "DY Board 是免费的吗？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "是的，DY Board 永久免费，没有任何功能限制或内购，并基于 MIT 协议开源。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "我的板书和展台画面会上传吗？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "不会。DY Board 遵循本地优先原则，所有板书、批注、展台视频与照片仅在本机处理，软件不会上传任何个人数据，也没有账号体系。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "什么是代码签名校验？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "每个发布包都使用 Cosign 进行无密钥签名，并附带 SHA-256 校验值。你可以在安装前核对，确保安装包来自官方且未被篡改。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "如何更新到新版本？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "桌面端内置自动更新，新版本发布后会自动静默推送，无需手动重新下载。你也可以随时到 GitHub 仓库的 Releases 页面获取最新安装包。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "什么是 PWA？离线能用吗？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PWA 是渐进式网页应用，用支持的浏览器打开网页版后点击“安装”即可作为独立应用使用。DY Board 的 PWA 支持离线运行，断网也能照常使用。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "如何参与开源贡献或反馈问题？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "DY Board 是开源项目，欢迎在 GitHub 仓库提交 Issue 反馈 bug 或提出新功能建议，也可以通过 Pull Request 直接参与改进。"
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- 导航 -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="index.html"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</a>
+      <nav>
+        <ul class="nav__links" data-nav-links>
+          <li><a href="features.html">功能</a></li>
+          <li><a href="download.html">下载</a></li>
+          <li><a href="index.html#open-source">开源</a></li>
+          <li><a href="faq.html">常见问题</a></li>
+          <li><a href="about.html">关于</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn--primary btn--sm nav__cta" href="download.html">下载 <span data-version></span></a>
+      <button class="nav__menu-btn" data-menu-btn aria-label="菜单">☰</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="page-hero__badge">常见问题</span>
+      <h1 class="page-hero__title">关于 DY Board，你可能想问</h1>
+      <p class="page-hero__sub">没有找到答案？欢迎在 GitHub 仓库提交 Issue，我们会尽快回复。</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container">
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q">DY Board 是什么？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>DY Board 是一款面向教学的一体化白板与展台演示软件，提供乳白液态玻璃界面、压感书写、文档摄像展台、课程表与课堂工具等能力，支持 Windows、macOS、Linux 与 PWA。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">DY Board 支持哪些平台？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>目前支持 Windows 10/11、macOS 12 及以上（Apple 芯片与 Intel）、主流 Linux 发行版（AppImage / deb / rpm），以及免安装的 PWA 网页版。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">DY Board 是免费的吗？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>是的，DY Board 永久免费，没有任何功能限制或内购，并基于 MIT 协议开源。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">我的板书和展台画面会上传吗？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>不会。DY Board 遵循本地优先原则，所有板书、批注、展台视频与照片仅在本机处理，软件不会上传任何个人数据，也没有账号体系。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">什么是代码签名校验？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>每个发布包都使用 Cosign 进行无密钥签名，并附带 SHA-256 校验值。你可以在安装前核对，确保安装包来自官方且未被篡改。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">如何更新到新版本？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>桌面端内置自动更新，新版本发布后会自动静默推送，无需手动重新下载。你也可以随时到 GitHub 仓库的 Releases 页面获取最新安装包。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">什么是 PWA？离线能用吗？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>PWA 是渐进式网页应用，用支持的浏览器打开网页版后点击“安装”即可作为独立应用使用。DY Board 的 PWA 支持离线运行，断网也能照常使用。</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">如何参与开源贡献或反馈问题？<span class="chev">▾</span></button>
+          <div class="faq-a"><p>DY Board 是开源项目，欢迎在 GitHub 仓库提交 Issue 反馈 bug 或提出新功能建议，也可以通过 Pull Request 直接参与改进。</p></div>
+        </div>
+      </div>
+
+      <p class="note" style="text-align:center"><strong>还想了解更多？</strong> 查看 <a href="features.html">功能特性</a> 或 <a href="about.html">关于项目</a>。</p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <div class="footer__brand"><img class="nav__logo" src="assets/img/logo.svg" alt="DY Board" />DY Board</div>
+          <p class="footer__tagline">乳白液态玻璃白板 · 把任意屏幕变成课堂。</p>
+        </div>
+        <div class="footer__links">
+          <div class="footer__col"><h4>产品</h4><a href="features.html">功能特性</a><a href="download.html">下载中心</a><a href="index.html#open-source">更新日志</a><a href="features.html">路线图</a></div>
+          <div class="footer__col"><h4>开源</h4><a href="https://github.com/DaiYiqq/daiyi-board">GitHub 仓库</a><a href="https://opensource.org/licenses/MIT">MIT 许可证</a><a href="about.html">贡献指南</a><a href="faq.html">问题反馈</a></div>
+          <div class="footer__col"><h4>资源</h4><a href="faq.html">使用文档</a><a href="faq.html">视频教程</a><a href="faq.html">常见问题</a><a href="about.html">联系我们</a></div>
+          <div class="footer__col"><h4>法律</h4><a href="about.html">使用协议</a><a href="about.html">隐私声明</a><a href="about.html">商标说明</a><a href="about.html">免责声明</a></div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2024–2025 DY Board · 基于 MIT License 开源发布</span>
+        <span>由 戴亿 (DaiYiqq) 设计与开发</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
