@@ -123,4 +123,4 @@
 - [x] **本节课/后面课程放大**：灵动岛、启动页、设置面板放大显示本节课与后面的课程（后面的课程更突出）。
 - [x] **课程表导出**：设置面板与课程表编辑弹窗新增「导出 JSON」，下载 `daiyi-board-schedule.json`，可直接导入还原。
 - [x] **版本号同步 2.1.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.1。
-- [ ] **2.1.1 打包与签名发行**：待创建 `v2.1.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **2.1.1 打包与签名发行**：已创建 `v2.1.1` tag 并推送，GitHub Actions release workflow run `41393137574` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
