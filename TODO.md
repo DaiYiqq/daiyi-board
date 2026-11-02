@@ -132,4 +132,4 @@
 - [x] **最小化悬浮工具栏**：菜单新增「最小化」，收起到希沃式可展开/收起的悬浮工具栏（恢复/笔/橡皮/撤销/重做），最小化状态下可全屏书写。
 - [x] **地图自动定位**：确认已存在（GPS + AMap.Geolocation IP 回退）。
 - [x] **版本号同步 2.2.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.2.1。
-- [ ] **2.2.1 打包与签名发行**：待创建 `v2.2.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+- [x] **2.2.1 打包与签名发行**：已创建 `v2.2.1` tag 并推送，GitHub Actions release workflow run `41463129886` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
