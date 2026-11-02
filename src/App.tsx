@@ -85,7 +85,7 @@ type ClassStatus = {
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const SCHEDULE_KEY = 'daiyi-board-schedule-v2';
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']; // 周一..周日（1..7）

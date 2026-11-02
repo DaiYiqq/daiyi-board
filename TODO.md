@@ -116,3 +116,11 @@
 - [x] **测试与文档**：新增注册表单元测试（`node --test`）；文档含「如何新增工具」「postMessage 协议」「许可证注意事项」与第三方 `NOTICE.md`。
 - [x] **版本号同步 2.1.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.0。
 - [x] **2.1.0 打包与签名发行**：已创建 `v2.1.0` tag 并推送，GitHub Actions release workflow run `41284583706` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 2.1.1 课程表放大与导出
+
+- [x] **本节课/后面课程放大**：灵动岛、启动页、设置面板放大显示本节课与后面的课程（后面的课程更突出）。
+- [x] **课程表导出**：设置面板与课程表编辑弹窗新增「导出 JSON」，下载 `daiyi-board-schedule.json`，可直接导入还原。
+- [x] **版本号同步 2.1.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.1。
+- [ ] **2.1.1 打包与签名发行**：待创建 `v2.1.1` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。

@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v2.1.0。** [下载 v2.1.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.1.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；宣传站：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)；在线体验（网页版）：[daiyiqq.github.io/daiyi-board/app](https://daiyiqq.github.io/daiyi-board/app/)。
+> **最新公开版本：v2.1.0。** [下载 v2.1.0 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.1.0)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；宣传站：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)；在线体验（网页版）：[daiyiqq.github.io/daiyi-board/app](https://daiyiqq.github.io/daiyi-board/app/)。当前 `main` 上的开发中版本号为 **v2.1.1**（课程表放大与导出，尚未打 tag / 发布）。
+
+## 2.1.1 课程表放大与导出
+
+- 本节课与后面的课程放大显示（灵动岛、启动页、设置面板），后面的课程更突出。
+- 新增课程表导出 JSON（设置面板与课程表编辑弹窗），可直接导入还原。
 
 ## 2.1.0 教学工具重构与真实仓库接入
 
