@@ -1905,6 +1905,24 @@ input:focus-visible {
 .island-class.is-dismissed {
   color: var(--danger);
 }
+.island-now {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--accent);
+}
+.island-next {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 17px;
+  color: #e2a35c;
+}
 
 .startup-class {
   margin-top: 16px;
@@ -1914,6 +1932,17 @@ input:focus-visible {
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #cbd4df;
   font-size: 13px;
+}
+.startup-class-now {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.startup-class-next {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e2a35c;
 }
 
 /* 课程表设置 */
@@ -1992,7 +2021,8 @@ input:focus-visible {
   margin-top: 4px;
 }
 .schedule-add,
-.schedule-import {
+.schedule-import,
+.schedule-export {
   flex: 1;
   min-height: 32px;
   border: 1px solid var(--line);
@@ -2002,13 +2032,20 @@ input:focus-visible {
   font-size: 12px;
 }
 .schedule-add:hover,
-.schedule-import:hover {
+.schedule-import:hover,
+.schedule-export:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 .schedule-current {
   margin-top: 8px;
   color: var(--accent);
+}
+.schedule-upcoming {
+  margin-top: 6px;
+  color: #e2a35c;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* 课程表网格编辑器 */
@@ -2155,6 +2192,20 @@ input:focus-visible {
 .schedule-tip {
   color: var(--quiet);
   font-size: 11px;
+}
+.schedule-modal-foot .schedule-export {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+}
+.schedule-modal-foot .schedule-export:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* 教学工具 / 地理地图 */

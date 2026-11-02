@@ -376,6 +376,22 @@ const classStatusOf = (schedule: Schedule, now: Date): ClassStatus => {
   return { state: 'dismissed', name: '' };
 };
 
+const upcomingClassesOf = (
+  schedule: Schedule,
+  now: Date,
+  limit = 3,
+): { name: string; start: string; end: string }[] => {
+  const parity = weekParityOf(now);
+  const grid = schedule[parity];
+  const day = now.getDay() === 0 ? 7 : now.getDay();
+  const m = now.getHours() * 60 + now.getMinutes();
+  return schedule.periods
+    .filter((p) => toMinutes(p.start) > m)
+    .map((p) => ({ name: grid[cellKey(day, p.index)] ?? '', start: p.start, end: p.end }))
+    .filter((x) => x.name)
+    .slice(0, limit);
+};
+
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export default function App() {
@@ -1210,6 +1226,17 @@ export default function App() {
     }
     event.target.value = '';
   };
+  const exportSchedule = () => {
+    const blob = new Blob([JSON.stringify(schedule, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'daiyi-board-schedule.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
   const quitApplication = async () => {
     setPanel(null);
     if (window.boardDesktop?.quit) {
@@ -1310,6 +1337,9 @@ export default function App() {
         : classStatus.state === 'dismissed'
           ? '今日课程已结束'
           : '无课';
+  const currentClassName = classStatus.state === 'in-class' ? classStatus.name : '';
+  const upcomingClasses = upcomingClassesOf(schedule, now, 3);
+  const upcomingText = upcomingClasses.map((c) => c.name).join(' · ');
   const timerText = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
   const updateHeading =
     updateState.status === 'checking'
@@ -1374,12 +1404,24 @@ export default function App() {
           <Clock3 size={14} />
           <time>{clockText}</time>
           <small>{dateText}</small>
-          {islandClassText && (
+          {currentClassName && (
+            <>
+              <span className="island-separator" />
+              <span className="island-now">本节课·{currentClassName}</span>
+            </>
+          )}
+          {!currentClassName && islandClassText && (
             <>
               <span className="island-separator" />
               <span className={`island-class${islandClassText === '已下课' ? ' is-dismissed' : ''}`}>
                 {islandClassText}
               </span>
+            </>
+          )}
+          {upcomingClasses[0] && (
+            <>
+              <span className="island-separator" />
+              <span className="island-next">下节·{upcomingClasses[0].name}</span>
             </>
           )}
         </div>
@@ -1702,12 +1744,16 @@ export default function App() {
                   <div className="setting-group schedule-group">
                     <div className="setting-label">课程表</div>
                     <div className="setting-sub schedule-current">{startupClassText}</div>
+                    {upcomingText && <div className="setting-sub schedule-upcoming">后面：{upcomingText}</div>}
                     <div className="schedule-actions">
                       <button className="schedule-add" onClick={() => setPanel('schedule')}>
                         编辑课程表
                       </button>
                       <button className="schedule-import" onClick={() => scheduleFileRef.current?.click()}>
                         导入 JSON
+                      </button>
+                      <button className="schedule-export" onClick={exportSchedule}>
+                        导出 JSON
                       </button>
                     </div>
                     <input
@@ -2190,7 +2236,16 @@ export default function App() {
             <div className="startup-countdown">
               {Math.max(0, Math.ceil((100 - startupProgress) / 20))} 秒
             </div>
-            <div className="startup-class">{startupClassText}</div>
+            <div className="startup-class">
+              {currentClassName && (
+                <div className="startup-class-now">
+                  本节课：{currentClassName}
+                  {classStatus.period && `（${classStatus.period.start}-${classStatus.period.end}）`}
+                </div>
+              )}
+              {upcomingText && <div className="startup-class-next">后面：{upcomingText}</div>}
+              {!currentClassName && !upcomingText && <span>{startupClassText}</span>}
+            </div>
           </div>
         </div>
       )}
@@ -2380,6 +2435,9 @@ export default function App() {
             <div className="schedule-modal-foot">
               <button className="schedule-save" onClick={saveSchedule}>
                 保存
+              </button>
+              <button className="schedule-export" onClick={exportSchedule}>
+                导出 JSON
               </button>
               <span className="schedule-tip">
                 点击单元格编辑课程；「快速填充」输入名称后点击单元格可批量填充。
