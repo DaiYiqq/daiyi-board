@@ -1061,6 +1061,20 @@ input:focus-visible {
   color: var(--muted);
   font-size: clamp(15px, 2vw, 24px);
 }
+.clock-mode {
+  padding: 44px 64px;
+  border-radius: 30px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+.app-shell.theme-light .clock-mode {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.3));
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
 .timer-mode-time {
   margin: 22px 0 6px;
   font-size: clamp(78px, 16vw, 220px);
@@ -2215,4 +2229,100 @@ input:focus-visible {
 .advanced-overlay.map-overlay {
   display: block;
   padding: 0;
+}
+
+/* =====================================================================
+   最小化悬浮工具栏（希沃式）
+   ===================================================================== */
+.app-shell.is-minimized .time-island,
+.app-shell.is-minimized .bottom-dock {
+  display: none;
+}
+.float-toolbar {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.float-toolbar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(20, 24, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+.float-toolbar-panel button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #e8edf5;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+.float-toolbar-panel button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.float-toolbar-panel button.is-on {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+}
+.float-toolbar-panel .float-restore {
+  color: #7aa7d9;
+  font-weight: 600;
+}
+.float-toolbar-panel .float-collapse {
+  justify-content: center;
+  color: #8b93a3;
+}
+.float-divider {
+  height: 1px;
+  margin: 2px 4px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.float-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  color: #e8edf5;
+  background: rgba(20, 24, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  cursor: pointer;
+}
+.float-pill:hover {
+  background: rgba(30, 36, 48, 0.85);
+}
+.app-shell.theme-light .float-toolbar-panel,
+.app-shell.theme-light .float-pill {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.app-shell.theme-light .float-toolbar-panel button {
+  color: #20242c;
+}
+.app-shell.theme-light .float-toolbar-panel button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.app-shell.theme-light .float-divider {
+  background: rgba(0, 0, 0, 0.1);
 }

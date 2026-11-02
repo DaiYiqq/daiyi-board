@@ -458,6 +458,8 @@ export default function App() {
   const timerDeadlineRef = useRef<number | null>(null);
   const [laserEnabled, setLaserEnabled] = useState(false);
   const [magnifierEnabled, setMagnifierEnabled] = useState(false);
+  const [minimized, setMinimized] = useState(false);
+  const [floatOpen, setFloatOpen] = useState(true);
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null);
   const active = pages.find((p) => p.id === activePage) ?? pages[0];
   const activeIndex = Math.max(
@@ -1393,7 +1395,7 @@ export default function App() {
   }
 
   return (
-    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}`}>
+    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}${minimized ? ' is-minimized' : ''}`}>
       <section className="workspace">
         <div
           className="time-island"
@@ -1928,6 +1930,19 @@ export default function App() {
                     </span>
                   </button>
                   <button
+                    className="menu-item"
+                    onClick={() => {
+                      setMinimized(true);
+                      setPanel(null);
+                    }}
+                  >
+                    <Minus size={18} />
+                    <span>
+                      <b>最小化</b>
+                      <small>收起到悬浮工具栏，全屏书写</small>
+                    </span>
+                  </button>
+                  <button
                     className="menu-item menu-item-danger"
                     onClick={() => void quitApplication()}
                   >
@@ -2146,6 +2161,48 @@ export default function App() {
           </section>
         )}
       </section>
+      {minimized && (
+        <div className={`float-toolbar${floatOpen ? ' is-open' : ''}`}>
+          {floatOpen ? (
+            <div className="float-toolbar-panel" onClick={(e) => e.stopPropagation()}>
+              <button className="float-restore" onClick={() => setMinimized(false)} title="恢复白板">
+                <Maximize2 size={18} />
+                <span>恢复</span>
+              </button>
+              <span className="float-divider" />
+              <button className={tool === 'pen' ? 'is-on' : ''} onClick={() => setTool('pen')} title="笔">
+                <Pencil size={18} />
+                <span>笔</span>
+              </button>
+              <button
+                className={tool === 'eraser' ? 'is-on' : ''}
+                onClick={() => setTool('eraser')}
+                title="橡皮"
+              >
+                <Eraser size={18} />
+                <span>橡皮</span>
+              </button>
+              <span className="float-divider" />
+              <button onClick={undo} title="撤销">
+                <Undo2 size={18} />
+                <span>撤销</span>
+              </button>
+              <button onClick={redo} title="重做">
+                <Redo2 size={18} />
+                <span>重做</span>
+              </button>
+              <span className="float-divider" />
+              <button className="float-collapse" onClick={() => setFloatOpen(false)} title="收起">
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <button className="float-pill" onClick={() => setFloatOpen(true)} title="展开悬浮工具栏">
+              <Pencil size={18} />
+            </button>
+          )}
+        </div>
+      )}
       {advancedMode && (
         <div className={`advanced-overlay${advancedMode === 'map' ? ' map-overlay' : ''}`}>
           {advancedMode !== 'map' && (
