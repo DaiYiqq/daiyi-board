@@ -2,7 +2,12 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v2.1.1。** [下载 v2.1.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.1.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；宣传站：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)；在线体验（网页版）：[daiyiqq.github.io/daiyi-board/app](https://daiyiqq.github.io/daiyi-board/app/)。
+> **最新公开版本：v2.1.1。** [下载 v2.1.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.1.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；宣传站：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)；在线体验（网页版）：[daiyiqq.github.io/daiyi-board/app](https://daiyiqq.github.io/daiyi-board/app/)。当前 `main` 上的开发中版本号为 **v2.2.1**（磨砂玻璃时钟与最小化悬浮工具栏，尚未打 tag / 发布）。
+
+## 2.2.1 磨砂玻璃时钟与最小化悬浮工具栏
+
+- 全屏时钟居中显示，改为磨砂玻璃卡片（深/浅主题适配）。
+- 菜单新增「最小化」，收起到希沃式可展开/收起的悬浮工具栏（恢复 / 笔 / 橡皮 / 撤销 / 重做），最小化状态下可全屏书写。
 
 ## 2.1.1 课程表放大与导出
 
