@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonic Oscillator • Physics Notebook</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/article.css">
+    <style>
+        /* AI Links */
+        .ai-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        .ai-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-right: 0.2rem;
+            font-weight: 500;
+        }
+
+        .ai-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--line-subtle);
+            color: var(--text-muted);
+            min-width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0 8px;
+        }
+
+        .ai-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Theme Init -->
+    <script>
+        const savedTheme = localStorage.getItem('physics-notebook-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.body && document.body.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <!-- Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <nav class="sticky">
+        <div class="nav-bg"></div>
+        <a href="../index.html" class="logo">
+            <i data-lucide="arrow-left" width="16"></i>
+            Library
+        </a>
+        <button id="themeBtn">
+            <i data-lucide="moon" width="16"></i> Theme
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="text-reveal-wrapper">
+            <h1 class="hero-title">Simple Harmonic<br>Motion</h1>
+            <p style="margin-top: 2rem; font-size: 1.4rem; max-width: 40ch;">
+                A rigorous exploration of restoring forces, differential equations, and the conservation of energy.
+            </p>
+        </div>
+    </section>
+
+    <!-- CHAPTER 1: THE RESTORE -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent);">01. The Principle</h3>
+                <h2>Hooke's Law & Dynamics</h2>
+                <p>
+                    At the heart of all oscillation is a <strong>Restoring Force</strong>. For an ideal spring, this
+                    force is linearly proportional to the displacement from equilibrium ($x=0$) but acts in the opposite
+                    direction.
+                </p>
+                <div class="math-block">
+                    $$F_{restoring} = -kx$$
+                </div>
+                <p>
+                    Combining this with Newton's Second Law ($F=ma$), we derive the governing differential equation:
+                </p>
+                <div class="math-block">
+                    $$m\frac{d^2x}{dt^2} = -kx \quad \Rightarrow \quad \frac{d^2x}{dt^2} + \frac{k}{m}x = 0$$
+                </div>
+                <p>
+                    The solution to this second-order differential equation is a sinusoidal function:
+                </p>
+                <div class="math-block">
+                    $$x(t) = A \cos(\omega t + \phi)$$
+                </div>
+                <!-- ETU CARD -->
+                <div class="etu-card">
+                    <span class="etu-tag">Real World Analogy</span>
+                    <h4 style="margin-bottom:0.5rem;">The "Invisible Leash"</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Imagine a dog (the mass) tied to a post (equilibrium) by a rubber bungee cord (the spring). The
+                        further the dog runs away, the harder the cord pulls back.
+                    </p>
+                </div>
+
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('hooke', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('hooke', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('hooke', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('hooke', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('hooke', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-hooke"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CHAPTER 2: ENERGY -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent-secondary);">02. Conservation</h3>
+                <h2>The Dance of Energy</h2>
+                <p>
+                    In an ideal system, energy is never lost; it merely transforms between Kinetic ($K$) and Potential
+                    ($U$).
+                </p>
+                <div class="math-block">
+                    $$K = \frac{1}{2}mv^2 \quad \quad U = \frac{1}{2}kx^2$$
+                </div>
+                <p>
+                    The total mechanical energy $E$ remains constant throughout the cycle.
+                </p>
+                <div class="math-block">
+                    $$E_{total} = \frac{1}{2}kA^2 = constant$$
+                </div>
+
+                <!-- ETU CARD -->
+                <div class="etu-card">
+                    <span class="etu-tag">Real World Analogy</span>
+                    <h4 style="margin-bottom:0.5rem;">The Playground Swing</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Think of a child on a swing. At the very top of the arc (highest point), the child stops for a
+                        split second (maximum Potential Energy, zero Kinetic Energy). At the very bottom, they are
+                        moving fastest (maximum Kinetic Energy, minimum Potential Energy). The total energy of the swing
+                        persists.
+                    </p>
+                </div>
+
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('energy', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('energy', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('energy', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('energy', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('energy', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-energy"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CHAPTER 3: DAMPING -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--text-muted);">03. Reality</h3>
+                <h2>Damped Oscillation</h2>
+                <p>
+                    Real systems lose energy to friction. We model this as a <strong>damping force</strong> proportional
+                    to velocity: $F_d = -bv$.
+                </p>
+                <div class="math-block">
+                    $$m\frac{d^2x}{dt^2} + b\frac{dx}{dt} + kx = 0$$
+                </div>
+
+                <!-- ETU CARD -->
+                <div class="etu-card">
+                    <span class="etu-tag">Real World Analogy</span>
+                    <h4 style="margin-bottom:0.5rem;">Car Shock Absorbers</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Without shocks, your car would bounce up and down endlessly after every bump (simple harmonic
+                        motion). Shock absorbers use viscous fluid to dissipate this energy, quickly damping out the
+                        oscillation so the ride becomes smooth again.
+                    </p>
+                </div>
+
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('damping', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('damping', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('damping', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('damping', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('damping', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+                <div class="sim-controls">
+                    <div class="slider-group">
+                        <label>Mass ($m$) <span id="val-m">2.0</span> kg</label>
+                        <input type="range" id="input-m" min="0.5" max="5" step="0.1" value="2.0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Spring Constant ($k$) <span id="val-k">1.0</span> N/m</label>
+                        <input type="range" id="input-k" min="0.5" max="3" step="0.1" value="1.0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Damping ($b$) <span id="val-b">0.1</span> Ns/m</label>
+                        <input type="range" id="input-b" min="0.0" max="1.0" step="0.05" value="0.1">
+                    </div>
+                    <div style="margin-top:0.5rem; text-align:right;">
+                        <button id="btn-reset"
+                            style="padding:8px 16px; background:var(--text-main); color:var(--bg-color); border:none; border-radius:4px; cursor:pointer;">Reset
+                            System</button>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-damped"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="references">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h3>Academic References</h3>
+            <ul>
+                <li><strong>Young, H. D., & Freedman, R. A.</strong> (2015). <em>University Physics with Modern
+                        Physics</em>.</li>
+                <li><strong>Feynman, R. P.</strong> <em>The Feynman Lectures on Physics</em>, Vol. I, Chapter 21.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="../js/common.js"></script>
+    <script>
+        function openAI(topic, model) {
+            let prompt = "";
+            switch (topic) {
+                case 'hooke':
+                    prompt = "Explain Hooke's Law and restoring force in simple harmonic motion using simple terms.";
+                    break;
+                case 'energy':
+                    prompt = "Explain the conservation of energy in a simple harmonic oscillator, transforming between kinetic and potential energy.";
+                    break;
+                case 'damping':
+                    prompt = "What is damping in physics? Explain how it stops an oscillation over time.";
+                    break;
+            }
+            launchAIPrompt(model, prompt);
+        }
+        const APP = {
+            visuals: [],
+            observer: null,
+
+            init() {
+                this.setupObserver();
+                this.initVisuals();
+
+                // Theme changed listener
+                window.addEventListener('theme-changed', (e) => {
+                    this.visuals.forEach(v => v.updateColors());
+                });
+            },
+
+            setupObserver() {
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const visual = this.visuals.find(v => v.canvas === entry.target);
+                        if (visual) visual.isVisible = entry.isIntersecting;
+                    });
+                }, { threshold: 0.1 });
+            },
+
+            initVisuals() {
+                this.addVisual(new HookeVisual('canvas-hooke'));
+                this.addVisual(new EnergyVisual('canvas-energy'));
+                this.addVisual(new DampedVisual('canvas-damped'));
+            },
+
+            addVisual(visual) {
+                this.visuals.push(visual);
+                this.observer.observe(visual.canvas);
+            }
+        };
+
+        class BaseVisual {
+            constructor(id) {
+                this.canvas = document.getElementById(id);
+                this.ctx = this.canvas.getContext('2d');
+                this.isVisible = false;
+                this.updateColors();
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.loop();
+            }
+            updateColors() {
+                this.color = getComputedStyle(document.body).getPropertyValue('--text-main').trim();
+                this.bg = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+                this.accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+                this.secondary = getComputedStyle(document.body).getPropertyValue('--accent-secondary').trim();
+            }
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width * 2;
+                this.canvas.height = rect.height * 2;
+                this.scale = 2;
+                this.cx = this.canvas.width / 2;
+                this.cy = this.canvas.height / 2;
+            }
+            loop() {
+                if (this.isVisible) this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+            draw() { }
+        }
+
+        class HookeVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.k = 1.0;
+                this.m = 2.0;
+                this.A = 120; // Amplitude
+                this.time = 0;
+                this.isDragging = false;
+                this.setupInteraction();
+            }
+
+            setupInteraction() {
+                const getEventPos = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    return (clientX - rect.left) * (this.canvas.width / rect.width);
+                };
+
+                const startDrag = (e) => {
+                    const px = getEventPos(e);
+                    const massX = this.cx + this.A * Math.cos(Math.sqrt(this.k / this.m) * this.time) * this.scale;
+                    if (Math.abs(px - massX) < 50 * this.scale) {
+                        this.isDragging = true;
+                    }
+                };
+
+                const moveDrag = (e) => {
+                    if (this.isDragging) {
+                        e.preventDefault();
+                        const px = getEventPos(e);
+                        let newA = (px - this.cx) / this.scale;
+                        
+                        const massSize = 60 * this.scale;
+                        const separation = Math.min(150, (this.cx / this.scale) * 0.65);
+                        const minA = -separation + massSize / this.scale + 10;
+                        const maxA = separation - 10;
+
+                        if (newA < minA) newA = minA;
+                        if (newA > maxA) newA = maxA;
+                        this.A = newA;
+                        this.time = 0;
+                    }
+                };
+
+                const endDrag = () => {
+                    this.isDragging = false;
+                };
+
+                this.canvas.addEventListener('mousedown', startDrag);
+                this.canvas.addEventListener('mousemove', moveDrag);
+                window.addEventListener('mouseup', endDrag);
+
+                this.canvas.addEventListener('touchstart', startDrag, { passive: false });
+                this.canvas.addEventListener('touchmove', moveDrag, { passive: false });
+                window.addEventListener('touchend', endDrag);
+            }
+
+            resize() {
+                super.resize();
+                const massSize = 60 * this.scale;
+                const separation = Math.min(150, (this.cx / this.scale) * 0.65);
+                const minA = -separation + massSize / this.scale + 10;
+                const maxA = separation - 10;
+                if (this.A < minA) this.A = minA;
+                if (this.A > maxA) this.A = maxA;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const omega = Math.sqrt(this.k / this.m);
+
+                if (!this.isDragging) {
+                    this.time += 0.05;
+                }
+
+                const x = this.A * Math.cos(omega * this.time);
+                const v = -this.A * omega * Math.sin(omega * this.time);
+                const a = -this.A * omega * omega * Math.cos(omega * this.time);
+
+                const col = { text: this.color, bg: this.bg, accent: this.accent, secondary: this.secondary };
+
+                const separation = Math.min(150, (this.cx / this.scale) * 0.65);
+                const wallX = this.cx - separation * this.scale;
+
+                // Grid
+                this.ctx.strokeStyle = 'rgba(128,128,128,0.1)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.cx, 0); this.ctx.lineTo(this.cx, this.canvas.height);
+                this.ctx.stroke();
+
+                // Wall line
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(wallX, this.cy - 60 * this.scale);
+                this.ctx.lineTo(wallX, this.cy + 60 * this.scale);
+                this.ctx.stroke();
+
+                // Hatching for wall
+                for (let i = -50; i <= 50; i += 10) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(wallX, this.cy + i * this.scale);
+                    this.ctx.lineTo(wallX - 10 * this.scale, this.cy + (i + 10) * this.scale);
+                    this.ctx.stroke();
+                }
+
+                // Spring
+                const massSize = 60 * this.scale;
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(wallX, this.cy);
+                const springEnd = this.cx + x * this.scale - massSize / 2;
+                const segments = 24;
+                const len = springEnd - wallX;
+                for (let i = 0; i <= segments; i++) {
+                    const px = wallX + (len / segments) * i;
+                    const py = this.cy + (i % 2 == 0 ? -20 : 20) * this.scale * (i == 0 || i == segments ? 0 : 1);
+                    this.ctx.lineTo(px, py);
+                }
+                this.ctx.stroke();
+
+                // Mass
+                const massX = springEnd;
+                const massY = this.cy - massSize / 2;
+
+                if (this.isDragging) {
+                    this.ctx.fillStyle = col.accent + '33';
+                    this.ctx.beginPath();
+                    this.ctx.arc(massX + massSize / 2, this.cy, 50 * this.scale, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+
+                this.ctx.fillStyle = col.bg;
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.fillRect(massX, massY, massSize, massSize);
+                this.ctx.strokeRect(massX, massY, massSize, massSize);
+
+                // Velocity Vector (Green)
+                if (!this.isDragging && Math.abs(v) > 0.1) {
+                    this.drawVector(massX + massSize / 2, this.cy - massSize / 2 - 15 * this.scale, v * 3 * this.scale, '#10B981', 'v');
+                }
+
+                // Acceleration/Force Vector (Red)
+                if (!this.isDragging && Math.abs(a) > 0.1) {
+                    this.drawVector(massX + massSize / 2, this.cy + massSize / 2 + 15 * this.scale, a * 3 * this.scale, '#EF4444', 'a / F');
+                }
+            }
+
+            drawVector(startX, startY, length, color, label) {
+                this.ctx.strokeStyle = color;
+                this.ctx.fillStyle = color;
+                this.ctx.lineWidth = 2 * this.scale;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(startX + length, startY);
+                this.ctx.stroke();
+
+                // Arrow head
+                const arrowSize = 6 * this.scale;
+                const dir = length > 0 ? 1 : -1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX + length, startY);
+                this.ctx.lineTo(startX + length - dir * arrowSize, startY - arrowSize);
+                this.ctx.lineTo(startX + length - dir * arrowSize, startY + arrowSize);
+                this.ctx.fill();
+
+                // Label
+                this.ctx.font = `italic ${12 * this.scale}px "Inter", sans-serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(label, startX + length / 2, startY - 10 * this.scale);
+            }
+        }
+
+        class EnergyVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.time = 0;
+                this.m = 2.0;
+                this.k = 1.0;
+                this.A = 120; // Amplitude
+            }
+
+            resize() {
+                super.resize();
+                // Ensure amplitude scales with the screen size
+                const isVertical = (this.canvas.width / this.scale) < 500;
+                const maxAvailable = isVertical ? this.cx : this.canvas.width * 0.35;
+                const limit = (maxAvailable / this.scale) * 0.65;
+                if (this.A > limit) this.A = limit;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.time += 0.02;
+
+                const omega = Math.sqrt(this.k / this.m);
+                const x = this.A * Math.cos(omega * this.time);
+                const v = -this.A * omega * Math.sin(omega * this.time);
+
+                // Energy calculation scaled to fit UI bars
+                const energyScale = 0.01 * this.scale;
+                const U = 0.5 * this.k * x * x * energyScale;
+                const K = 0.5 * this.m * v * v * energyScale;
+                const E = U + K; 
+
+                const col = { text: this.color, bg: this.bg, accent: this.accent, secondary: this.secondary };
+
+                const isVertical = (this.canvas.width / this.scale) < 500;
+
+                let systemCx, systemCy, chartCx, chartCy, separation;
+                const massSize = 40 * this.scale;
+
+                if (isVertical) {
+                    // Stacking layout (top/bottom)
+                    systemCx = this.cx;
+                    systemCy = this.canvas.height * 0.28;
+                    separation = Math.min(130, (this.cx / this.scale) * 0.65);
+                    chartCx = this.cx;
+                    chartCy = this.canvas.height * 0.82;
+                } else {
+                    // Side-by-side layout (left/right)
+                    systemCx = this.canvas.width * 0.35;
+                    systemCy = this.cy;
+                    separation = Math.min(150, (systemCx / this.scale) * 0.7);
+                    chartCx = this.canvas.width * 0.75;
+                    chartCy = this.canvas.height * 0.7;
+                }
+
+                // --- Draw Spring-Mass System ---
+                // Equilibrium line
+                this.ctx.strokeStyle = 'rgba(128,128,128,0.1)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(systemCx, systemCy - 50 * this.scale); 
+                this.ctx.lineTo(systemCx, systemCy + 50 * this.scale);
+                this.ctx.stroke();
+
+                // Spring Wall
+                const wallX = systemCx - separation * this.scale;
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(wallX, systemCy - 30 * this.scale);
+                this.ctx.lineTo(wallX, systemCy + 30 * this.scale);
+                this.ctx.stroke();
+
+                // Hatch wall
+                for (let i = -20; i <= 20; i += 8) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(wallX, systemCy + i * this.scale);
+                    this.ctx.lineTo(wallX - 6 * this.scale, systemCy + (i + 6) * this.scale);
+                    this.ctx.stroke();
+                }
+
+                // Spring coils
+                this.ctx.beginPath();
+                this.ctx.moveTo(wallX, systemCy);
+                const springEnd = systemCx + x * this.scale - massSize / 2;
+                const segments = 24;
+                const len = springEnd - wallX;
+                for (let i = 0; i <= segments; i++) {
+                    const px = wallX + (len / segments) * i;
+                    const py = systemCy + (i % 2 == 0 ? -15 : 15) * this.scale * (i == 0 || i == segments ? 0 : 1);
+                    this.ctx.lineTo(px, py);
+                }
+                this.ctx.stroke();
+
+                // Mass
+                const massX = springEnd;
+                const massY = systemCy - massSize / 2;
+                this.ctx.fillStyle = col.bg;
+                this.ctx.fillRect(massX, massY, massSize, massSize);
+                this.ctx.strokeRect(massX, massY, massSize, massSize);
+
+                // --- Draw Energy Bar Charts ---
+                const barWidth = isVertical ? 30 * this.scale : 40 * this.scale;
+                const spacing = isVertical ? 30 * this.scale : 40 * this.scale;
+
+                this.drawBar(chartCx - barWidth - spacing, chartCy, barWidth, U, '#3B82F6', 'U (Potential)'); 
+                this.drawBar(chartCx, chartCy, barWidth, K, '#EF4444', 'K (Kinetic)'); 
+                this.drawBar(chartCx + barWidth + spacing, chartCy, barWidth, E, '#10B981', 'E (Total)'); 
+
+                // Draw ground line for chart
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(chartCx - barWidth * 1.5 - spacing, chartCy + 1);
+                this.ctx.lineTo(chartCx + barWidth * 2.5 + spacing, chartCy + 1);
+                this.ctx.stroke();
+            }
+
+            drawBar(x, y, width, height, color, label) {
+                // Bar
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(x, y - height, width, height);
+
+                // Stroke
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.strokeRect(x, y - height, width, height);
+
+                // Label
+                this.ctx.fillStyle = this.color;
+                const fontSize = (this.canvas.width / this.scale < 450) ? 9 * this.scale : 11 * this.scale;
+                this.ctx.font = `500 ${fontSize}px "Inter", sans-serif`;
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(label, x + width / 2, y + 20 * this.scale);
+            }
+        }
+
+        class DampedVisual extends BaseVisual {
+            constructor(id) {
+                super(id);
+                this.vals = { m: 2, k: 1, b: 0.1 };
+                this.inputs = {
+                    m: document.getElementById('input-m'),
+                    k: document.getElementById('input-k'),
+                    b: document.getElementById('input-b')
+                };
+                Object.keys(this.inputs).forEach(k => {
+                    this.inputs[k].addEventListener('input', e => {
+                        this.vals[k] = parseFloat(e.target.value);
+                        document.getElementById(`val-${k}`).innerText = e.target.value;
+                        this.reset();
+                    });
+                });
+                document.getElementById('btn-reset').addEventListener('click', () => this.reset());
+                this.reset();
+            }
+            reset() {
+                this.y = 100; this.v = 0; this.history = [];
+            }
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Physics
+                const fS = -this.vals.k * 0.1 * this.y;
+                const fD = -this.vals.b * 2.0 * this.v;
+                const acc = (fS + fD) / this.vals.m;
+                this.v += acc;
+                this.y += this.v;
+
+                // Graph layout
+                const leftMargin = Math.min(150 * this.scale, this.canvas.width * 0.3); // Responsive left margin
+                const graphWidth = this.canvas.width - leftMargin;
+                const sysScale = leftMargin / (150 * this.scale);
+
+                this.history.push(this.y);
+                if (this.history.length > graphWidth / this.scale) this.history.shift();
+
+                const midY = this.canvas.height / 2;
+                const col = { text: this.color, bg: this.bg, accent: this.accent, secondary: this.secondary };
+
+                // --- Draw Physical System (Left Side) ---
+                const systemCx = leftMargin / 2;
+                const massY = midY - (this.y * this.scale * sysScale);
+
+                // Ceiling
+                this.ctx.strokeStyle = col.text;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.ctx.moveTo(systemCx - 40 * this.scale * sysScale, 20 * this.scale);
+                this.ctx.lineTo(systemCx + 40 * this.scale * sysScale, 20 * this.scale);
+                this.ctx.stroke();
+
+                // Spring
+                this.ctx.beginPath();
+                this.ctx.moveTo(systemCx, 20 * this.scale);
+                const segments = 24;
+                const len = massY - 20 * this.scale;
+                for (let i = 0; i <= segments; i++) {
+                    const py = 20 * this.scale + (len / segments) * i;
+                    const px = systemCx + (i % 2 == 0 ? -15 : 15) * this.scale * sysScale * (i == 0 || i == segments ? 0 : 1);
+                    this.ctx.lineTo(px, py);
+                }
+                this.ctx.stroke();
+
+                // Mass
+                const massSize = 40 * this.scale * sysScale;
+                this.ctx.fillStyle = col.bg;
+                this.ctx.fillRect(systemCx - massSize / 2, massY, massSize, massSize);
+                this.ctx.strokeRect(systemCx - massSize / 2, massY, massSize, massSize);
+
+                // Connector line between mass and graph
+                this.ctx.strokeStyle = 'rgba(128,128,128,0.3)';
+                this.ctx.lineWidth = 1 * this.scale;
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(systemCx + massSize / 2, massY + massSize / 2);
+                this.ctx.lineTo(leftMargin, massY + massSize / 2);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+
+                // --- Draw Graph (Right Side) ---
+
+                // Axis
+                this.ctx.strokeStyle = 'rgba(128,128,128,0.2)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(leftMargin, midY);
+                this.ctx.lineTo(this.canvas.width, midY);
+                this.ctx.stroke();
+
+                // Y-Axis line
+                this.ctx.beginPath();
+                this.ctx.moveTo(leftMargin, 0);
+                this.ctx.lineTo(leftMargin, this.canvas.height);
+                this.ctx.stroke();
+
+                // Trace
+                this.ctx.strokeStyle = this.accent;
+                this.ctx.lineWidth = 2 * this.scale;
+                this.ctx.beginPath();
+                this.history.forEach((h, i) => {
+                    const x = leftMargin + (i * this.scale);
+                    const y = midY - (h * this.scale * sysScale);
+                    if (i === 0) this.ctx.moveTo(x, y); else this.ctx.lineTo(x, y);
+                });
+                this.ctx.stroke();
+            }
+        }
+
+        window.onload = () => APP.init();
+
+    </script>
+</body>
+
+</html>

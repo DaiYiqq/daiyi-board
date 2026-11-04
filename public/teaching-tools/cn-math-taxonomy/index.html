@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中小学·高中知识图谱</title>
+<meta name="description" content="数学（小学到高中）、语文（小学一至六年级）、科学（小学一至六年级）、道德与法治（小学一至六年级）、历史（初中七至九年级）、地理（初中七至八年级）、英语（三年级到高中）和物理（初中、高中）的知识图谱。沿先修关系自适应出题，从选中的知识点往回找到薄弱根因。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23dff3ef%22%20stroke%3D%22%230f6e62%22%20stroke-width%3D%221.7%22%20stroke-linejoin%3D%22round%22%20d%3D%22M6.6%204.8H17L27.4%2015.2V25Q27.4%2027.4%2025.2%2027.4H6.6Q4.4%2027.4%204.4%2025.2V7Q4.4%204.8%206.6%204.8Z%22%2F%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M17.7%206.3%2026.1%2014.7H17.7Z%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%230f6e62%22%20stroke-width%3D%221.35%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M17.7%206.3V14.7H26.1%22%2F%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%230f6e62%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M8.3%2024.2H12.4Q14.2%2024.2%2014.2%2022.4V20.2Q14.2%2018.6%2016%2018.6H18.8%22%2F%3E%3Cpath%20fill%3D%22%230f6e62%22%20d%3D%22M18.5%2016.85%2023%2018.6%2018.5%2020.35Z%22%2F%3E%3C%2Fsvg%3E">
+<script>
+(function () {
+  var id = location.hash.replace(/^#/, '');
+  try { id = decodeURIComponent(id); } catch (e) { return; }
+  if (/^cnm_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/#' + encodeURIComponent(id));
+  } else if (/^cne_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=english#' + encodeURIComponent(id));
+  } else if (/^cnp_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=physics#' + encodeURIComponent(id));
+  } else if (/^cns_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=science#' + encodeURIComponent(id));
+  } else if (/^cnc_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=chinese#' + encodeURIComponent(id));
+  } else if (/^cnd_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=morality#' + encodeURIComponent(id));
+  } else if (/^cnh_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=history#' + encodeURIComponent(id));
+  } else if (/^cng_[A-Za-z0-9]+$/.test(id)) {
+    document.documentElement.style.visibility = 'hidden';
+    location.replace('explore/?subject=geography#' + encodeURIComponent(id));
+  }
+})();
+</script>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0f6e62">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="知识图谱">
+<link rel="stylesheet" href="assets/pwa.css">
+</head>
+<body class="page-home">
+<a class="top-banner" href="https://test.pansgo.com/?from=math-top" target="_blank" rel="noopener">🧠 儿童智商测试</a>
+<header class="site-header">
+  <a class="brand" href="./">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path fill="var(--logo-sheet)" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M6.6 4.8H17L27.4 15.2V25Q27.4 27.4 25.2 27.4H6.6Q4.4 27.4 4.4 25.2V7Q4.4 4.8 6.6 4.8Z"/><path fill="var(--logo-fold)" d="M17.7 6.3 26.1 14.7H17.7Z"/><path fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" d="M17.7 6.3V14.7H26.1"/><path fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" d="M8.3 24.2H12.4Q14.2 24.2 14.2 22.4V20.2Q14.2 18.6 16 18.6H18.8"/><path fill="currentColor" d="M18.5 16.85 23 18.6 18.5 20.35Z"/></svg>
+    <span class="brand-copy">
+      <span class="brand-name">中小学·高中知识图谱</span>
+      <span class="brand-kicker">学习路径</span>
+    </span>
+  </a>
+  <nav class="site-nav" aria-label="主导航">
+    <div class="subject-switch" role="group" aria-label="学科">
+      <a class="nav-link subject-link on" data-subject="math" href="./">数学</a>
+      <a class="nav-link subject-link" data-subject="chinese" href="./?subject=chinese">语文</a>
+      <a class="nav-link subject-link" data-subject="science" href="./?subject=science">科学</a>
+      <a class="nav-link subject-link" data-subject="morality" href="./?subject=morality">道法</a>
+      <a class="nav-link subject-link" data-subject="history" href="./?subject=history">历史</a>
+      <a class="nav-link subject-link" data-subject="geography" href="./?subject=geography">地理</a>
+      <a class="nav-link subject-link" data-subject="english" href="./?subject=english">英语</a>
+      <a class="nav-link subject-link" data-subject="physics" href="./?subject=physics">物理</a>
+    </div>
+    <div class="page-links">
+      <a class="nav-link active" href="./" aria-current="page">首页</a>
+      <a class="nav-link" href="explore/">知识图谱</a>
+      <a class="nav-link" href="diagnose/">诊断</a>
+      <a class="nav-link" href="children/">档案</a>
+      <a class="nav-link" href="https://github.com/xiaoyang111222/cn-math-taxonomy" target="_blank" rel="noopener noreferrer">关于</a>
+      <a class="nav-link resource-search-btn" href="https://pansgo.com" target="_blank" rel="noopener noreferrer" title="网盘资源搜索">
+        <svg class="resource-search-ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M11.5 10.4a5.5 5.5 0 1 0-1.1 1.1l3 3a.75.75 0 0 0 1.06-1.06zM7 11.5A4.5 4.5 0 1 1 7 2.5a4.5 4.5 0 0 1 0 9z"/></svg>资源搜索
+      </a>
+    </div>
+  </nav>
+</header>
+<main class="home">
+  <section class="hero">
+    <p class="eyebrow">数学：小学到高中 · 语文：小学一至六年级 · 科学：小学一至六年级 · 道德与法治：小学一至六年级 · 历史：初中七至九年级 · 地理：初中七至八年级 · 英语：三年级到高中 · 物理：初中到高中</p>
+    <h1>先找到真正没学会的那一步</h1>
+    <p class="lede">沿着先修关系自适应出题。数学从小学追到高中，语文覆盖统编版小学一至六年级，科学覆盖教科版小学一至六年级，道德与法治覆盖统编版小学一至六年级，历史覆盖统编版初中七至九年级，地理覆盖人教版初中七至八年级，英语覆盖三年级到高中，物理覆盖初中八、九年级和高中必修、选择性必修。从你选的知识点往回追，定位薄弱根因，并给出一条按学习顺序排起的路径。</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="diagnose/">开始诊断</a>
+      <a class="btn btn-lg" href="explore/">浏览知识图谱</a>
+    </div>
+    <p class="quiet-link"><a href="diagnose/?target=cnm_221&amp;demo=1">先看一遍演示：配方法</a></p>
+  </section>
+
+  <h2 class="section-title">三步</h2>
+  <ol class="steps">
+    <li>
+      <span class="step-no">1</span>
+      <h3>选知识点</h3>
+      <p>数学从一年级到高中必修和选择性必修，语文、科学和道德与法治从一年级到六年级，历史从七年级到九年级，地理从七年级到八年级，英语从三年级到高中，物理从八年级上册到高中选择性必修第三册。搜索或按册、章找到想检查的内容。</p>
+    </li>
+    <li>
+      <span class="step-no">2</span>
+      <h3>自适应答题</h3>
+      <p>先问目标本身。答错再出一道同级或更容易的题，仍然错才沿着先修往回追。</p>
+    </li>
+    <li>
+      <span class="step-no">3</span>
+      <h3>找到根因和学习路径</h3>
+      <p>标出薄弱根因和不稳的点，并按年级从低到高排出建议补学的顺序。</p>
+    </li>
+  </ol>
+
+  <h2 class="section-title">图谱里有什么</h2>
+  <div class="stat-grid" id="stats">
+    <div class="stat-card"><div class="stat-num" id="n-topics">…</div><div class="stat-label">知识点</div></div>
+    <div class="stat-card"><div class="stat-num" id="n-edges">…</div><div class="stat-label">先修边</div></div>
+    <div class="stat-card"><div class="stat-num" id="n-questions">…</div><div class="stat-label">题目</div></div>
+    <div class="stat-card"><div class="stat-num" id="n-standards">…</div><div class="stat-label">课标条目</div></div>
+  </div>
+  <p class="stat-note">以上数字在打开页面时从当前学科的知识点、先修、题库和课标统计。默认是数学。</p>
+  <div id="load-error" class="load-error" hidden></div>
+
+  <section class="blind-home" id="blind-home" hidden>
+    <h2 class="section-title">本机盲区</h2>
+    <p class="muted" id="blind-home-lead">根据本机诊断记录汇总的薄弱 / 不稳知识点。只存在这台浏览器，可一键再测。</p>
+    <ul class="blind-home-list" id="blind-home-list"></ul>
+    <p class="blind-home-actions" id="blind-home-actions"></p>
+  </section>
+
+  <h2 class="section-title">按年级进入</h2>
+  <div class="grade-grid" id="grades" aria-busy="true"></div>
+  <a class="iq-card" href="https://test.pansgo.com/?from=math-home" target="_blank" rel="noopener">
+    <strong>🧠 儿童智商测试</strong>
+    <span class="iq-sub">找规律 · 补图案 · 空间想象</span>
+    <span class="iq-note">趣味测评，与数学诊断无关</span>
+  </a>
+</main>
+<footer class="site-footer">
+  <p><a href="https://github.com/xiaoyang111222/cn-math-taxonomy/issues/new/choose">提交 Issue</a></p>
+</footer>
+<script src="assets/children.js"></script>
+<script src="assets/blindspots.js"></script>
+<script src="assets/home.js"></script>
+<script src="assets/stats-config.js"></script>
+<script src="assets/stats.js"></script>
+<script src="assets/pwa.js"></script>
+</body>
+</html>

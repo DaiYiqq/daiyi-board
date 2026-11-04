@@ -29,14 +29,20 @@ import {
   Timer,
   Crosshair,
   ScanSearch,
-  MapPin,
   Maximize2,
   Pause,
   Play,
+  Map as MapIcon,
 } from 'lucide-react';
 import CameraStage from './components/CameraStage';
 import LocationMap from './components/LocationMap';
 import type { LocationCoordinates, LocationStatus } from './components/LocationMap';
+import MapStage from './components/MapStage';
+import TeachingToolsPanel from './teaching-tools/TeachingToolsPanel';
+import ToolElement, { type ToolElement as ToolElementData } from './teaching-tools/ToolElement';
+import ImageElement, { type ImageElement as ImageElementData } from './teaching-tools/ImageElement';
+import { getTool, pushRecent, type TeachingTool } from './teaching-tools/registry';
+import './teaching-tools/teaching-tools.css';
 import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
 
 declare global {
@@ -54,15 +60,48 @@ type Mark = {
   width: number;
   points: Point[];
 };
-type Page = { id: string; title: string; marks: Mark[] };
+type Page = {
+  id: string;
+  title: string;
+  marks: Mark[];
+  tools: ToolElementData[];
+  images: ImageElementData[];
+};
 type BoardData = { version: 1; pages: Page[]; activePage: string };
 type Tool = 'select' | 'pen' | 'eraser';
 type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: Tool[] };
+type Period = { index: number; start: string; end: string };
+type WeekParity = 'odd' | 'even';
+type Schedule = {
+  periods: Period[];
+  odd: Record<string, string>; // "d-p" -> 课程名（d=1..7，p=1..9）
+  even: Record<string, string>;
+};
+type ClassStatus = {
+  state: 'in-class' | 'break' | 'dismissed' | 'no-schedule';
+  name: string;
+  period?: Period;
+  nextName?: string;
+  nextInMinutes?: number;
+};
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
 const APP_VERSION = '3.1.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
+const SCHEDULE_KEY = 'daiyi-board-schedule-v2';
+const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日']; // 周一..周日（1..7）
+const DEFAULT_PERIODS: Period[] = [
+  { index: 1, start: '08:00', end: '08:45' },
+  { index: 2, start: '08:55', end: '09:40' },
+  { index: 3, start: '10:00', end: '10:45' },
+  { index: 4, start: '10:55', end: '11:40' },
+  { index: 5, start: '14:00', end: '14:45' },
+  { index: 6, start: '14:55', end: '15:40' },
+  { index: 7, start: '16:00', end: '16:45' },
+  { index: 8, start: '16:55', end: '17:40' },
+  { index: 9, start: '19:00', end: '19:45' },
+];
 const COLORS = [
   '#FFFFFF',
   '#000000',
@@ -84,6 +123,8 @@ const newPage = (n: number): Page => ({
   id: crypto.randomUUID(),
   title: `白板 ${String(n).padStart(2, '0')}`,
   marks: [],
+  tools: [],
+  images: [],
 });
 const pressureWidth = (width: number, pressure = 0.5) =>
   width * (0.45 + Math.max(0, Math.min(1, pressure)) * 0.9);
@@ -97,6 +138,52 @@ const boundsFor = (points: Point[]) => {
     maxY: Math.max(...ys),
   };
 };
+const isValidToolElement = (value: unknown): value is ToolElementData => {
+  if (!value || typeof value !== 'object') return false;
+  const t = value as ToolElementData;
+  return (
+    typeof t.id === 'string' &&
+    !!t.id &&
+    typeof t.toolId === 'string' &&
+    !!t.toolId &&
+    typeof t.toolVersion === 'string' &&
+    Number.isFinite(t.x) &&
+    t.x >= 0 &&
+    t.x <= 1 &&
+    Number.isFinite(t.y) &&
+    t.y >= 0 &&
+    t.y <= 1 &&
+    Number.isFinite(t.w) &&
+    t.w > 0 &&
+    t.w <= 1 &&
+    Number.isFinite(t.h) &&
+    t.h > 0 &&
+    t.h <= 1
+  );
+};
+const isValidImageElement = (value: unknown): value is ImageElementData => {
+  if (!value || typeof value !== 'object') return false;
+  const im = value as ImageElementData;
+  return (
+    typeof im.id === 'string' &&
+    !!im.id &&
+    typeof im.src === 'string' &&
+    !!im.src &&
+    im.src.length <= 4_000_000 &&
+    Number.isFinite(im.x) &&
+    im.x >= 0 &&
+    im.x <= 1 &&
+    Number.isFinite(im.y) &&
+    im.y >= 0 &&
+    im.y <= 1 &&
+    Number.isFinite(im.w) &&
+    im.w > 0 &&
+    im.w <= 1 &&
+    Number.isFinite(im.h) &&
+    im.h > 0 &&
+    im.h <= 1
+  );
+};
 const isValidPage = (value: unknown): value is Page => {
   if (!value || typeof value !== 'object') return false;
   const page = value as Page;
@@ -107,6 +194,16 @@ const isValidPage = (value: unknown): value is Page => {
     page.title.length > 80 ||
     !Array.isArray(page.marks) ||
     page.marks.length > 5000
+  )
+    return false;
+  if (
+    page.tools !== undefined &&
+    (!Array.isArray(page.tools) || page.tools.length > 200 || !page.tools.every(isValidToolElement))
+  )
+    return false;
+  if (
+    page.images !== undefined &&
+    (!Array.isArray(page.images) || page.images.length > 200 || !page.images.every(isValidImageElement))
   )
     return false;
   return page.marks.every((value: unknown) => {
@@ -158,6 +255,7 @@ function readBoard(): BoardData {
       if (isValidBoard(data))
         return {
           ...data,
+          pages: data.pages.map((page) => ({ ...page, tools: page.tools ?? [], images: page.images ?? [] })),
           activePage: data.pages.some((page) => page.id === data.activePage)
             ? data.activePage
             : data.pages[0].id,
@@ -166,7 +264,7 @@ function readBoard(): BoardData {
   } catch {
     /* Ignore an invalid saved board and start with a clean board. */
   }
-  const page = { id: 'welcome-board', title: '白板 01', marks: [] };
+  const page = { id: 'welcome-board', title: '白板 01', marks: [], tools: [], images: [] };
   return { version: 1, pages: [page], activePage: page.id };
 }
 function readPrefs(): Preferences {
@@ -186,6 +284,116 @@ function readPrefs(): Preferences {
     return defaultPrefs;
   }
 }
+const toMinutes = (t: string) => {
+  const [h, m] = t.split(':').map((v) => Number(v));
+  return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+};
+const isValidTime = (t: string) => {
+  if (!/^\d{1,2}:\d{2}$/.test(t)) return false;
+  const [h, m] = t.split(':').map(Number);
+  return h >= 0 && h < 24 && m >= 0 && m < 60;
+};
+const cellKey = (day: number, period: number) => `${day}-${period}`;
+const weekParityOf = (now: Date): WeekParity => {
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return weekNo % 2 === 1 ? 'odd' : 'even';
+};
+const defaultSchedule = (): Schedule => ({
+  periods: DEFAULT_PERIODS.map((p) => ({ ...p })),
+  odd: {},
+  even: {},
+});
+const parseSchedule = (raw: unknown): Schedule => {
+  const base = defaultSchedule();
+  if (!raw || typeof raw !== 'object') return base;
+  const v = raw as Record<string, unknown>;
+  if (Array.isArray(v.periods)) {
+    const periods: Period[] = [];
+    for (const p of v.periods) {
+      if (!p || typeof p !== 'object') continue;
+      const pp = p as Record<string, unknown>;
+      const index = Number(pp.index);
+      const start = typeof pp.start === 'string' && isValidTime(pp.start) ? pp.start : '';
+      const end = typeof pp.end === 'string' && isValidTime(pp.end) ? pp.end : '';
+      if (Number.isInteger(index) && index >= 1 && index <= 12 && start && end)
+        periods.push({ index, start, end });
+    }
+    if (periods.length) base.periods = periods.sort((a, b) => a.index - b.index);
+  }
+  const readGrid = (g: unknown): Record<string, string> => {
+    const out: Record<string, string> = {};
+    if (g && typeof g === 'object') {
+      for (const [k, val] of Object.entries(g as Record<string, unknown>)) {
+        if (/^[1-7]-[0-9]+$/.test(k) && typeof val === 'string' && val.trim()) out[k] = val.trim();
+      }
+    }
+    return out;
+  };
+  base.odd = readGrid(v.odd);
+  base.even = readGrid(v.even);
+  return base;
+};
+function readSchedule(): Schedule {
+  try {
+    return parseSchedule(JSON.parse(localStorage.getItem(SCHEDULE_KEY) ?? '{}'));
+  } catch {
+    return defaultSchedule();
+  }
+}
+const classStatusOf = (schedule: Schedule, now: Date): ClassStatus => {
+  const parity = weekParityOf(now);
+  const grid = schedule[parity];
+  const day = now.getDay() === 0 ? 7 : now.getDay();
+  const m = now.getHours() * 60 + now.getMinutes();
+  const periods = schedule.periods;
+  if (!periods.length) return { state: 'no-schedule', name: '' };
+  const current = periods.find((p) => m >= toMinutes(p.start) && m < toMinutes(p.end)) ?? null;
+  const name = current ? grid[cellKey(day, current.index)] ?? '' : '';
+  const upcoming =
+    periods
+      .filter((p) => toMinutes(p.start) > m)
+      .map((p) => ({ p, n: grid[cellKey(day, p.index)] ?? '' }))
+      .find((x) => x.n) ?? null;
+  if (current && name) {
+    return {
+      state: 'in-class',
+      name,
+      period: current,
+      nextName: upcoming?.n,
+      nextInMinutes: upcoming ? toMinutes(upcoming.p.start) - m : undefined,
+    };
+  }
+  if (upcoming) {
+    return {
+      state: 'break',
+      name: '',
+      nextName: upcoming.n,
+      nextInMinutes: toMinutes(upcoming.p.start) - m,
+    };
+  }
+  return { state: 'dismissed', name: '' };
+};
+
+const upcomingClassesOf = (
+  schedule: Schedule,
+  now: Date,
+  limit = 3,
+): { name: string; start: string; end: string }[] => {
+  const parity = weekParityOf(now);
+  const grid = schedule[parity];
+  const day = now.getDay() === 0 ? 7 : now.getDay();
+  const m = now.getHours() * 60 + now.getMinutes();
+  return schedule.periods
+    .filter((p) => toMinutes(p.start) > m)
+    .map((p) => ({ name: grid[cellKey(day, p.index)] ?? '', start: p.start, end: p.end }))
+    .filter((x) => x.name)
+    .slice(0, limit);
+};
+
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export default function App() {
@@ -201,9 +409,22 @@ export default function App() {
   const [width, setWidth] = useState(4);
   const [prefs, setPrefs] = useState<Preferences>(readPrefs);
   const [panel, setPanel] = useState<
-    'menu' | 'pen' | 'customize' | 'advanced' | 'developer' | 'help' | 'camera' | null
+    | 'menu'
+    | 'pen'
+    | 'customize'
+    | 'advanced'
+    | 'developer'
+    | 'help'
+    | 'camera'
+    | 'schedule'
+    | 'teaching'
+    | null
   >(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  const [focusToolId, setFocusToolId] = useState<string | null>(null);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
   const [zoom, setZoom] = useState(100);
   const [dirty, setDirty] = useState(false);
   const [savedAt, setSavedAt] = useState('点击底部“保存”手动保存工程');
@@ -211,6 +432,7 @@ export default function App() {
   const [layoutTick, setLayoutTick] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const scheduleFileRef = useRef<HTMLInputElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const magnifierCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef<{
@@ -223,13 +445,16 @@ export default function App() {
     bounds?: ReturnType<typeof boundsFor>;
   } | null>(null);
   const [now, setNow] = useState(() => new Date());
+  const [schedule, setSchedule] = useState<Schedule>(readSchedule);
+  const [scheduleWeek, setScheduleWeek] = useState<WeekParity>('odd');
+  const [quickFill, setQuickFill] = useState('');
   const [startupProgress, setStartupProgress] = useState(0);
   const [updateState, setUpdateState] = useState<UpdateSnapshot>(() => ({
     source: window.boardDesktop ? 'desktop' : 'pwa',
     status: 'idle',
   }));
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
-  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | 'map' | null>(null);
+  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | 'map' | 'osm-map' | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(10 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerDeadlineRef = useRef<number | null>(null);
@@ -239,6 +464,8 @@ export default function App() {
   const mapLocationRequestRef = useRef(0);
   const [laserEnabled, setLaserEnabled] = useState(false);
   const [magnifierEnabled, setMagnifierEnabled] = useState(false);
+  const [minimized, setMinimized] = useState(false);
+  const [floatOpen, setFloatOpen] = useState(true);
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null);
   const active = pages.find((p) => p.id === activePage) ?? pages[0];
   const activeIndex = Math.max(
@@ -261,6 +488,164 @@ export default function App() {
   const replaceCurrent = useCallback(
     (marks: Mark[]) => {
       const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, marks } : p));
+      commit(next);
+    },
+    [commit],
+  );
+  const pushUndo = useCallback(() => {
+    undoStack.current.push({
+      version: 1,
+      pages: structuredClone(pagesRef.current),
+      activePage: activeRef.current,
+    });
+    if (undoStack.current.length > 60) undoStack.current.shift();
+    redoStack.current = [];
+  }, []);
+  const setPagesLive = useCallback((next: Page[]) => {
+    pagesRef.current = next;
+    setPages(next);
+    setDirty(true);
+  }, []);
+  const beginToolGesture = useCallback(() => pushUndo(), [pushUndo]);
+  const insertTool = useCallback(
+    (tool: TeachingTool, x: number, y: number) => {
+      const el: ToolElementData = {
+        id: crypto.randomUUID(),
+        toolId: tool.id,
+        toolVersion: tool.version,
+        params: { ...tool.defaultParams },
+        x: Math.max(0, Math.min(0.6, x - 0.21)),
+        y: Math.max(0, Math.min(0.6, y - 0.18)),
+        w: 0.42,
+        h: 0.36,
+      };
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, tools: [...(p.tools ?? []), el] } : p,
+      );
+      commit(next);
+      setSelected(null);
+      setSelectedToolId(el.id);
+      pushRecent(tool.id);
+    },
+    [commit],
+  );
+  const updateToolLive = useCallback(
+    (id: string, patch: Partial<ToolElementData>) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? { ...p, tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, ...patch } : t)) }
+          : p,
+      );
+      setPagesLive(next);
+    },
+    [setPagesLive],
+  );
+  const updateToolParams = useCallback(
+    (id: string, key: string, value: unknown) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) =>
+                t.id === id ? { ...t, params: { ...(t.params ?? {}), [key]: value } } : t,
+              ),
+            }
+          : p,
+      );
+      commit(next);
+    },
+    [commit],
+  );
+  const deleteTool = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, tools: (p.tools ?? []).filter((t) => t.id !== id) } : p,
+      );
+      commit(next);
+      setSelectedToolId((cur) => (cur === id ? null : cur));
+      setFocusToolId((cur) => (cur === id ? null : cur));
+    },
+    [commit],
+  );
+  const snapshotTool = useCallback(
+    (id: string, dataUrl: string) => {
+      const tool = pagesRef.current
+        .find((p) => p.id === activeRef.current)
+        ?.tools?.find((t) => t.id === id);
+      const img: ImageElementData = {
+        id: crypto.randomUUID(),
+        src: dataUrl,
+        x: Math.min(0.7, (tool?.x ?? 0.3) + (tool?.w ?? 0.42) + 0.03),
+        y: tool?.y ?? 0.3,
+        w: 0.32,
+        h: 0.32,
+      };
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) => (t.id === id ? { ...t, snapshot: dataUrl } : t)),
+              images: [...(p.images ?? []), img],
+            }
+          : p,
+      );
+      commit(next);
+      setSelectedImageId(img.id);
+    },
+    [commit],
+  );
+  const updateImageLive = useCallback(
+    (id: string, patch: Partial<ImageElementData>) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? { ...p, images: (p.images ?? []).map((im) => (im.id === id ? { ...im, ...patch } : im)) }
+          : p,
+      );
+      setPagesLive(next);
+    },
+    [setPagesLive],
+  );
+  const deleteImage = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current ? { ...p, images: (p.images ?? []).filter((im) => im.id !== id) } : p,
+      );
+      commit(next);
+      setSelectedImageId((cur) => (cur === id ? null : cur));
+    },
+    [commit],
+  );
+  const bringToolToFront = useCallback(
+    (id: string) => {
+      const next = pagesRef.current.map((p) => {
+        if (p.id !== activeRef.current) return p;
+        const tools = p.tools ?? [];
+        const idx = tools.findIndex((t) => t.id === id);
+        if (idx < 0) return p;
+        const arr = [...tools];
+        arr.push(arr.splice(idx, 1)[0]);
+        return { ...p, tools: arr };
+      });
+      commit(next);
+    },
+    [commit],
+  );
+  const resetToolParams = useCallback(
+    (id: string) => {
+      const tool = getTool(
+        pagesRef.current.find((p) => p.id === activeRef.current)?.tools?.find((t) => t.id === id)
+          ?.toolId ?? '',
+      );
+      const next = pagesRef.current.map((p) =>
+        p.id === activeRef.current
+          ? {
+              ...p,
+              tools: (p.tools ?? []).map((t) =>
+                t.id === id ? { ...t, params: { ...(tool?.defaultParams ?? {}) } } : t,
+              ),
+            }
+          : p,
+      );
       commit(next);
     },
     [commit],
@@ -373,9 +758,28 @@ export default function App() {
     }
   }, [prefs]);
   useEffect(() => {
+    try {
+      localStorage.setItem(SCHEDULE_KEY, JSON.stringify(schedule));
+    } catch {
+      /* 课程表为可选本地数据。 */
+    }
+  }, [schedule]);
+  useEffect(() => {
     const resize = () => setLayoutTick((tick) => tick + 1);
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
+  }, []);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setStageSize({ width: r.width, height: r.height });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
   useEffect(() => {
     const startedAt = performance.now();
@@ -453,6 +857,35 @@ export default function App() {
       lens.height,
     );
   }, [magnifierEnabled, pointerPosition, active, selected, layoutTick]);
+  const clipboardRef = useRef<{ kind: 'tool' | 'image'; data: ToolElementData | ImageElementData } | null>(null);
+  const copySelected = useCallback(() => {
+    if (selectedToolId) {
+      const t = pagesRef.current.find((p) => p.id === activeRef.current)?.tools?.find((x) => x.id === selectedToolId);
+      if (t) clipboardRef.current = { kind: 'tool', data: structuredClone(t) };
+    } else if (selectedImageId) {
+      const im = pagesRef.current.find((p) => p.id === activeRef.current)?.images?.find((x) => x.id === selectedImageId);
+      if (im) clipboardRef.current = { kind: 'image', data: structuredClone(im) };
+    }
+  }, [selectedToolId, selectedImageId]);
+  const pasteClipboard = useCallback(() => {
+    const c = clipboardRef.current;
+    if (!c) return;
+    if (c.kind === 'tool') {
+      const src = c.data as ToolElementData;
+      const el: ToolElementData = { ...src, id: crypto.randomUUID(), x: Math.min(0.9, src.x + 0.03), y: Math.min(0.9, src.y + 0.03) };
+      const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, tools: [...(p.tools ?? []), el] } : p));
+      commit(next);
+      setSelectedToolId(el.id);
+      setSelectedImageId(null);
+    } else {
+      const src = c.data as ImageElementData;
+      const im: ImageElementData = { ...src, id: crypto.randomUUID(), x: Math.min(0.9, src.x + 0.03), y: Math.min(0.9, src.y + 0.03) };
+      const next = pagesRef.current.map((p) => (p.id === activeRef.current ? { ...p, images: [...(p.images ?? []), im] } : p));
+      commit(next);
+      setSelectedImageId(im.id);
+      setSelectedToolId(null);
+    }
+  }, [commit]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -463,6 +896,13 @@ export default function App() {
         e.preventDefault();
         redo();
       }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        copySelected();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        pasteClipboard();
+      }
       if (e.key === 'Escape') {
         setPanel(null);
         setAdvancedMode(null);
@@ -470,14 +910,28 @@ export default function App() {
         setMapLocation(null);
         setMapLocationStatus('idle');
         setMapLocationError('');
+        setSelectedToolId(null);
+        setFocusToolId(null);
+        setSelectedImageId(null);
         pauseTimer();
         setLaserEnabled(false);
         setMagnifierEnabled(false);
       }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedToolId || selectedImageId)) {
+        const target = e.target as HTMLElement | null;
+        const inField =
+          target &&
+          (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+        if (!inField) {
+          e.preventDefault();
+          if (selectedToolId) deleteTool(selectedToolId);
+          else if (selectedImageId) deleteImage(selectedImageId);
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [undo, redo]);
+  }, [undo, redo, selectedToolId, selectedImageId, deleteTool, deleteImage, copySelected, pasteClipboard]);
 
   const pointAt = (event: ReactPointerEvent<HTMLCanvasElement>): Point => {
     const r = event.currentTarget.getBoundingClientRect();
@@ -715,7 +1169,7 @@ export default function App() {
       const nextActive = parsed.pages.some((page) => page.id === parsed.activePage)
         ? parsed.activePage
         : parsed.pages[0].id;
-      commit(parsed.pages);
+      commit(parsed.pages.map((page) => ({ ...page, tools: page.tools ?? [], images: page.images ?? [] })));
       setActivePage(nextActive);
       activeRef.current = nextActive;
       setSavedAt('工程已打开，尚未手动保存');
@@ -740,6 +1194,60 @@ export default function App() {
       : [...prefs.visibleTools, target];
     if (!visible.length) return;
     setPrefs({ ...prefs, visibleTools: visible });
+  };
+  const updatePeriod = (index: number, field: 'start' | 'end', value: string) =>
+    setSchedule((s) => ({
+      ...s,
+      periods: s.periods.map((p) => (p.index === index ? { ...p, [field]: value } : p)),
+    }));
+  const setCell = (day: number, period: number) => {
+    const key = cellKey(day, period);
+    const fill = quickFill.trim();
+    if (fill) {
+      setSchedule((s) => ({ ...s, [scheduleWeek]: { ...s[scheduleWeek], [key]: fill } }));
+      return;
+    }
+    const name = window.prompt('课程名称', schedule[scheduleWeek][key] ?? '');
+    if (name === null) return;
+    setSchedule((s) => {
+      const grid = { ...s[scheduleWeek] };
+      if (name.trim()) grid[key] = name.trim();
+      else delete grid[key];
+      return { ...s, [scheduleWeek]: grid };
+    });
+  };
+  const saveSchedule = () => {
+    for (const p of schedule.periods) {
+      if (!isValidTime(p.start) || !isValidTime(p.end) || toMinutes(p.start) >= toMinutes(p.end)) {
+        window.alert(`第 ${p.index} 节时间格式不正确：需为 HH:MM 且开始早于结束。`);
+        return;
+      }
+    }
+    setPanel(null);
+    window.alert('课表已保存。');
+  };
+  const importScheduleFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > 2 * 1024 * 1024) throw new Error('文件过大');
+      setSchedule(parseSchedule(JSON.parse(await file.text())));
+      window.alert('课表已导入。');
+    } catch {
+      window.alert('导入失败：请使用 { periods:[{index,start,end}], odd:{}, even:{} } 格式。');
+    }
+    event.target.value = '';
+  };
+  const exportSchedule = () => {
+    const blob = new Blob([JSON.stringify(schedule, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'daiyi-board-schedule.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
   const quitApplication = async () => {
     setPanel(null);
@@ -824,6 +1332,26 @@ export default function App() {
     day: '2-digit',
     weekday: 'short',
   });
+  const classStatus = classStatusOf(schedule, now);
+  const islandClassText =
+    classStatus.state === 'in-class'
+      ? classStatus.name
+      : classStatus.state === 'break' && classStatus.nextName
+        ? '休息中'
+        : classStatus.state === 'dismissed'
+          ? '已下课'
+          : '';
+  const startupClassText =
+    classStatus.state === 'in-class'
+      ? `本节课：${classStatus.name}（${classStatus.period?.start ?? ''}-${classStatus.period?.end ?? ''}）`
+      : classStatus.state === 'break' && classStatus.nextName
+        ? `下节课：${classStatus.nextName}（${classStatus.nextInMinutes ?? 0} 分钟后）`
+        : classStatus.state === 'dismissed'
+          ? '今日课程已结束'
+          : '无课';
+  const currentClassName = classStatus.state === 'in-class' ? classStatus.name : '';
+  const upcomingClasses = upcomingClassesOf(schedule, now, 3);
+  const upcomingText = upcomingClasses.map((c) => c.name).join(' · ');
   const timerText = `${String(Math.floor(timerSeconds / 60)).padStart(2, '0')}:${String(timerSeconds % 60).padStart(2, '0')}`;
   const updateHeading =
     updateState.status === 'checking'
@@ -875,6 +1403,7 @@ export default function App() {
     setTimerRunning(false);
     setTimerSeconds(seconds);
   }
+
   const requestMapLocation = useCallback(() => {
     const requestId = ++mapLocationRequestRef.current;
     setMapLocation(null);
@@ -909,8 +1438,8 @@ export default function App() {
       { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     );
   }, []);
-  const openMap = () => {
-    setAdvancedMode('map');
+  const openOsmMap = () => {
+    setAdvancedMode('osm-map');
     setPanel(null);
     requestMapLocation();
   };
@@ -924,9 +1453,12 @@ export default function App() {
   };
 
   return (
-    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}`}>
+    <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}${minimized ? ' is-minimized' : ''}`}>
       <section className="workspace">
-        <div className="time-island" aria-label={`系统时间 ${clockText}`}>
+        <div
+          className="time-island"
+          aria-label={`系统时间 ${clockText}${islandClassText ? `，${islandClassText}` : ''}`}
+        >
           <span className="island-logo">
             <img src="./icon-64.png" alt="Yi+" />
           </span>
@@ -934,6 +1466,26 @@ export default function App() {
           <Clock3 size={14} />
           <time>{clockText}</time>
           <small>{dateText}</small>
+          {currentClassName && (
+            <>
+              <span className="island-separator" />
+              <span className="island-now">本节课·{currentClassName}</span>
+            </>
+          )}
+          {!currentClassName && islandClassText && (
+            <>
+              <span className="island-separator" />
+              <span className={`island-class${islandClassText === '已下课' ? ' is-dismissed' : ''}`}>
+                {islandClassText}
+              </span>
+            </>
+          )}
+          {upcomingClasses[0] && (
+            <>
+              <span className="island-separator" />
+              <span className="island-next">下节·{upcomingClasses[0].name}</span>
+            </>
+          )}
         </div>
         {panel === 'camera' ? (
           <CameraStage
@@ -950,7 +1502,18 @@ export default function App() {
               ref={stageRef}
               onPointerMove={trackPointer}
               onPointerLeave={() => setPointerPosition(null)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('application/x-teaching-tool');
+                if (!id) return;
+                const tool = getTool(id);
+                if (!tool) return;
+                const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                insertTool(tool, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+              }}
               onClick={() => {
+                setSelectedToolId(null);
                 if (
                   panel === 'customize' ||
                   panel === 'menu' ||
@@ -976,6 +1539,106 @@ export default function App() {
                   />
                 </div>
               </div>
+              <div className="tools-layer">
+                {(active?.tools ?? []).map((t) => {
+                  const isFocused = t.id === focusToolId;
+                  const el = isFocused ? { ...t, x: 0, y: 0, w: 1, h: 1 } : t;
+                  return (
+                    <ToolElement
+                      key={t.id}
+                      element={el}
+                      stageW={stageSize.width}
+                      stageH={stageSize.height}
+                      selected={t.id === selectedToolId}
+                      focused={isFocused}
+                      onSelect={(id) => {
+                        setSelectedToolId(id);
+                        setSelectedImageId(null);
+                        setSelected(null);
+                      }}
+                      onBeforeChange={beginToolGesture}
+                      onUpdate={updateToolLive}
+                      onDelete={deleteTool}
+                      onSnapshot={snapshotTool}
+                      onFocus={(id) => setFocusToolId(id)}
+                      onExitFocus={() => setFocusToolId(null)}
+                      onBringToFront={bringToolToFront}
+                      onResetParams={resetToolParams}
+                    />
+                  );
+                })}
+                {(active?.images ?? []).map((im) => (
+                  <ImageElement
+                    key={im.id}
+                    image={im}
+                    stageW={stageSize.width}
+                    stageH={stageSize.height}
+                    selected={im.id === selectedImageId}
+                    onSelect={(id) => {
+                      setSelectedImageId(id);
+                      setSelectedToolId(null);
+                      setSelected(null);
+                    }}
+                    onBeforeChange={beginToolGesture}
+                    onUpdate={updateImageLive}
+                    onDelete={deleteImage}
+                  />
+                ))}
+              </div>
+              {selectedToolId &&
+                !focusToolId &&
+                (() => {
+                  const t = (active?.tools ?? []).find((x) => x.id === selectedToolId);
+                  if (!t) return null;
+                  const tool = getTool(t.toolId);
+                  if (!tool?.paramsSchema?.length) return null;
+                  return (
+                    <div className="params-panel" onClick={(e) => e.stopPropagation()}>
+                      <h3>{tool.name} 参数</h3>
+                      {tool.paramsSchema.map((f) => (
+                        <div className="params-field" key={f.key}>
+                          <label>{f.label}</label>
+                          {f.type === 'slider' && (
+                            <input
+                              type="range"
+                              min={f.min}
+                              max={f.max}
+                              step={f.step}
+                              value={Number(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, Number(e.target.value))}
+                            />
+                          )}
+                          {f.type === 'select' && (
+                            <select
+                              value={String(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.value)}
+                            >
+                              {f.options?.map((o) => (
+                                <option key={String(o.value)} value={String(o.value)}>
+                                  {o.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {f.type === 'toggle' && (
+                            <input
+                              type="checkbox"
+                              checked={Boolean(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.checked)}
+                            />
+                          )}
+                          {f.type === 'text' && (
+                            <input
+                              type="text"
+                              value={String(t.params?.[f.key] ?? f.defaultValue)}
+                              onChange={(e) => updateToolParams(t.id, f.key, e.target.value)}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               {laserEnabled && pointerPosition && (
                 <div
                   className="laser-pointer"
@@ -1140,6 +1803,29 @@ export default function App() {
                       ))}
                     </div>
                   </div>
+                  <div className="setting-group schedule-group">
+                    <div className="setting-label">课程表</div>
+                    <div className="setting-sub schedule-current">{startupClassText}</div>
+                    {upcomingText && <div className="setting-sub schedule-upcoming">后面：{upcomingText}</div>}
+                    <div className="schedule-actions">
+                      <button className="schedule-add" onClick={() => setPanel('schedule')}>
+                        编辑课程表
+                      </button>
+                      <button className="schedule-import" onClick={() => scheduleFileRef.current?.click()}>
+                        导入 JSON
+                      </button>
+                      <button className="schedule-export" onClick={exportSchedule}>
+                        导出 JSON
+                      </button>
+                    </div>
+                    <input
+                      ref={scheduleFileRef}
+                      className="hidden-input"
+                      type="file"
+                      accept=".json,application/json"
+                      onChange={importScheduleFile}
+                    />
+                  </div>
                   <div className="popover-foot">
                     <GripVertical size={14} />
                     拖动底部工具可调整顺序
@@ -1172,13 +1858,6 @@ export default function App() {
                     <span>
                       <b>全屏时钟</b>
                       <small>大字时间显示</small>
-                    </span>
-                  </button>
-                  <button className="menu-item" onClick={openMap}>
-                    <MapPin size={18} />
-                    <span>
-                      <b>地图</b>
-                      <small>自动定位当前位置</small>
                     </span>
                   </button>
                   <button
@@ -1227,7 +1906,40 @@ export default function App() {
                       <small>跟随指针放大局部画面</small>
                     </span>
                   </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => setPanel('teaching')}
+                  >
+                    <MapIcon size={18} />
+                    <span>
+                      <b>教学工具</b>
+                      <small>交互式可视化，可拖入白板</small>
+                    </span>
+                  </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => {
+                      setAdvancedMode('map');
+                      setPanel(null);
+                    }}
+                  >
+                    <MapIcon size={18} />
+                    <span>
+                      <b>地理地图</b>
+                      <small>高德地图，自动定位</small>
+                    </span>
+                  </button>
+                  <button className="menu-item" onClick={openOsmMap}>
+                    <MapIcon size={18} />
+                    <span>
+                      <b>OpenStreetMap</b>
+                      <small>定位当前位置 · 无需地图密钥</small>
+                    </span>
+                  </button>
                 </div>
+              )}
+              {panel === 'teaching' && (
+                <TeachingToolsPanel onClose={() => setPanel(null)} onInsert={(tool) => insertTool(tool, 0.5, 0.4)} />
               )}
               {panel === 'menu' && (
                 <div className="toolbar-menu main-menu" onClick={(e) => e.stopPropagation()}>
@@ -1282,6 +1994,19 @@ export default function App() {
                     <span>
                       <b>切换全屏</b>
                       <small>适用于支持全屏 API 的宿主</small>
+                    </span>
+                  </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => {
+                      setMinimized(true);
+                      setPanel(null);
+                    }}
+                  >
+                    <Minus size={18} />
+                    <span>
+                      <b>最小化</b>
+                      <small>收起到悬浮工具栏，全屏书写</small>
                     </span>
                   </button>
                   <button
@@ -1503,16 +2228,60 @@ export default function App() {
           </section>
         )}
       </section>
+      {minimized && (
+        <div className={`float-toolbar${floatOpen ? ' is-open' : ''}`}>
+          {floatOpen ? (
+            <div className="float-toolbar-panel" onClick={(e) => e.stopPropagation()}>
+              <button className="float-restore" onClick={() => setMinimized(false)} title="恢复白板">
+                <Maximize2 size={18} />
+                <span>恢复</span>
+              </button>
+              <span className="float-divider" />
+              <button className={tool === 'pen' ? 'is-on' : ''} onClick={() => setTool('pen')} title="笔">
+                <Pencil size={18} />
+                <span>笔</span>
+              </button>
+              <button
+                className={tool === 'eraser' ? 'is-on' : ''}
+                onClick={() => setTool('eraser')}
+                title="橡皮"
+              >
+                <Eraser size={18} />
+                <span>橡皮</span>
+              </button>
+              <span className="float-divider" />
+              <button onClick={undo} title="撤销">
+                <Undo2 size={18} />
+                <span>撤销</span>
+              </button>
+              <button onClick={redo} title="重做">
+                <Redo2 size={18} />
+                <span>重做</span>
+              </button>
+              <span className="float-divider" />
+              <button className="float-collapse" onClick={() => setFloatOpen(false)} title="收起">
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <button className="float-pill" onClick={() => setFloatOpen(true)} title="展开悬浮工具栏">
+              <Pencil size={18} />
+            </button>
+          )}
+        </div>
+      )}
       {advancedMode && (
-        <div className="advanced-overlay">
-          <button
-            className="mode-close"
-            onClick={closeAdvancedMode}
-            aria-label="返回白板"
-          >
-            <X size={21} />
-            <span>返回白板</span>
-          </button>
+        <div className={`advanced-overlay${advancedMode === 'map' || advancedMode === 'osm-map' ? ' map-overlay' : ''}`}>
+          {advancedMode !== 'map' && (
+            <button
+              className="mode-close"
+              onClick={closeAdvancedMode}
+              aria-label="返回白板"
+            >
+              <X size={21} />
+              <span>返回白板</span>
+            </button>
+          )}
           {advancedMode === 'clock' ? (
             <div className="clock-mode clock-mode-glass">
               <span className="eyebrow">DY BOARD · 全屏时钟</span>
@@ -1526,14 +2295,7 @@ export default function App() {
                 })}
               </div>
             </div>
-          ) : advancedMode === 'map' ? (
-            <LocationMap
-              status={mapLocationStatus}
-              position={mapLocation}
-              error={mapLocationError}
-              onRetry={requestMapLocation}
-            />
-          ) : (
+          ) : advancedMode === 'timer' ? (
             <div className="timer-mode">
               <span className="eyebrow">DY BOARD · 课堂倒计时</span>
               <div className={`timer-mode-time ${timerSeconds === 0 ? 'timer-finished' : ''}`}>
@@ -1578,6 +2340,15 @@ export default function App() {
                 重置为 10 分钟
               </button>
             </div>
+          ) : advancedMode === 'osm-map' ? (
+            <LocationMap
+              status={mapLocationStatus}
+              position={mapLocation}
+              error={mapLocationError}
+              onRetry={requestMapLocation}
+            />
+          ) : (
+            <MapStage onExit={() => setAdvancedMode(null)} />
           )}
         </div>
       )}
@@ -1594,6 +2365,16 @@ export default function App() {
             </div>
             <div className="startup-countdown">
               {Math.max(0, Math.ceil((100 - startupProgress) / 20))} 秒
+            </div>
+            <div className="startup-class">
+              {currentClassName && (
+                <div className="startup-class-now">
+                  本节课：{currentClassName}
+                  {classStatus.period && `（${classStatus.period.start}-${classStatus.period.end}）`}
+                </div>
+              )}
+              {upcomingText && <div className="startup-class-next">后面：{upcomingText}</div>}
+              {!currentClassName && !upcomingText && <span>{startupClassText}</span>}
             </div>
           </div>
         </div>
@@ -1678,10 +2459,119 @@ export default function App() {
             </p>
             <p className="help-row">
               <b>高级</b>
-              <span>全屏时钟、自动定位地图、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
+              <span>全屏时钟、OpenStreetMap 自动定位、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
             </p>
             <div className="modal-bottom">
               白板工程不会自动保存；点击底部“保存”可保存到本机并下载 JSON 备份。界面偏好会单独记忆；菜单中可设置、检查更新、查看关于或退出软件。
+            </div>
+          </section>
+        </div>
+      )}
+      {panel === 'schedule' && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setPanel(null);
+          }}
+        >
+          <section className="info-modal schedule-modal">
+            <button className="modal-close" onClick={() => setPanel(null)} aria-label="关闭">
+              <X size={18} />
+            </button>
+            <span className="eyebrow">DY BOARD</span>
+            <h2>课程表</h2>
+
+            <div className="schedule-week-switch">
+              <button
+                className={scheduleWeek === 'odd' ? 'is-on' : ''}
+                onClick={() => setScheduleWeek('odd')}
+              >
+                单周
+              </button>
+              <button
+                className={scheduleWeek === 'even' ? 'is-on' : ''}
+                onClick={() => setScheduleWeek('even')}
+              >
+                双周
+              </button>
+            </div>
+
+            <div className="schedule-quickfill">
+              <input
+                className="schedule-fill-input"
+                placeholder="快速填充：输入课程名后点击下方单元格批量填充"
+                value={quickFill}
+                onChange={(e) => setQuickFill(e.target.value)}
+              />
+            </div>
+
+            <div className="schedule-grid-wrap">
+              <div className="schedule-grid">
+                <div className="schedule-grid-head">
+                  <span className="schedule-grid-corner">节次</span>
+                  {WEEKDAYS.map((w) => (
+                    <span key={w} className="schedule-grid-day">
+                      周{w}
+                    </span>
+                  ))}
+                </div>
+                {schedule.periods.map((p) => (
+                  <div className="schedule-grid-row" key={p.index}>
+                    <span className="schedule-grid-period">
+                      {p.index}
+                      <small>
+                        {p.start}-{p.end}
+                      </small>
+                    </span>
+                    {WEEKDAYS.map((_, di) => {
+                      const day = di + 1;
+                      const name = schedule[scheduleWeek][cellKey(day, p.index)] ?? '';
+                      return (
+                        <button
+                          key={day}
+                          className={`schedule-cell ${name ? 'has-course' : ''}`}
+                          onClick={() => setCell(day, p.index)}
+                          title={`周${WEEKDAYS[di]} 第${p.index}节`}
+                        >
+                          {name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="schedule-periods">
+              <div className="setting-label">节次时间</div>
+              {schedule.periods.map((p) => (
+                <div className="schedule-period-row" key={p.index}>
+                  <span className="schedule-period-index">第 {p.index} 节</span>
+                  <input
+                    type="time"
+                    value={p.start}
+                    onChange={(e) => updatePeriod(p.index, 'start', e.target.value)}
+                  />
+                  <span>—</span>
+                  <input
+                    type="time"
+                    value={p.end}
+                    onChange={(e) => updatePeriod(p.index, 'end', e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="schedule-modal-foot">
+              <button className="schedule-save" onClick={saveSchedule}>
+                保存
+              </button>
+              <button className="schedule-export" onClick={exportSchedule}>
+                导出 JSON
+              </button>
+              <span className="schedule-tip">
+                点击单元格编辑课程；「快速填充」输入名称后点击单元格可批量填充。
+              </span>
             </div>
           </section>
         </div>

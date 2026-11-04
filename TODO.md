@@ -45,7 +45,97 @@
 - [x] **0.5.1 包构建与签名公开发行**：将 `package.json`、应用内版本号、Service Worker 缓存代号和 README 同步到 `0.5.1`；通过类型检查、前端构建和本地 Linux 安装包构建。保持 Manus canonical `main` 为主仓，不改变 `DaiYiqq/daiyi-board` 公开镜像；保存 Manus checkpoint 后，将意图明确的同一源 commit 快进推送 GitHub `main` 并创建 `v0.5.1` tag。由既有工作流产出 Windows x64、macOS ARM64、Linux x64 安装包及 GitHub updater metadata、SHA256SUMS、Cosign OIDC 签名和 provenance；发布后验证资产摘要、清单签名和三平台 provenance。不得 force-push 或覆盖既有 tag。Release workflow run `41160415039` 成功；`v0.5.1` 指向源 commit `0cfff8021955e1fe616d7ccfacb6d92b21671718`。SHA256 清单 12 项全通过，Cosign `verify-blob` 为 `Verified OK`；Windows x64 `.exe`、macOS ARM64 `.dmg`、Linux x64 AppImage 和 Debian `.deb` provenance 均验证通过；`latest.yml`、`latest-mac.yml`、`latest-linux.yml` 均为 `0.5.1`。
 
 
+## DY Board 0.6.0 原生 WinUI 3 液态玻璃参考实现
+
+- [x] **新增 WinUI 3 液态玻璃底部工具栏 Demo**：`native/winui3-liquid-glass-dock/` 提供可运行的 WinUI 3 / Windows App SDK + Win2D 白板底部按钮栏，真实采样白板背景做位移折射/色散/去饱和染色/镜面高光，支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。仅作参考实现，不改动 Electron/PWA 主应用。
+- [x] **版本号同步 0.6.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.6.0（源码开发中版本，未打 tag、未发布 Release）。
+- [ ] **（可选）0.6.0 打包与签名发行**：如后续需要，创建 `v0.6.0` tag，沿用跨平台构建、SHA256、Cosign OIDC 签名与 provenance 工作流。
+
+
+## DY Board 0.7.0 全局乳白液态玻璃
+
+- [x] **统一全局乳白玻璃**：`src/style.css` 与 `src/components/CameraStage.css` 将底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时、展台控件统一为乳白（暖白 #FAF8F5）液态玻璃 + 深色墨水，消除「深色玻璃面板 + 白色玻璃按钮」两套混用。
+- [x] **原生 Demo 同步乳白底**：`native/winui3-liquid-glass-dock/` 渲染器新增 `GlassBaseOpacity` 乳白底色参数（默认 0.60），并同步调参面板。
+- [x] **版本号同步 0.7.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.0（源码开发中版本，未打 tag、未发布 Release）。
+- [x] **0.7.0 打包与签名发行**：已创建 `v0.7.0` tag 并推送，GitHub Actions release workflow run `41179301246` 三平台构建成功并发布 Release；`SHA256SUMS` 12 项、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 0.7.1 原生 Demo 液态玻璃着色器重写
+
+- [x] **HLSL 像素着色器**：`native/winui3-liquid-glass-dock/` 新增 `Shaders/LiquidGlassPill.hlsl`（fxc 编译为 `.cso`，已随仓库提交）实现边缘折射、RGB 色散、流动镜面高光；`LiquidGlassShaderEffect.cs` 封装 Win2D `PixelShaderEffect`。
+- [x] **胶囊按钮与 A/B 切换**：`GlassDock` 的工具按钮全部换成 `LiquidGlassPillButton` 独立小胶囊；新增 `UseShader` 参数与调参开关，可在「HLSL 着色器 / 内置效果」间切换。本项仅改原生 Demo，不影响 Electron/PWA 主应用。
+- [x] **版本号同步 0.7.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.7.1。
+- [x] **0.7.1 打包与签名发行**：已创建 `v0.7.1` tag 并推送，GitHub Actions release workflow run `41184165911` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 0.8.0 内置课程表
+
+- [x] **设置内课程表**：设置面板新增课程表，可手动添加/编辑/删除课程（课程名、开始/结束时间、星期），支持 JSON 导入，数据存本机 `localStorage`。
+- [x] **自动识别系统时间**：按「星期几 + 时分」自动匹配当前课程；启动动画下方显示「本节课：xx」；灵动岛放大，上课中显示当前课程名，当天课程结束后显示「已下课」。
+- [x] **版本号同步 0.8.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.8.0。
+- [x] **0.8.0 打包与签名发行**：已创建 `v0.8.0` tag 并推送，GitHub Actions release workflow run `41186842131` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 0.9.0 课程表网格化（单双周 + 节次）
+
+- [x] **网格课表**：课程表从列表升级为「节次 1–9 × 周一~周日」网格，支持单双周两套课表；网格编辑器支持点击单元格编辑、快速填充、每节起止时间编辑与保存校验。
+- [x] **实时状态**：按系统时间识别单/双周与当前节次，区分「上课中 / 休息中 / 已下课 / 无课」并提示距离下节课分钟数；启动页与灵动岛同步显示。
+- [x] **版本号同步 0.9.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 0.9.0。
+- [x] **0.9.0 打包与签名发行**：已创建 `v0.9.0` tag 并推送，GitHub Actions release workflow run `41190431106` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 1.0.0 教学工具与地理地图
+
+- [x] **教学工具（地理地图）**：高级菜单新增「教学工具」，内置「地理地图」——基于高德地图（AMap，含 Key 与安全密钥），支持全屏查看与返回白板。
+- [x] **界面修复**：玻璃表面作用域内统一浅色控件面/边框，修复课程表编辑器「黑字黑框」对比度问题。
+- [x] **版本号同步 1.0.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.0。
+- [x] **1.0.0 打包与签名发行**：已创建 `v1.0.0` tag 并推送，GitHub Actions release workflow run `41192853827` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 1.0.1 修复地理地图空白
+
+- [x] **地图空白修复**：高德地图显式容器尺寸、等布局完成后再初始化、`ResizeObserver`/窗口 resize 自动 `map.resize()`，并浮出加载/初始化错误提示。
+- [x] **版本号同步 1.0.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 1.0.1。
+- [x] **1.0.1 打包与签名发行**：已创建 `v1.0.1` tag 并推送，GitHub Actions release workflow run `41275791040` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 2.0.1 教学工具
+
+- [x] **教学工具框架**：注册表（学科/许可证/来源/离线/参数 schema）+ 面板（分类/搜索/收藏/最近/拖拽）+ teaching-tool 白板元素（移动/缩放/删除/全屏/刷新/截图/撤销重做/保存恢复）+ postMessage 协议 + 参数面板。
+- [x] **本地工具**：5 个离线 HTML 工具（简谐/抛体/单摆/视距/函数绘图，MIT）；P1/P2 以外部链接卡片接入。
+- [x] **高德自动定位**：浏览器定位 + AMap.Geolocation IP 回退。
+- [x] **版本号同步 2.0.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.0.1。
+- [x] **2.0.1 打包与签名发行**：已创建 `v2.0.1` tag 并推送，GitHub Actions release workflow run `41280218541` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 2.1.0 教学工具重构与真实仓库接入
+
+- [x] **注册表真实来源**：按附录地址清单接入 17 个工具，核对许可证（MIT / CC BY-NC 4.0 / PyPI / 待核对）。
+- [x] **P0 本地打包**：Open Lab Components（3 组件）、Physics Notebook（3 概念页）、cn-math-taxonomy（知识图谱）随应用打包；horizon-lab / keshihua 因 clone 超时暂为外部卡片（TODO）。
+- [x] **白板元素增强**：截图作为独立图片元素（`Page.images`）插入；置顶层级、复制粘贴、双击全屏、重置参数、版本不兼容提示、postMessage origin/schema 校验、加载骨架屏。
+- [x] **测试与文档**：新增注册表单元测试（`node --test`）；文档含「如何新增工具」「postMessage 协议」「许可证注意事项」与第三方 `NOTICE.md`。
+- [x] **版本号同步 2.1.0**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.0。
+- [x] **2.1.0 打包与签名发行**：已创建 `v2.1.0` tag 并推送，GitHub Actions release workflow run `41284583706` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 2.1.1 课程表放大与导出
+
+- [x] **本节课/后面课程放大**：灵动岛、启动页、设置面板放大显示本节课与后面的课程（后面的课程更突出）。
+- [x] **课程表导出**：设置面板与课程表编辑弹窗新增「导出 JSON」，下载 `daiyi-board-schedule.json`，可直接导入还原。
+- [x] **版本号同步 2.1.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.1.1。
+- [x] **2.1.1 打包与签名发行**：已创建 `v2.1.1` tag 并推送，GitHub Actions release workflow run `41393137574` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
+
+
+## DY Board 2.2.1 磨砂玻璃时钟与最小化悬浮工具栏
+
+- [x] **磨砂玻璃时钟**：全屏时钟居中显示，改为磨砂玻璃卡片（深/浅主题适配）。
+- [x] **最小化悬浮工具栏**：菜单新增「最小化」，收起到希沃式可展开/收起的悬浮工具栏（恢复/笔/橡皮/撤销/重做），最小化状态下可全屏书写。
+- [x] **地图自动定位**：确认已存在（GPS + AMap.Geolocation IP 回退）。
+- [x] **版本号同步 2.2.1**：`package.json`、`src/App.tsx` 的 `APP_VERSION`、`public/sw.js` 缓存代号同步为 2.2.1。
+- [x] **2.2.1 打包与签名发行**：已创建 `v2.2.1` tag 并推送，GitHub Actions release workflow run `41463129886` 三平台构建成功并发布 Release；`SHA256SUMS`、Cosign 签名与 provenance 随 Release 产出。
 ## DY Board 3.1.0 液态玻璃、地图与 Yi+ 品牌升级
+
+- [ ] **保留最新公开主线已有功能并完成安全整合**：在 Manus canonical 基线与公开 GitHub `main` 的 33 个后续提交基础上整合，保留其课程表、单双周网格、教学工具/工具注册表、地图、浮动工具栏及公开第三方资源许可；将版本合并为 `3.1.0`，不得覆盖或丢弃任一方历史。高德地图 API 配置不得在源码硬编码；新源码仅从构建环境读取 `VITE_AMAP_KEY` / `VITE_AMAP_SECURITY`，新增 OpenStreetMap 地图不依赖密钥。公开历史可能仍含旧配置值，应在发布前提醒所有者核查限制/轮换；合并后必须重新构建并让用户检查整合版 Preview，不能把之前旧预览的批准视为对新代码的批准。
 
 - [ ] **FlClash 风格液态玻璃工具与按钮**：参考 `https://github.com/chen08209/FlClash` 的 Material You 表面层级、Apple 式直接交互、连续圆角和适配式布局，重新设计白板底部工具带及主要玻璃控件；按钮要更接近该参考的轻盈通透感，底色为白色半透明，具有细边高光、柔和背景模糊/饱和、轻阴影和清晰的 hover/pressed/selected/disabled/focus 状态。保留 DY Board 自有 Yi+ 品牌，不复制 FlClash 代码、素材或商标；黑白主题、色板原色、工具功能、工具顺序/显隐、紧凑显示、窄屏触摸与减少动态偏好均继续正常工作；玻璃效果不遮挡白板或展台的核心画面，不支持 `backdrop-filter` 时仍有可读回退。全局仍仅允许用户手动保存白板工程，不得新增页面、笔迹、活动页或撤销栈的自动保存；独立界面偏好可继续存储。
 - [ ] **居中液态玻璃全屏时钟**：从高级功能启用全屏时钟后，时分秒及日期显示在屏幕水平与垂直中心的液态玻璃卡片内；卡片中心不能被角落的退出按钮、启动胶囊或视口安全区推离中心；字号适配手机、平板与桌面；系统本地时间按秒刷新；“返回白板”/Esc 可离开而不更改白板内容或保存状态。

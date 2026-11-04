@@ -2,15 +2,74 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **待发布版本：3.1.0（本地预览已验收并获准发布）。** 公开发行资产、SHA256、Cosign 签名与 provenance 将在 GitHub Release 工作流成功后补记。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **最新公开发行：v2.2.1；DY Board 3.1.0 候选已整合，当前待复验。** [下载 v2.2.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.2.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；宣传站：[daiyiqq.github.io/daiyi-board](https://daiyiqq.github.io/daiyi-board/)；在线体验（网页版）：[daiyiqq.github.io/daiyi-board/app](https://daiyiqq.github.io/daiyi-board/app/)。
 
 ## 3.1.0 液态玻璃、自动定位地图与 Yi+ 品牌
 
 - **FlClash 风格的通透液态玻璃操作带**：下沿悬浮工具带与主要操作按钮使用白色半透明表面、背景模糊/饱和、细边高光、柔和阴影和连续圆角；保留 DY Board 自有 Yi+ 标识与现有白板工具操作。悬停、按下、选中、禁用和键盘焦点状态均可辨识，并为不支持背景模糊的环境提供可读回退。
 - **居中玻璃全屏时钟**：时分秒和日期显示在屏幕正中央的液态玻璃卡片中；“返回白板”或 Esc 可退出。
 - **自动定位 OpenStreetMap 地图**：仅在用户进入地图功能后请求浏览器定位；成功时显示当前位置标记，失败时说明原因并可重试。坐标仅在当前会话内存中用于地图，不写入工程文件或本机存储。地图直接使用 OpenStreetMap embed，标注 `© OpenStreetMap contributors` 并说明位置隐私；不代理或预取地图瓦片。桌面端只为可信应用主页面的主 frame 请求开放摄像/定位权限。
+- **现有高德地图配置**：保留原地理地图；已移除源码中的硬编码 API 凭据，改从 `VITE_AMAP_KEY` / `VITE_AMAP_SECURITY` 构建环境读取。浏览器端配置值并非保密，须对域名和配额加限制；旧公开 Git 历史仍可能包含此前的值，建议在高德控制台核查并轮换。
 - **全平台 Yi+ 图标与版本**：网页、PWA、Windows、macOS、Linux 使用从用户原图适配的多尺寸图标；应用、安装包和 Service Worker 缓存标识升级至 `3.1.0`。
 - **手动保存不变**：白板工程仍仅由用户点击“保存”后写入本机和导出 JSON；独立界面偏好可单独保存。
+
+
+## 2.2.1 磨砂玻璃时钟与最小化悬浮工具栏
+
+- 全屏时钟居中显示，改为磨砂玻璃卡片（深/浅主题适配）。
+- 菜单新增「最小化」，收起到希沃式可展开/收起的悬浮工具栏（恢复 / 笔 / 橡皮 / 撤销 / 重做），最小化状态下可全屏书写。
+
+## 2.1.1 课程表放大与导出
+
+- 本节课与后面的课程放大显示（灵动岛、启动页、设置面板），后面的课程更突出。
+- 新增课程表导出 JSON（设置面板与课程表编辑弹窗），可直接导入还原。
+
+## 2.1.0 教学工具重构与真实仓库接入
+
+- **注册表真实来源**：按附录地址清单接入 17 个工具，许可证已核对（MIT / CC BY-NC 4.0 / PyPI / 待核对）。
+- **P0 本地打包**：Open Lab Components（3 组件）、Physics Notebook（3 概念页）、cn-math-taxonomy（知识图谱）随应用打包、离线可用。
+- **白板元素增强**：截图作为独立图片元素插入；新增置顶层级、复制粘贴、双击全屏、重置参数、版本不兼容提示、postMessage origin/schema 校验、加载骨架屏。
+- **测试与文档**：新增注册表单元测试；文档含「如何新增工具」「postMessage 协议」「许可证注意事项」与第三方版权声明。
+
+## 2.0.1 教学工具
+
+- **教学工具面板**：高级菜单新增「教学工具」，含学科分类、搜索、收藏、最近使用与工具卡片，可拖入白板或点击插入。
+- **teaching-tool 元素**：拖入后可选中 / 移动 / 缩放 / 删除 / 全屏 / 刷新 / 截图，支持撤销重做与保存恢复（旧存档自动兼容）。
+- **本地离线工具**：简谐振动、抛体运动、单摆、地球视距、函数绘图（MIT，断网可用）；另有多类外部工具卡片（新窗口打开）。
+- **高德地图自动定位**：进入地理地图自动定位到当前位置。
+
+## 1.0.1 修复地理地图空白
+
+- 修复高德地图在部分场景显示空白的问题：显式容器尺寸、等布局完成后再初始化、容器尺寸变化时自动 `resize`，并浮出加载/初始化错误提示。
+
+## 1.0.0 教学工具与地理地图
+
+- **教学工具**：高级菜单新增「教学工具」，内置「地理地图」——基于高德地图（AMap），支持全屏查看与返回白板。
+- **界面修复**：课程表网格编辑器在乳白玻璃下的输入框/边框改为「深字浅底」，修复「黑字黑框看不见」的对比度问题。
+
+## 0.9.0 课程表网格化（单双周 + 节次）
+
+- **网格课表**：课程表从列表升级为「节次 1–9 × 周一~周日」的网格，支持单双周两套课表；设置里打开网格编辑器，可点击单元格编辑课程、快速填充、修改每节起止时间并在保存时校验格式。
+- **实时状态**：按系统时间自动识别单/双周与当前节次，区分「上课中 / 休息中 / 已下课 / 无课」，并提示距离下节课的分钟数；启动页与顶部灵动岛同步显示。
+
+## 0.8.0 内置课程表
+
+- **设置内课程表**：设置面板新增课程表，可手动添加/编辑/删除课程（课程名、开始/结束时间、星期），支持 JSON 导入；数据保存在本机。
+- **自动识别系统时间**：按「星期几 + 时分」自动匹配当前课程；启动动画下方显示「本节课：xx」，顶部灵动岛放大并显示当前课程，当天课程全部结束后显示「已下课」。
+
+## 0.7.1 原生 Demo 液态玻璃着色器重写
+
+- 原生 `native/winui3-liquid-glass-dock/` 改用真正的 **HLSL 像素着色器**（`LiquidGlassPill.hlsl` / `.cso`）实现边缘折射、RGB 色散与流动镜面高光，抛弃「半透明 + 模糊 + 白边」的毛玻璃卡片观感；底栏改为悬浮胶囊（Pill），每个工具按钮是独立小胶囊（`LiquidGlassPillButton`），支持悬停透镜光斑、按压 Q 弹回弹；新增 `UseShader` 在「着色器 / 内置效果」间 A/B 切换。本项仅改原生参考 Demo，不影响 Electron/PWA 主应用。
+
+## 0.7.0 全局乳白液态玻璃
+
+- **统一全局乳白玻璃**：底栏、按钮、浮层/菜单、弹层、时间胶囊、启动层、全屏时钟/倒计时、展台控件全部统一为**乳白（暖白 #FAF8F5）液态玻璃**——乳白半透明底 + 背景模糊 + 高饱和 + 细边高光，文字/图标改用深色墨水保证可读；不再混用「深色玻璃面板 + 白色玻璃按钮」两套样式。
+- **原生 Demo 同步乳白底**：`native/winui3-liquid-glass-dock/` 的玻璃渲染器新增 `GlassBaseOpacity` 乳白底色参数（默认 0.60），观感与网页版一致。
+
+## 0.6.0 原生 WinUI 3 液态玻璃参考实现（已随 v0.7.0 发布）
+
+- 新增 [`native/winui3-liquid-glass-dock/`](native/winui3-liquid-glass-dock/)：一个独立的 WinUI 3 / Windows App SDK + Win2D 白板底部工具栏 Demo，以「真实采样白板背景 + 位移折射 + 三通道色散 + 去饱和染色 + 镜面高光 + 柔和阴影」逼近 Apple Liquid Glass 质感，并支持横向弹性滑动、指针高光跟随、书写态退后与实时调参。
+- 这是桌面原生化方向的参考实现，**不影响**现有 Electron/PWA 版本；构建与运行见 [`native/winui3-liquid-glass-dock/README.md`](native/winui3-liquid-glass-dock/README.md)，完整实现说明见 [`native/winui3-liquid-glass-dock/docs/IMPLEMENTATION.md`](native/winui3-liquid-glass-dock/docs/IMPLEMENTATION.md)。
 
 ## 0.5.1 液态玻璃透明度与手动保存
 
@@ -29,37 +88,32 @@ DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入�
 - **桌面端自动检查**：已打包版本启动 12 秒后检查更新，运行期间每 6 小时复查；菜单也可手动“检查更新”。无更新时自动检查不打扰。发现新版后显示版本与状态，下载由用户点击，显示进度，下载完成后也只有用户点击“现在重启更新”才会安装/重启。
 - **桌面端平台范围**：Windows NSIS 与 Linux AppImage 支持应用内下载和用户确认安装。macOS 与 Linux `.deb` 同样自动检查新版，但因当前 macOS 安装包未配置 Apple Developer ID 签名、`.deb` 更新涉及系统级包安装，检测到新版时引导到 GitHub Release 手动安装，不静默提升权限或替换系统安装包。
 - **PWA 更新**：在线版启动时注册并检查新版 Service Worker，之后每 6 小时复查。发现新版后提示“刷新应用”；只有用户点击后才激活新版并重载页面。离线时继续用本地缓存，等待期间旧页面可继续使用；白板页面、偏好设置和工程 JSON 不会因更新被清除。
-- **首次过渡**：v0.3.0 及更早的桌面安装包不含更新器；升级者需从 GitHub Release 手动安装当前版本（v0.5.1）一次，之后可使用内置更新。桌面更新清单由 GitHub Release 工作流随安装包生成。
+- **首次过渡**：v0.3.0 及更早的桌面安装包不含更新器；升级者需从 GitHub Release 手动安装当前版本（v2.0.1）一次，之后可使用内置更新。桌面更新清单由 GitHub Release 工作流随安装包生成。
 
 ## 获取与安装
 
-- **Windows x64 桌面**：[下载安装向导 `.exe`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/DY-Board-0.5.1-win-x64.exe)，含许可说明、安装位置选择、快捷方式、安装后启动与卸载。
-- **macOS ARM64 桌面**：[`.dmg`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/DY-Board-0.5.1-mac-arm64.dmg) 或 [`.zip`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/DY-Board-0.5.1-mac-arm64.zip)。
-- **Linux x64 桌面**：[AppImage](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/DY-Board-0.5.1-linux-x86_64.AppImage) 或 [Debian `.deb`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/DY-Board-0.5.1-linux-amd64.deb)。
-- **完整 Release 清单**：[`SHA256SUMS`](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/SHA256SUMS)、[Sigstore bundle](https://github.com/DaiYiqq/daiyi-board/releases/download/v0.5.1/SHA256SUMS.sigstore.json)。
-- **浏览器、手机和平板**：通过[在线 PWA](https://baiboard-hesrkue5.manus.space)访问，并按各平台浏览器方式安装/添加到主屏幕。本项目没有单独构建 Android APK 或 iOS IPA。v0.5.1 的 Manus checkpoint 已保存，自动发布已提交；在线版本最终状态以项目 Dashboard 确认为准，确认前线上可能仍是最近一次成功部署的版本。
-
-桌面版已配置的发布目标为 Windows x64、macOS ARM64、Linux x64；其它 CPU 架构以 Release 页面实际产物为准。普通网页不能在没有用户手势时强制隐藏浏览器界面；Electron 启动原生全屏，安装后的 PWA 请求 fullscreen 显示模式。
-
-摄像头仅在用户进入展台后请求授权。Web 摄像 API 需要 HTTPS 或 localhost，并受操作系统隐私授权、浏览器支持和驱动限制。分辨率菜单是理想分辨率请求；如果设备不支持该档位，应用会提示错误并保留原画面。
+- **最新公开发行：v2.2.1**：[GitHub Release 页面](https://github.com/DaiYiqq/daiyi-board/releases/tag/v2.2.1)，各平台安装包、校验清单与签名文件以该页面实际附件为准。
+- **3.1.0**：目前为整合预览候选，尚未发布，也没有可下载的 3.1.0 安装包；待用户检查本轮预览并再次确认后才会同步 GitHub 和创建 Release。
+- **浏览器、手机和平板**：可通过 [在线 PWA](https://daiyiqq.github.io/daiyi-board/app/) 使用并按浏览器方式安装/添加到主屏幕；本项目不单独构建 Android APK 或 iOS IPA。
+- **桌面目标**：Windows NSIS 安装向导、macOS DMG/ZIP、Linux AppImage/DEB；不同架构以 Release 页面实际产物为准。
 
 ## 校验与签名
 
-版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.4.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Windows x64 安装器、macOS ARM64 DMG 与 Linux x64 AppImage 的 GitHub provenance 均已针对该仓库、发布工作流、`v0.4.0` 标签和源 commit `bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71` 验证成功。v0.5.0 Release 由 workflow run `41073826206` 成功构建并发布，SHA256 清单 12 项、Cosign 签名和三平台代表安装器 provenance 均验证成功，updater metadata 均为 `0.5.0`。v0.5.1 Release 由 workflow run `41160415039` 成功构建并发布到 `v0.5.1`，源 commit 为 `0cfff8021955e1fe616d7ccfacb6d92b21671718`；SHA256 清单 12 项全部通过，Cosign `verify-blob` 返回 `Verified OK`（工作流身份与 GitHub Actions OIDC issuer 匹配）；Windows x64 `.exe`、macOS ARM64 `.dmg`、Linux x64 AppImage 和 Debian `.deb` 的 GitHub provenance 均通过对仓库、`release.yml`、`v0.5.1` 标签及 OIDC issuer 的验证；Windows、macOS、Linux 三份 updater metadata 均报告版本 `0.5.1`。
+版本发布工作流在 GitHub Actions 构建各平台安装包、生成 `SHA256SUMS`，并使用 GitHub OIDC/Cosign 对清单进行 keyless 签名，同时为构建资产生成 provenance。v0.4.0 的全部 12 个被清单列出的发行文件均已通过 `sha256sum -c SHA256SUMS`；清单签名的 Cosign `verify-blob` 返回 `Verified OK`；Windows x64 安装器、macOS ARM64 DMG 与 Linux x64 AppImage 的 GitHub provenance 均已针对该仓库、发布工作流、`v0.4.0` 标签和源 commit `bc2845fedef66e9980bcbf7b9cce1cbeacfc9e71` 验证成功。v0.5.0 Release 由 workflow run `41073826206` 成功构建并发布，SHA256 清单 12 项、Cosign 签名和三平台代表安装器 provenance 均验证成功，updater metadata 均为 `0.5.0`。v0.5.1 Release 由 workflow run `41160415039` 成功构建并发布到 `v0.5.1`，源 commit 为 `0cfff8021955e1fe616d7ccfacb6d92b21671718`；SHA256 清单 12 项全部通过，Cosign `verify-blob` 返回 `Verified OK`（工作流身份与 GitHub Actions OIDC issuer 匹配）；Windows x64 `.exe`、macOS ARM64 `.dmg`、Linux x64 AppImage 和 Debian `.deb` 的 GitHub provenance 均通过对仓库、`release.yml`、`v0.5.1` 标签及 OIDC issuer 的验证；Windows、macOS、Linux 三份 updater metadata 均报告版本 `0.5.1`。v0.7.0 Release 由 workflow run `41179301246` 成功构建并发布到 `v0.7.0`，源 commit 为 `2bbba790bfb0889b5e2cb49b1629c65742aa088a`；`SHA256SUMS` 清单 12 项、Cosign 签名与三平台 provenance 由同一工作流产出并随 Release 发布。v0.7.1 Release 由 workflow run `41184165911` 成功构建并发布到 `v0.7.1`，源 commit 为 `ee5122a98275920975351be3a8a0056db3e36186`。v0.8.0 Release 由 workflow run `41186842131` 成功构建并发布到 `v0.8.0`，源 commit 为 `1fd94acb4c9374dea783555889b3f9091829026b`。v0.9.0 Release 由 workflow run `41190431106` 成功构建并发布到 `v0.9.0`，源 commit 为 `914a20ef90337a9d5586aa77b75c7f0e8341a799`。v1.0.0 Release 由 workflow run `41192853827` 成功构建并发布到 `v1.0.0`，源 commit 为 `430facbf90582ac198ca850a819f1ce09f448406`。v1.0.1 Release 由 workflow run `41275791040` 成功构建并发布到 `v1.0.1`，源 commit 为 `1390b6d7e20c1ac74d8e69adf88c06f9064d70b8`。v2.0.1 Release 由 workflow run `41280218541` 成功构建并发布到 `v2.0.1`，源 commit 为 `c5b54243a6117f9631259f91fc20208951518dde`。v2.1.0 Release 由 workflow run `41284583706` 成功构建并发布到 `v2.1.0`，源 commit 为 `a3253296c385566586a195c3bbd7a81650927904`。v2.1.1 Release 由 workflow run `41393137574` 成功构建并发布到 `v2.1.1`，源 commit 为 `235fc5a03658a7a3854ae291fded5adf8812474e`。v2.2.1 Release 由 workflow run `41463129886` 成功构建并发布到 `v2.2.1`，源 commit 为 `a1a4ce770c24752b104b40b3cffcf3ce9221ede8`。
 
-下载 v0.5.1 Release 附件后，可按以下命令验证清单签名与 Linux AppImage provenance：
+下载 v2.2.1 Release 附件后，可按以下命令验证清单签名与 Linux AppImage provenance：
 
 ```bash
 sha256sum -c SHA256SUMS
 cosign verify-blob \
   --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity-regexp '^https://github\.com/DaiYiqq/daiyi-board/.github/workflows/release\.yml@refs/tags/v0\.5\.1$' \
+  --certificate-identity-regexp '^https://github\.com/DaiYiqq/daiyi-board/.github/workflows/release\.yml@refs/tags/v2\.2\.1$' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   SHA256SUMS
-gh attestation verify DY-Board-0.5.1-linux-x86_64.AppImage \
+gh attestation verify DY-Board-2.2.1-linux-x86_64.AppImage \
   --repo DaiYiqq/daiyi-board \
   --signer-workflow DaiYiqq/daiyi-board/.github/workflows/release.yml \
-  --source-ref refs/tags/v0.5.1
+  --source-ref refs/tags/v2.2.1
 ```
 
 这属于**Release 资产签名**，不代表个人 Git commit 的 GPG/SSH 签名，也不代表 Windows 代码签名证书或 macOS Developer ID/公证。本仓库不含个人私钥或厂商代码签名凭证。

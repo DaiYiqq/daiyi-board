@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projectile Motion • Physics Notebook</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/article.css">
+    <style>
+        /* AI Links */
+        .ai-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        .ai-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-right: 0.2rem;
+            font-weight: 500;
+        }
+
+        .ai-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--line-subtle);
+            color: var(--text-muted);
+            min-width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0 8px;
+        }
+
+        .ai-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Theme Init -->
+    <script>
+        const savedTheme = localStorage.getItem('physics-notebook-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.body && document.body.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <!-- Libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <nav class="sticky">
+        <div class="nav-bg"></div>
+        <a href="../index.html" class="logo">
+            <i data-lucide="arrow-left" width="16"></i>
+            Library
+        </a>
+        <button id="themeBtn">
+            <i data-lucide="moon" width="16"></i> Theme
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="text-reveal-wrapper">
+            <h1 class="hero-title">Projectile<br>Motion</h1>
+            <p style="margin-top: 2rem; font-size: 1.4rem; max-width: 40ch;">
+                Exploring the parabolic trajectory of objects in free fall and the influence of air resistance.
+            </p>
+        </div>
+    </section>
+
+    <!-- CHAPTER 1: KINEMATICS -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent);">01. The Parabola</h3>
+                <h2>Independent Motions</h2>
+                <p>
+                    Projectile motion can be decomposed into two independent components: constant velocity horizontal
+                    motion and constant acceleration vertical motion (due to gravity $g$).
+                </p>
+                <div class="math-block">
+                    $$x(t) = v_0 \cos(\theta) t$$
+                    $$y(t) = v_0 \sin(\theta) t - \frac{1}{2}gt^2$$
+                </div>
+                <p>
+                    By combining these equations to eliminate $t$, we find that the path $y(x)$ is a downwards-opening
+                    parabola:
+                </p>
+                <div class="math-block">
+                    $$y(x) = (\tan \theta) x - \frac{g}{2 v_0^2 \cos^2 \theta} x^2$$
+                </div>
+
+                <!-- ETU CARD -->
+                <div class="etu-card">
+                    <span class="etu-tag">Real World Analogy</span>
+                    <h4 style="margin-bottom:0.5rem;">The Water Fountain</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        Observe a stream of water from a drinking fountain. Each water molecule acts as an independent
+                        projectile. Despite the chaos of the stream, every single drop traces a perfect parabolic arc,
+                        governed by the same kinetic rules, creating a smooth, predictable curve.
+                    </p>
+                </div>
+
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('parabola', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('parabola', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('parabola', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('parabola', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('parabola', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+
+                <div class="sim-controls">
+                    <div class="slider-group">
+                        <label>Initial Velocity (v₀) <span id="val-v">50</span> m/s</label>
+                        <input type="range" id="input-v" min="10" max="100" step="1" value="50">
+                    </div>
+                    <div class="slider-group">
+                        <label>Angle (θ) <span id="val-ang">45</span>°</label>
+                        <input type="range" id="input-ang" min="0" max="90" step="1" value="45">
+                    </div>
+                    <div class="slider-group">
+                        <label>Gravity (g) <span id="val-g">9.8</span> m/s²</label>
+                        <input type="range" id="input-g" min="1.6" max="25" step="0.1" value="9.8">
+                    </div>
+                    <div style="margin-top:1rem; display:flex; gap:10px;">
+                        <button id="btn-fire"
+                            style="flex:1; padding:12px; background:var(--accent); color:white; border:none; border-radius:4px; cursor:pointer; font-weight:600;">Fire
+                            Projectile</button>
+                        <button id="btn-clear"
+                            style="padding:12px; background:var(--line-subtle); color:var(--text-main); border:none; border-radius:4px; cursor:pointer;">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-projectile"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAPTER 2: AIR RESISTANCE -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--accent-secondary);">02. Drag</h3>
+                <h2>The Air Strikes Back</h2>
+                <p>
+                    In the real world, objects moving through a fluid (like air) experience a drag force $F_d$ that
+                    opposes their motion. For high speeds, this force is often proportional to the square of velocity:
+                </p>
+                <div class="math-block">
+                    $$F_d = \frac{1}{2} \rho v^2 C_d A$$
+                </div>
+                <p>
+                    This force constantly changes direction and magnitude, making numerical integration necessary.
+                </p>
+                <!-- ETU CARD -->
+                <div class="etu-card">
+                    <span class="etu-tag">Effect</span>
+                    <h4 style="margin-bottom:0.5rem;">Terminal Velocity</h4>
+                    <p style="font-size: 0.95rem; margin-bottom:0;">
+                        As an object falls faster, drag increases. Eventually, drag equals gravity ($F_d = mg$). At this
+                        point, the object stops accelerating.
+                    </p>
+                </div>
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('drag', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('drag', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('drag', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('drag', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('drag', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+
+                <div class="sim-controls" style="margin-top: 2rem;">
+                    <div class="slider-group">
+                        <label>Drag Coefficient <span id="val-drag">0.00</span></label>
+                        <input type="range" id="input-drag" min="0" max="0.1" step="0.001" value="0">
+                    </div>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem; margin-bottom:0;">
+                        Set to > 0 to enable air resistance. Notice how the path becomes asymmetric!
+                    </p>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-drag"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHAPTER 3: MAXIMUM RANGE -->
+    <section>
+        <div class="split-layout">
+            <div class="content-col">
+                <h3 class="section-label" style="color: var(--secondary);">03. The Sweet Spot</h3>
+                <h2>Maximum Range & Complementary Angles</h2>
+                <p>
+                    In a vacuum, a projectile travels the furthest horizontally when launched at exactly
+                    <strong>45°</strong>.
+                </p>
+                <div class="math-block">
+                    $$R = \frac{v_0^2 \sin(2\theta)}{g}$$
+                </div>
+                <p>
+                    Because of the $\sin(2\theta)$ term, any two angles that add up to 90° (complementary angles, like
+                    30° and 60°) will yield the exact same horizontal range, though their time in the air and peak
+                    heights will differ drastically.
+                </p>
+
+                <!-- AI LINKS -->
+                <div class="ai-links">
+                    <span class="ai-label">Ask AI:</span>
+                    <button onclick="openAI('range', 'claude')" class="ai-btn" title="Ask Claude"></button>
+                    <button onclick="openAI('range', 'gemini')" class="ai-btn" title="Ask Gemini"></button>
+                    <button onclick="openAI('range', 'chatgpt')" class="ai-btn" title="Ask ChatGPT"></button>
+                    <button onclick="openAI('range', 'grok')" class="ai-btn" title="Ask Grok"></button>
+                    <button onclick="openAI('range', 'perplexity')" class="ai-btn" title="Ask Perplexity"></button>
+                </div>
+
+                <div class="sim-controls" style="margin-top: 2rem;">
+                    <div class="slider-group">
+                        <label>Initial Velocity (v₀) <span id="val-range-v">60</span> m/s</label>
+                        <input type="range" id="input-range-v" min="20" max="100" step="1" value="60">
+                    </div>
+                    <div style="margin-top:1rem; display:flex; gap:10px;">
+                        <button id="btn-fire-range"
+                            style="flex:1; padding:12px; background:var(--secondary); color:white; border:none; border-radius:4px; cursor:pointer; font-weight:600;">Fire
+                            Multi-Angle</button>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-col">
+                <canvas id="canvas-range"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="references">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h3>Academic References</h3>
+            <ul>
+                <li><strong>Halliday, D., Resnick, R., & Walker, J.</strong> (2013). <a
+                        href="https://www.wiley.com/en-us/Fundamentals+of+Physics%2C+10th+Edition-p-9781118230718"
+                        target="_blank" rel="noopener noreferrer">Fundamentals of Physics</a>. 10th Edition. Wiley.</li>
+                <li><strong>Serway, R. A., & Jewett, J. W.</strong> (2018). <a
+                        href="https://www.cengage.com/c/physics-for-scientists-and-engineers-10e-serway/9781337553278/"
+                        target="_blank" rel="noopener noreferrer">Physics for Scientists and Engineers with Modern Physics</a>. Cengage Learning.
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="../js/common.js"></script>
+    <script>
+        function openAI(topic, model) {
+            let prompt = "";
+            switch (topic) {
+                case 'parabola':
+                    prompt = "Explain why projectile motion traces a parabola and how the horizontal and vertical motions are independent.";
+                    break;
+                case 'drag':
+                    prompt = "Explain the effect of air resistance on projectile motion and the concept of terminal velocity.";
+                    break;
+                case 'range':
+                    prompt = "Explain why an angle of 45 degrees yields the maximum range in projectile motion neglecting air resistance, and why complementary angles produce the same range.";
+                    break;
+            }
+            launchAIPrompt(model, prompt);
+        }
+        const APP = {
+            visuals: [],
+            observer: null,
+
+            init() {
+                this.setupObserver();
+                this.initVisuals();
+
+                window.addEventListener('theme-changed', (e) => {
+                    this.visuals.forEach(v => v.updateColors());
+                });
+            },
+
+            setupObserver() {
+                this.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const visual = this.visuals.find(v => v.canvas === entry.target);
+                        if (visual) visual.isVisible = entry.isIntersecting;
+                    });
+                }, { threshold: 0.1 });
+            },
+
+            initVisuals() {
+                this.addVisual(new ProjectileSim('canvas-projectile', false));
+                this.addVisual(new ProjectileSim('canvas-drag', true));
+                this.addVisual(new RangeSim('canvas-range'));
+            },
+
+            addVisual(visual) {
+                this.visuals.push(visual);
+                this.observer.observe(visual.canvas);
+            }
+        };
+
+        class BaseVisual {
+            constructor() {
+                this.isVisible = false;
+            }
+            updateColors() {
+                this.color = getComputedStyle(document.body).getPropertyValue('--text-main').trim();
+                this.accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
+                this.accentSecondary = getComputedStyle(document.body).getPropertyValue('--accent-secondary').trim();
+            }
+            getResponsiveFontSize() {
+                let size = 13 * this.scale;
+                if (this.canvas.width < 750 * this.scale) size = 11 * this.scale;
+                if (this.canvas.width < 600 * this.scale) size = 9.5 * this.scale;
+                if (this.canvas.width < 450 * this.scale) size = 8.5 * this.scale;
+                return size;
+            }
+            loop() {
+                if (this.isVisible) this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+            draw() { }
+        }
+
+        class ProjectileSim extends BaseVisual {
+            constructor(id, isDragDemo) {
+                super();
+                this.canvas = document.getElementById(id);
+                this.ctx = this.canvas.getContext('2d');
+                this.isDragDemo = isDragDemo;
+                this.updateColors();
+
+                this.launchOrigin = { x: 40, y: 0 }; // y will be set in resize()
+                this.isDragging = false;
+
+                this.inputs = {
+                    v: document.getElementById('input-v'),
+                    ang: document.getElementById('input-ang'),
+                    g: document.getElementById('input-g'),
+                    drag: document.getElementById('input-drag')
+                };
+
+                if (!isDragDemo) {
+                    ['v', 'ang', 'g'].forEach(k => {
+                        this.inputs[k].addEventListener('input', (e) => {
+                            document.getElementById(`val-${k}`).innerText = e.target.value;
+                        });
+                    });
+                    document.getElementById('btn-fire').addEventListener('click', () => window.dispatchEvent(new CustomEvent('fire-projectile')));
+                    document.getElementById('btn-clear').addEventListener('click', () => window.dispatchEvent(new CustomEvent('clear-projectile')));
+                    this.setupInteraction();
+                } else {
+                    this.inputs.drag.addEventListener('input', (e) => {
+                        document.getElementById('val-drag').innerText = e.target.value;
+                        this.projectiles = []; // Clear current
+                        this.fire(); // Fire new one immediately
+                    });
+                }
+
+                window.addEventListener('fire-projectile', () => this.fire());
+                window.addEventListener('clear-projectile', () => this.projectiles = []);
+                window.addEventListener('resize', () => this.resize());
+
+                this.projectiles = [];
+                this.resize();
+                this.loop();
+            }
+
+            setupInteraction() {
+                const getEventPos = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return {
+                        x: (clientX - rect.left) * (this.canvas.width / rect.width) / this.scale,
+                        y: (clientY - rect.top) * (this.canvas.height / rect.height) / this.scale
+                    };
+                };
+
+                const startDrag = (e) => {
+                    const pos = getEventPos(e);
+                    // Check if clicking near the origin where the arrow is
+                    if (pos.x < 150 && pos.y > this.canvas.height / this.scale - 150) {
+                        this.isDragging = true;
+                    }
+                };
+
+                const moveDrag = (e) => {
+                    if (this.isDragging) {
+                        e.preventDefault();
+                        const pos = getEventPos(e);
+
+                        // Calculate angle
+                        let dx = pos.x - this.launchOrigin.x;
+                        let dy = this.launchOrigin.y - pos.y; // invert Y since canvas Y goes down
+
+                        if (dx < 0.1) dx = 0.1; // Prevent shooting backwards
+                        if (dy < 0) dy = 0; // Prevent shooting underground
+
+                        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                        // Calculate velocity based on vector length
+                        let length = Math.sqrt(dx * dx + dy * dy);
+                        let v = length * 0.5; // Scale factor for interaction
+
+                        if (v < 10) v = 10;
+                        if (v > 100) v = 100;
+
+                        this.inputs.v.value = Math.round(v);
+                        this.inputs.ang.value = Math.round(angle);
+                        document.getElementById('val-v').innerText = this.inputs.v.value;
+                        document.getElementById('val-ang').innerText = this.inputs.ang.value;
+                    }
+                };
+
+                const endDrag = () => {
+                    this.isDragging = false;
+                };
+
+                this.canvas.addEventListener('mousedown', startDrag);
+                this.canvas.addEventListener('mousemove', moveDrag);
+                window.addEventListener('mouseup', endDrag);
+
+                this.canvas.addEventListener('touchstart', startDrag, { passive: false });
+                this.canvas.addEventListener('touchmove', moveDrag, { passive: false });
+                window.addEventListener('touchend', endDrag);
+            }
+
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width * 2;
+                this.canvas.height = rect.height * 2;
+                this.scale = 2;
+                this.cx = this.canvas.width / 2;
+                this.cy = this.canvas.height / 2;
+                this.launchOrigin.y = this.canvas.height / this.scale - 20; // 20px above ground
+            }
+
+            fire() {
+                const v0 = parseFloat(this.inputs.v.value);
+                const angDeg = parseFloat(this.inputs.ang.value);
+                const angRad = angDeg * Math.PI / 180;
+
+                const p = {
+                    x: 0,
+                    y: 0,
+                    vx: v0 * Math.cos(angRad),
+                    vy: -v0 * Math.sin(angRad), // Negative because Y goes up in physics coordinates
+                    trace: [],
+                    idealTrace: [], // For drag demo comparison
+                    idealX: 0,
+                    idealY: 0,
+                    idealVx: v0 * Math.cos(angRad),
+                    idealVy: -v0 * Math.sin(angRad),
+                    active: true,
+                    g: parseFloat(this.inputs.g.value),
+                    drag: this.isDragDemo ? parseFloat(this.inputs.drag.value) : 0
+                };
+                p.trace.push({ x: p.x, y: p.y });
+                if (this.isDragDemo) p.idealTrace.push({ x: p.idealX, y: p.idealY });
+                this.projectiles.push(p);
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const dt = 0.05;
+
+                const v0 = parseFloat(this.inputs.v.value);
+                const angRad = parseFloat(this.inputs.ang.value) * Math.PI / 180;
+                const g = parseFloat(this.inputs.g.value);
+
+                // Calculate dynamic viewScale based on maximum theoretical trajectory height and range
+                const maxRange = (v0 * v0) / g;
+                const maxHeight = (v0 * v0) / (2 * g);
+
+                const availableWidth = (this.canvas.width / this.scale) - this.launchOrigin.x - 40;
+                const availableHeight = this.launchOrigin.y - 40;
+
+                const scaleX = availableWidth / maxRange;
+                const scaleY = availableHeight / maxHeight;
+
+                let viewScale = Math.min(scaleX, scaleY);
+                if (!isFinite(viewScale) || viewScale <= 0) viewScale = 3.0;
+
+                // --- Draw Status Bar ---
+                const fontSize = this.getResponsiveFontSize();
+                this.ctx.font = `700 ${fontSize}px 'JetBrains Mono', monospace`;
+                this.ctx.fillStyle = this.color;
+                this.ctx.textAlign = 'center';
+
+                const activeP = this.projectiles.find(p => p.active);
+                let xVal = 0;
+                let yVal = 0;
+                if (activeP) {
+                    xVal = activeP.x;
+                    yVal = -activeP.y;
+                } else if (this.projectiles.length > 0) {
+                    const lastP = this.projectiles[this.projectiles.length - 1];
+                    xVal = lastP.x;
+                    yVal = -lastP.y;
+                }
+
+                if (!this.isDragDemo) {
+                    this.ctx.fillText(
+                        `v0 = ${v0.toFixed(0)} m/s | theta = ${parseFloat(this.inputs.ang.value).toFixed(0)}° | g = ${g.toFixed(1)} m/s² | x = ${xVal.toFixed(1)} m | y = ${yVal.toFixed(1)} m`,
+                        this.cx,
+                        30 * this.scale
+                    );
+                } else {
+                    const dragVal = parseFloat(this.inputs.drag.value);
+                    this.ctx.fillText(
+                        `v0 = 50 m/s | theta = 45° | g = 9.8 m/s² | drag = ${dragVal.toFixed(3)} | x = ${xVal.toFixed(1)} m | y = ${yVal.toFixed(1)} m`,
+                        this.cx,
+                        30 * this.scale
+                    );
+                }
+
+                // --- Draw Environment ---
+
+                // Ground
+                this.ctx.fillStyle = 'rgba(128,128,128,0.1)';
+                const groundY = this.launchOrigin.y * this.scale;
+                this.ctx.fillRect(0, groundY, this.canvas.width, this.canvas.height - groundY);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, groundY);
+                this.ctx.lineTo(this.canvas.width, groundY);
+                this.ctx.stroke();
+
+                // Cannon Base
+                if (!this.isDragDemo) {
+                    this.ctx.fillStyle = this.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(this.launchOrigin.x * this.scale, this.launchOrigin.y * this.scale, 8 * this.scale, Math.PI, 0);
+                    this.ctx.fill();
+                }
+
+                // --- Draw Interactive Preview (Kinematics only) ---
+                if (!this.isDragDemo) {
+                    // Preview Trajectory (Numerical simulation to match physics)
+                    this.ctx.strokeStyle = this.accent;
+                    this.ctx.globalAlpha = 0.4;
+                    this.ctx.lineWidth = 2 * this.scale;
+                    this.ctx.setLineDash([8, 8]);
+                    this.ctx.beginPath();
+
+                    let simX = 0;
+                    let simY = 0;
+                    let simVx = v0 * Math.cos(angRad);
+                    let simVy = -v0 * Math.sin(angRad);
+
+                    this.ctx.moveTo((this.launchOrigin.x + simX * viewScale) * this.scale, (this.launchOrigin.y + simY * viewScale) * this.scale);
+
+                    // Simulate exactly like the regular loop until we hit the ground
+                    for (let i = 0; i < 1000; i++) {
+                        simVy += g * dt;
+                        simX += simVx * dt;
+                        simY += simVy * dt;
+
+                        this.ctx.lineTo((this.launchOrigin.x + simX * viewScale) * this.scale, (this.launchOrigin.y + simY * viewScale) * this.scale);
+                        if (simY > 0) break;
+                    }
+
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                    this.ctx.globalAlpha = 1;
+
+                    // Launch Vector Arrow
+                    const arrowLen = v0 * 2 * viewScale * this.scale; // Visual length scaling
+                    const arrowDx = Math.cos(angRad) * arrowLen;
+                    const arrowDy = -Math.sin(angRad) * arrowLen;
+                    const arrowEndX = this.launchOrigin.x * this.scale + arrowDx;
+                    const arrowEndY = this.launchOrigin.y * this.scale + arrowDy;
+
+                    this.ctx.strokeStyle = this.isDragging ? this.accent : this.color;
+                    this.ctx.fillStyle = this.isDragging ? this.accent : this.color;
+                    this.ctx.lineWidth = 3 * this.scale;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.launchOrigin.x * this.scale, this.launchOrigin.y * this.scale);
+                    this.ctx.lineTo(arrowEndX, arrowEndY);
+                    this.ctx.stroke();
+
+                    // Arrowhead
+                    const headLen = 10 * this.scale;
+                    const headAng = Math.atan2(arrowDy, arrowDx);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(arrowEndX, arrowEndY);
+                    this.ctx.lineTo(arrowEndX - headLen * Math.cos(headAng - Math.PI / 6), arrowEndY - headLen * Math.sin(headAng - Math.PI / 6));
+                    this.ctx.lineTo(arrowEndX - headLen * Math.cos(headAng + Math.PI / 6), arrowEndY - headLen * Math.sin(headAng + Math.PI / 6));
+                    this.ctx.fill();
+
+                    if (this.isDragging) {
+                        this.ctx.fillStyle = this.accent + '33';
+                        this.ctx.beginPath();
+                        this.ctx.arc(arrowEndX, arrowEndY, 30 * this.scale, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+
+                // --- Simulate Live Projectiles ---
+                this.projectiles.forEach(p => {
+                    if (!p.active) {
+                        if (this.isDragDemo && p.drag > 0) this.drawTrace(p.idealTrace, this.accent + '55', 2 * this.scale, [5, 5], viewScale);
+                        this.drawTrace(p.trace, this.accent, 2 * this.scale, [], viewScale);
+                        return;
+                    }
+
+                    // Physics Integration (Real with drag)
+                    let ax = 0;
+                    let ay = p.g;
+
+                    const vMag = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                    if (p.drag > 0) {
+                        const fMag = p.drag * vMag * vMag;
+                        ax += -(p.vx / vMag) * fMag;
+                        ay += -(p.vy / vMag) * fMag;
+                    }
+
+                    p.vx += ax * dt;
+                    p.vy += ay * dt;
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    // Physics Integration (Ideal without drag) for comparison
+                    if (this.isDragDemo && p.drag > 0) {
+                        p.idealVy += p.g * dt;
+                        p.idealX += p.idealVx * dt;
+                        p.idealY += p.idealVy * dt;
+                    }
+
+                    if (p.y >= 0) {
+                        p.y = 0;
+                        p.active = false;
+                    }
+                    if (this.launchOrigin.x + p.x * viewScale > this.canvas.width / this.scale) p.active = false;
+
+                    if (this.projectiles.length < 50 || p.trace.length % 5 === 0) {
+                        p.trace.push({ x: p.x, y: p.y });
+                        if (this.isDragDemo && p.drag > 0) p.idealTrace.push({ x: p.idealX, y: p.idealY });
+                    }
+
+                    if (this.isDragDemo && p.drag > 0) {
+                        this.drawTrace(p.idealTrace, this.accent + '55', 2 * this.scale, [5, 5], viewScale);
+                    }
+                    this.drawTrace(p.trace, this.accent, 2 * this.scale, [], viewScale);
+
+                    // Velocity Vector (Drag Demo)
+                    if (this.isDragDemo && p.active) {
+                        const vLen = vMag * 1.5 * viewScale * this.scale;
+                        const vDirX = (p.vx / vMag) * vLen;
+                        const vDirY = (p.vy / vMag) * vLen;
+                        const bX = (this.launchOrigin.x + p.x * viewScale) * this.scale;
+                        const bY = (this.launchOrigin.y + p.y * viewScale) * this.scale;
+
+                        this.ctx.strokeStyle = '#10B981'; // Green for velocity
+                        this.ctx.fillStyle = '#10B981';
+                        this.ctx.lineWidth = 2 * this.scale;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(bX, bY);
+                        this.ctx.lineTo(bX + vDirX, bY + vDirY);
+                        this.ctx.stroke();
+
+                        // Arrowhead
+                        const headLen = 6 * this.scale;
+                        const headAng = Math.atan2(vDirY, vDirX);
+                        const arrowEndX = bX + vDirX;
+                        const arrowEndY = bY + vDirY;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(arrowEndX, arrowEndY);
+                        this.ctx.lineTo(arrowEndX - headLen * Math.cos(headAng - Math.PI / 6), arrowEndY - headLen * Math.sin(headAng - Math.PI / 6));
+                        this.ctx.lineTo(arrowEndX - headLen * Math.cos(headAng + Math.PI / 6), arrowEndY - headLen * Math.sin(headAng + Math.PI / 6));
+                        this.ctx.fill();
+                    }
+
+                    // Draw Projectile
+                    const bX = (this.launchOrigin.x + p.x * viewScale) * this.scale;
+                    const bY = (this.launchOrigin.y + p.y * viewScale) * this.scale;
+                    this.ctx.fillStyle = "#CC2936";
+                    this.ctx.beginPath();
+                    this.ctx.arc(bX, bY, 6 * this.scale, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+
+            drawTrace(tracePoints, color, width, dashArray, viewScale) {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = width;
+                this.ctx.setLineDash(dashArray);
+                this.ctx.beginPath();
+                if (tracePoints.length > 0) {
+                    this.ctx.moveTo((this.launchOrigin.x + tracePoints[0].x * viewScale) * this.scale, (this.launchOrigin.y + tracePoints[0].y * viewScale) * this.scale);
+                    for (let i = 1; i < tracePoints.length; i++) {
+                        this.ctx.lineTo((this.launchOrigin.x + tracePoints[i].x * viewScale) * this.scale, (this.launchOrigin.y + tracePoints[i].y * viewScale) * this.scale);
+                    }
+                }
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+            }
+        }
+
+        class RangeSim extends BaseVisual {
+            constructor(id) {
+                super();
+                this.canvas = document.getElementById(id);
+                this.ctx = this.canvas.getContext('2d');
+                this.updateColors();
+
+                this.launchOrigin = { x: 40, y: 0 };
+                this.projectiles = [];
+
+                this.inputV = document.getElementById('input-range-v');
+                this.inputV.addEventListener('input', (e) => {
+                    document.getElementById('val-range-v').innerText = e.target.value;
+                });
+
+                document.getElementById('btn-fire-range').addEventListener('click', () => this.fireBurst());
+                window.addEventListener('resize', () => this.resize());
+
+                this.resize();
+                this.loop();
+            }
+
+            updateColors() {
+                super.updateColors();
+                this.secondary = getComputedStyle(document.body).getPropertyValue('--secondary').trim();
+            }
+
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width * 2;
+                this.canvas.height = rect.height * 2;
+                this.scale = 2;
+                this.cx = this.canvas.width / 2;
+                this.cy = this.canvas.height / 2;
+                this.launchOrigin.y = this.canvas.height / this.scale - 20;
+            }
+
+            fireBurst() {
+                this.projectiles = [];
+                const v0 = parseFloat(this.inputV.value);
+
+                const angles = [15, 30, 45, 60, 75];
+                // Matching colors for complementary pairs
+                const colors = ['#3B82F6', '#10B981', this.secondary, '#10B981', '#3B82F6'];
+
+                angles.forEach((deg, i) => {
+                    const rad = deg * Math.PI / 180;
+                    const p = {
+                        x: 0,
+                        y: 0,
+                        vx: v0 * Math.cos(rad),
+                        vy: -v0 * Math.sin(rad),
+                        trace: [],
+                        active: true,
+                        color: colors[i],
+                        angle: deg
+                    };
+                    p.trace.push({ x: p.x, y: p.y });
+                    this.projectiles.push(p);
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const dt = 0.05;
+
+                const v0 = parseFloat(this.inputV.value);
+                const maxRange = (v0 * v0) / 9.8; // range at 45 degrees
+                const maxHeight = (v0 * v0) / (2 * 9.8);
+
+                const availableWidth = (this.canvas.width / this.scale) - this.launchOrigin.x - 40;
+                const availableHeight = this.launchOrigin.y - 40;
+
+                const scaleX = availableWidth / maxRange;
+                const scaleY = availableHeight / maxHeight;
+
+                let viewScale = Math.min(scaleX, scaleY);
+                if (!isFinite(viewScale) || viewScale <= 0) viewScale = 3.0;
+
+                // --- Draw Status Bar ---
+                const fontSize = this.getResponsiveFontSize();
+                this.ctx.font = `700 ${fontSize}px 'JetBrains Mono', monospace`;
+                this.ctx.fillStyle = this.color;
+                this.ctx.textAlign = 'center';
+
+                this.ctx.fillText(
+                    `v0 = ${v0.toFixed(0)} m/s | g = 9.8 m/s² | Complementary Angles Demo`,
+                    this.cx,
+                    30 * this.scale
+                );
+
+                // Ground
+                this.ctx.fillStyle = 'rgba(128,128,128,0.1)';
+                const groundY = this.launchOrigin.y * this.scale;
+                this.ctx.fillRect(0, groundY, this.canvas.width, this.canvas.height - groundY);
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, groundY);
+                this.ctx.lineTo(this.canvas.width, groundY);
+                this.ctx.stroke();
+
+                // Cannon Base
+                this.ctx.fillStyle = this.color;
+                this.ctx.beginPath();
+                this.ctx.arc(this.launchOrigin.x * this.scale, this.launchOrigin.y * this.scale, 8 * this.scale, Math.PI, 0);
+                this.ctx.fill();
+
+                this.projectiles.forEach(p => {
+                    if (!p.active) {
+                        this.drawTrace(p.trace, p.color, 2 * this.scale, [], viewScale);
+                        // Draw label at end
+                        const lastPt = p.trace[p.trace.length - 1];
+                        const lastCX = (this.launchOrigin.x + lastPt.x * viewScale) * this.scale;
+                        const lastCY = (this.launchOrigin.y + lastPt.y * viewScale) * this.scale;
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.font = `bold ${fontSize}px "Inter", sans-serif`;
+                        this.ctx.fillText(`${p.angle}°`, lastCX - 10, lastCY + 15 * this.scale);
+                        return;
+                    }
+
+                    p.vy += 9.8 * dt; // gravity
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    if (p.y >= 0) {
+                        p.y = 0;
+                        p.active = false;
+                    }
+                    if (this.launchOrigin.x + p.x * viewScale > this.canvas.width / this.scale) p.active = false;
+
+                    if (this.projectiles.length < 50 || p.trace.length % 5 === 0) {
+                        p.trace.push({ x: p.x, y: p.y });
+                    }
+                    if (!p.active) p.trace.push({ x: p.x, y: p.y });
+
+                    this.drawTrace(p.trace, p.color, 2 * this.scale, [], viewScale);
+
+                    // Draw Projectile
+                    const bX = (this.launchOrigin.x + p.x * viewScale) * this.scale;
+                    const bY = (this.launchOrigin.y + p.y * viewScale) * this.scale;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(bX, bY, 5 * this.scale, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+
+            drawTrace(tracePoints, color, width, dashArray, viewScale) {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = width;
+                this.ctx.setLineDash(dashArray);
+                this.ctx.beginPath();
+                if (tracePoints.length > 0) {
+                    this.ctx.moveTo((this.launchOrigin.x + tracePoints[0].x * viewScale) * this.scale, (this.launchOrigin.y + tracePoints[0].y * viewScale) * this.scale);
+                    for (let i = 1; i < tracePoints.length; i++) {
+                        this.ctx.lineTo((this.launchOrigin.x + tracePoints[i].x * viewScale) * this.scale, (this.launchOrigin.y + tracePoints[i].y * viewScale) * this.scale);
+                    }
+                }
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+            }
+        }
+
+        window.onload = () => APP.init();
+
+    </script>
+</body>
+
+</html>

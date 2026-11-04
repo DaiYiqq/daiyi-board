@@ -1,0 +1,12 @@
+<UserControl
+    x:Class="LiquidGlassDock.Controls.WhiteboardView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml">
+
+    <canvas:CanvasControl
+        x:Name="Canvas"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        ClearColor="#F5F6F8" />
+</UserControl>

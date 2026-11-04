@@ -1061,6 +1061,20 @@ input:focus-visible {
   color: var(--muted);
   font-size: clamp(15px, 2vw, 24px);
 }
+.clock-mode {
+  padding: 44px 64px;
+  border-radius: 30px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+.app-shell.theme-light .clock-mode {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.3));
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
 .timer-mode-time {
   margin: 22px 0 6px;
   font-size: clamp(78px, 16vw, 220px);
@@ -1742,6 +1756,576 @@ input:focus-visible {
   }
 }
 
+
+/* =====================================================================
+   DY Board 0.7.0 — 全局乳白液态玻璃
+   统一所有玻璃表面为乳白底 + 深色墨水，并把启动层 / 全屏模式也玻璃化。
+   乳白底色：#FAF8F5（暖白，非纯白、非冷灰），背景模糊 + 高饱和 + 细边高光。
+   ===================================================================== */
+.app-shell {
+  --glass-panel: rgba(250, 248, 245, 0.68);
+  --glass-panel-strong: rgba(253, 251, 248, 0.9);
+  --glass-edge: rgba(255, 255, 255, 0.55);
+  --glass-highlight: rgba(255, 255, 255, 0.88);
+  --glass-control: rgba(255, 255, 255, 0.4);
+  --glass-control-hover: rgba(255, 255, 255, 0.66);
+  --glass-shadow: 0 18px 48px rgba(42, 50, 62, 0.18);
+  --glass-ink: rgba(30, 32, 38, 0.94);
+  --glass-ink-muted: rgba(78, 83, 92, 0.94);
+  --glass-ink-quiet: rgba(112, 117, 125, 0.94);
+  --glass-button-bg: rgba(252, 250, 247, 0.5);
+  --glass-button-hover: rgba(255, 255, 255, 0.72);
+  --glass-button-pressed: rgba(255, 255, 255, 0.88);
+  --glass-button-ink: rgba(30, 32, 38, 0.94);
+  --glass-button-edge: rgba(255, 255, 255, 0.9);
+}
+.app-shell.theme-light {
+  --glass-panel: rgba(255, 254, 252, 0.58);
+  --glass-panel-strong: rgba(255, 254, 252, 0.9);
+  --glass-edge: rgba(92, 98, 108, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-control: rgba(255, 255, 255, 0.52);
+  --glass-control-hover: rgba(255, 255, 255, 0.84);
+  --glass-shadow: 0 16px 40px rgba(60, 70, 86, 0.14);
+}
+
+/* 玻璃表面内统一使用深色墨水 + 浅色控件面/边框，保证乳白玻璃上的可读性 */
+.bottom-dock,
+.toolbar-popover,
+.toolbar-menu,
+.customizer-popover,
+.info-modal,
+.update-notice,
+.time-island,
+.mode-close,
+.timer-controls,
+.advanced-overlay {
+  --text: var(--glass-ink);
+  --muted: var(--glass-ink-muted);
+  --quiet: var(--glass-ink-quiet);
+  --surface: rgba(255, 255, 255, 0.5);
+  --surface-raised: rgba(255, 255, 255, 0.74);
+  --line: rgba(30, 32, 38, 0.16);
+  color: var(--glass-ink);
+}
+
+/* 底栏：乳白玻璃 */
+.bottom-dock {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
+.bottom-dock .dock-button { color: var(--glass-ink-muted); }
+.bottom-dock .dock-button:hover { color: var(--glass-ink); }
+.bottom-dock .dock-button.selected { color: var(--dock-active-ink); }
+.bottom-dock .dock-divider { background: rgba(30, 32, 38, 0.12); }
+.bottom-dock .dock-select { color: var(--glass-ink); background: var(--glass-control); border-color: var(--glass-edge); }
+.bottom-dock .dock-page-count,
+.bottom-dock .dock-save-state { color: var(--glass-ink-quiet); }
+.bottom-dock .dock-zoom-value { color: var(--glass-ink-muted); }
+
+/* 浮层 / 菜单 / 弹层：更强玻璃 + 深色墨水 */
+.toolbar-popover,
+.toolbar-menu,
+.customizer-popover,
+.info-modal,
+.update-notice {
+  background: var(--glass-panel-strong);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(34px) saturate(180%);
+  backdrop-filter: blur(34px) saturate(180%);
+}
+
+/* 时间胶囊 */
+.time-island {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  backdrop-filter: blur(24px) saturate(175%);
+}
+.time-island small { color: var(--glass-ink-muted); }
+.island-separator { background: rgba(30, 32, 38, 0.16); }
+
+/* 模式返回 / 计时器按钮 */
+.mode-close,
+.timer-controls button,
+.timer-reset {
+  background: var(--glass-panel);
+  border-color: var(--glass-edge);
+  color: var(--glass-ink);
+}
+.timer-controls .timer-primary { color: #fff; }
+
+/* 启动层：乳白玻璃（不再是不透明黑） */
+.startup-overlay {
+  background: var(--glass-panel-strong);
+  -webkit-backdrop-filter: blur(32px) saturate(175%);
+  backdrop-filter: blur(32px) saturate(175%);
+  color: var(--glass-ink);
+}
+.startup-title { color: var(--glass-ink); }
+.startup-caption { color: var(--glass-ink-muted); }
+.startup-countdown { color: var(--glass-ink-quiet); }
+.startup-logo {
+  color: var(--glass-ink);
+  background: linear-gradient(145deg, #ffffff, #efece6);
+  border-color: var(--glass-edge);
+}
+.startup-progress { background: rgba(30, 32, 38, 0.1); }
+
+/* 全屏时钟 / 倒计时：乳白玻璃 */
+.advanced-overlay {
+  background: var(--glass-panel-strong);
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+  backdrop-filter: blur(30px) saturate(175%);
+}
+.clock-mode-time,
+.timer-mode-time { color: var(--glass-ink); }
+.clock-mode-date,
+.timer-mode > p { color: var(--glass-ink-muted); }
+.clock-mode .eyebrow,
+.timer-mode .eyebrow { color: var(--glass-ink-quiet); }
+
+/* 开发者标记 / 帮助弹层内的次要面板 */
+.developer-mark { background: linear-gradient(145deg, #ffffff, #f0ede8); }
+
+
+/* =====================================================================
+   DY Board 0.7.1 — 课程表 + 灵动岛放大
+   ===================================================================== */
+.time-island {
+  min-width: 244px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 24px;
+  font-size: 13px;
+}
+.time-island time {
+  min-width: 72px;
+  font-size: 13px;
+}
+.time-island small {
+  font-size: 11px;
+}
+.island-class {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--accent);
+}
+.island-class.is-dismissed {
+  color: var(--danger);
+}
+.island-now {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--accent);
+}
+.island-next {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 17px;
+  color: #e2a35c;
+}
+
+.startup-class {
+  margin-top: 16px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd4df;
+  font-size: 13px;
+}
+.startup-class-now {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+.startup-class-next {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e2a35c;
+}
+
+/* 课程表设置 */
+.schedule-group .schedule-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+}
+.schedule-name {
+  width: 100%;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-time {
+  flex: 1;
+  min-width: 82px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-dash {
+  color: var(--quiet);
+  font-size: 11px;
+}
+.schedule-delete {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: var(--danger);
+  background: transparent;
+}
+.schedule-delete:hover {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+.schedule-days {
+  width: 100%;
+  display: flex;
+  gap: 4px;
+}
+.schedule-day {
+  flex: 1;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+}
+.schedule-day.is-on {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.schedule-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.schedule-add,
+.schedule-import,
+.schedule-export {
+  flex: 1;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-add:hover,
+.schedule-import:hover,
+.schedule-export:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.schedule-current {
+  margin-top: 8px;
+  color: var(--accent);
+}
+.schedule-upcoming {
+  margin-top: 6px;
+  color: #e2a35c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 课程表网格编辑器 */
+.schedule-modal {
+  width: min(720px, 100%);
+}
+.schedule-week-switch {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+.schedule-week-switch button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 13px;
+}
+.schedule-week-switch button.is-on {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.schedule-quickfill {
+  margin-bottom: 10px;
+}
+.schedule-fill-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+}
+.schedule-grid-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.schedule-grid {
+  min-width: 560px;
+  display: grid;
+  grid-template-columns: 92px repeat(7, 1fr);
+  gap: 3px;
+}
+.schedule-grid-head,
+.schedule-grid-row {
+  display: contents;
+}
+.schedule-grid-corner,
+.schedule-grid-day {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.schedule-grid-period {
+  min-height: 40px;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.1;
+}
+.schedule-grid-period small {
+  color: var(--quiet);
+  font-size: 9px;
+  font-weight: 400;
+}
+.schedule-cell {
+  min-height: 40px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.schedule-cell:hover {
+  border-color: var(--accent);
+}
+.schedule-cell.has-course {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.schedule-periods {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.schedule-period-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 10px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--quiet);
+  font-size: 11px;
+}
+.schedule-period-row input {
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+.schedule-modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.schedule-save {
+  min-height: 36px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #286da8;
+  font-size: 13px;
+}
+.schedule-save:hover {
+  background: #347fbf;
+}
+.schedule-tip {
+  color: var(--quiet);
+  font-size: 11px;
+}
+.schedule-modal-foot .schedule-export {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 13px;
+}
+.schedule-modal-foot .schedule-export:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 教学工具 / 地理地图 */
+.teaching-menu {
+  width: min(310px, calc(100vw - 24px));
+}
+.advanced-overlay.map-overlay {
+  display: block;
+  padding: 0;
+}
+
+/* =====================================================================
+   最小化悬浮工具栏（希沃式）
+   ===================================================================== */
+.app-shell.is-minimized .time-island,
+.app-shell.is-minimized .bottom-dock {
+  display: none;
+}
+.float-toolbar {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.float-toolbar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(20, 24, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+.float-toolbar-panel button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #e8edf5;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+.float-toolbar-panel button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.float-toolbar-panel button.is-on {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+}
+.float-toolbar-panel .float-restore {
+  color: #7aa7d9;
+  font-weight: 600;
+}
+.float-toolbar-panel .float-collapse {
+  justify-content: center;
+  color: #8b93a3;
+}
+.float-divider {
+  height: 1px;
+  margin: 2px 4px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.float-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  color: #e8edf5;
+  background: rgba(20, 24, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  cursor: pointer;
+}
+.float-pill:hover {
+  background: rgba(30, 36, 48, 0.85);
+}
+.app-shell.theme-light .float-toolbar-panel,
+.app-shell.theme-light .float-pill {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.app-shell.theme-light .float-toolbar-panel button {
+  color: #20242c;
+}
+.app-shell.theme-light .float-toolbar-panel button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.app-shell.theme-light .float-divider {
+  background: rgba(0, 0, 0, 0.1);
+}
 
 /* DY Board 3.1.0 — FlClash-inspired translucent glass and centered classroom clock */
 .app-shell {

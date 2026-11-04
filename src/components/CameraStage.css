@@ -581,3 +581,39 @@
 .app-shell .camera-stage .camera-stage-error button:not([style*='background']) {
   color: #a82d35;
 }
+
+
+/* =====================================================================
+   DY Board 0.7.0 — 展台玻璃控件改用乳白玻璃 + 深色墨水
+   （玻璃底色已随 --glass-panel 统一为乳白，这里只需把硬编码的浅色文字换成深色）
+   ===================================================================== */
+.app-shell .camera-stage-toolbar {
+  color: rgba(30, 32, 38, 0.92);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+}
+.app-shell .camera-stage-toolbar button { color: rgba(30, 32, 38, 0.82); }
+.app-shell .camera-stage-toolbar button:hover { color: #14171c; }
+.app-shell .camera-stage-toolbar .camera-stage-shutter { color: #fff; }
+.app-shell .camera-stage-toolbar .camera-stage-exit { color: #a82d35; }
+.app-shell .camera-stage-toolbar .camera-stage-divider { background: rgba(30, 32, 38, 0.14); }
+
+.app-shell .camera-stage-photos {
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  backdrop-filter: blur(28px) saturate(175%);
+}
+.app-shell .camera-stage-photos-head { color: rgba(30, 32, 38, 0.92); }
+.app-shell .camera-stage-photos-head > span { color: rgba(112, 117, 125, 0.95); }
+.app-shell .camera-stage-photo-meta { color: rgba(78, 83, 92, 0.95); }
+.app-shell .camera-stage-photo-meta a,
+.app-shell .camera-stage-photo-meta button { color: rgba(30, 32, 38, 0.85); }
+
+.app-shell .camera-stage-settings { color: rgba(30, 32, 38, 0.92); }
+.app-shell .camera-stage-settings header { color: rgba(30, 32, 38, 0.95); }
+.app-shell .camera-stage-settings label { color: rgba(78, 83, 92, 0.95); }
+.app-shell .camera-stage-settings select { color: rgba(30, 32, 38, 0.95); }
+.app-shell .camera-stage-settings-foot { color: rgba(78, 83, 92, 0.95); }
+.app-shell .camera-stage-settings-foot b { color: rgba(30, 32, 38, 0.95); }
+.app-shell .camera-stage-settings-note { color: rgba(112, 117, 125, 0.95); }
+.app-shell .camera-stage-annotation-label { color: rgba(78, 83, 92, 0.95); }
+.app-shell .camera-stage-range-label small { color: rgba(112, 117, 125, 0.95); }

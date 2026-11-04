@@ -8,6 +8,7 @@ const SHELL = [
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './favicon-32.png',
+  './icon-64.png',
 ];
 async function cacheAppShell() {
   const cache = await caches.open(CACHE);
