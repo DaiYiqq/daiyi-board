@@ -2,7 +2,15 @@
 
 DY Board 是一款打开即用的全屏白板。桌面版启动后直接进入纯黑或纯白画布，核心控件收纳在下方工具带；用于展示实物的摄像展台、笔设置和课堂高级工具各自分区，尽量把空间留给板面。
 
-> **最新公开版本：v0.5.1。** [下载 v0.5.1 安装包与签名文件](https://github.com/DaiYiqq/daiyi-board/releases/tag/v0.5.1)。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+> **待发布版本：3.1.0（本地预览已验收并获准发布）。** 公开发行资产、SHA256、Cosign 签名与 provenance 将在 GitHub Release 工作流成功后补记。公开源码：[DaiYiqq/daiyi-board](https://github.com/DaiYiqq/daiyi-board)；在线 PWA：[baiboard-hesrkue5.manus.space](https://baiboard-hesrkue5.manus.space)。
+
+## 3.1.0 液态玻璃、自动定位地图与 Yi+ 品牌
+
+- **FlClash 风格的通透液态玻璃操作带**：下沿悬浮工具带与主要操作按钮使用白色半透明表面、背景模糊/饱和、细边高光、柔和阴影和连续圆角；保留 DY Board 自有 Yi+ 标识与现有白板工具操作。悬停、按下、选中、禁用和键盘焦点状态均可辨识，并为不支持背景模糊的环境提供可读回退。
+- **居中玻璃全屏时钟**：时分秒和日期显示在屏幕正中央的液态玻璃卡片中；“返回白板”或 Esc 可退出。
+- **自动定位 OpenStreetMap 地图**：仅在用户进入地图功能后请求浏览器定位；成功时显示当前位置标记，失败时说明原因并可重试。坐标仅在当前会话内存中用于地图，不写入工程文件或本机存储。地图直接使用 OpenStreetMap embed，标注 `© OpenStreetMap contributors` 并说明位置隐私；不代理或预取地图瓦片。桌面端只为可信应用主页面的主 frame 请求开放摄像/定位权限。
+- **全平台 Yi+ 图标与版本**：网页、PWA、Windows、macOS、Linux 使用从用户原图适配的多尺寸图标；应用、安装包和 Service Worker 缓存标识升级至 `3.1.0`。
+- **手动保存不变**：白板工程仍仅由用户点击“保存”后写入本机和导出 JSON；独立界面偏好可单独保存。
 
 ## 0.5.1 液态玻璃透明度与手动保存
 

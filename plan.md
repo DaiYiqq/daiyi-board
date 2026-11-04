@@ -2,7 +2,7 @@
 
 ## 产品实现
 
-沿用现有 React + TypeScript + Vite + Electron 应用，不重置白板数据、不更换 JSON 工程格式，也不移除 v0.2.0 的画布、笔迹、页面、摄像权限、本地自动保存、开发者资料、开源授权或发布签名能力。版本升至 0.3.0，推送变更到 Manus 主分支和公开 GitHub `DaiYiqq/daiyi-board`，打 `v0.3.0` 标签继续使用跨平台构建、校验与 Sigstore 签名工作流。
+沿用现有 React + TypeScript + Vite + Electron 应用，不重置白板数据、不更换 JSON 工程格式，也不移除 v0.2.0 的画布、笔迹、页面、摄像权限、手动保存与旧本机存档读取、开发者资料、开源授权或发布签名能力。白板工程仅在用户明确点击保存时持久化，界面偏好仍独立存储。版本升至 0.3.0，推送变更到 Manus 主分支和公开 GitHub `DaiYiqq/daiyi-board`，打 `v0.3.0` 标签继续使用跨平台构建、校验与 Sigstore 签名工作流。
 
 桌面端主菜单中提供菜单、设置、关于/帮助、退出程序；退出由安全的 Electron preload/IPC 桥接调用 `app.quit()`，普通浏览器和 PWA 使用明确提示而不假称网页能强关宿主。笔颜色与粗细集中在独立的“笔设置”浮框。底部仍是主要操作区，并按熟悉的课堂工作流整理页面、文件、画笔/选择/橡皮、撤销重做、摄像展台、高级功能和菜单。
 
@@ -75,3 +75,44 @@
 ## DY Board 0.5.1 打包与发行
 
 将 `package.json`、应用关于/更新提示中的 `APP_VERSION` 与 Service Worker 缓存代号同步为 0.5.1；README 在正式资产可用后更新到 v0.5.1。保留既有 0.5.0 tag 和完整 Git 历史。先在 Manus canonical `main` 集成并保存本次意图明确的源文件，按项目已启用的 auto-publish 保存 checkpoint；再将相同源 commit 与 `v0.5.1` tag 快进同步至用户指定的公开仓库 `DaiYiqq/daiyi-board`，由现有 GitHub Actions 为 Windows、macOS 和 Linux 构建安装包、SHA256 清单、Cosign OIDC 签名和 provenance。任何一端非快进时停止并保留双方历史；不切换 Manus canonical 到 GitHub、不 force-push。
+
+
+## DY Board 3.1.0 液态玻璃、自动定位地图与 Yi+ 品牌升级
+
+### 产品实现
+
+在现有 React 19、TypeScript、Vite、Electron 34 与 Service Worker 架构上迭代，不重置白板数据、不更换工程 JSON 格式、不删除手动保存模型、摄像展台和全部已存在课堂功能。版本号明确调整为 `3.1.0`。工程页、活动页和笔迹只在用户点击“保存”时写入本机并下载 JSON；界面偏好独立保存，不新增任何自动保存路径。
+
+液态玻璃按钮参考 [FlClash 官方项目](https://github.com/chen08209/FlClash) 的 Material You、Apple 风格交互、连续圆角、适配式布局和轻层级，但沿用 DY Board 的布局和 Yi+ 标志，不复制 FlClash 代码、图像、商标或专有页面。把底部主工具带重做成轻盈悬浮的连续圆角玻璃操作带；按钮以清晰的乳白低不透明度材质、毛玻璃模糊和饱和、细白边、柔和阴影及轻微高光呈现。悬停/触摸、按压、当前工具、危险、禁用及键盘焦点状态各自清楚；保留原按钮功能、排序/可见性、色板颜色、黑白主题和窄屏横向操作，不遮挡主要画板。尊重减少动态偏好，无 `backdrop-filter` 时仍有足够对比度。
+
+全屏时钟保留现有本地时间刷新机制，时分秒与日期组合卡片在视口横纵中心对齐；卡片使用同套乳白透明液态玻璃，关闭/返回控件置于角落且不推移卡片中心。地图作为高级课堂模式从工具栏可进入；点击进入地图即调用浏览器原生地理定位请求当前位置，得到坐标后通过 OpenStreetMap embed 显示当前中心标记与适当缩放。定位被拒、不可用、超时时说明原因并可重试；不把位置写入 Local Storage、工程文件或 URL 历史，不在进入功能前请求。地图面板可退出返回白板。明确显示 `© OpenStreetMap contributors` 和定位隐私说明，说明定位坐标会用于加载 OpenStreetMap 地图；使用 OSM 官方 embed，不代理、批量下载或自行缓存地图瓦片，并遵守其 attribution/ODbL 要求。Electron 仅对可信的本地 DY Board 主窗口开放 geolocation 许可，继续限制摄像权限和导航白名单。
+
+以用户提供的 `/home/ubuntu/upload/generated_image_1793411840415_0.jpg` 为唯一视觉来源，将方形圆角深灰底和立体白色倾斜 Yi+ 保真转换为 web PNG/SVG 标志（若 SVG 无法忠实表达则直接引用透明 PNG）、PWA 图标、favicon 与 Windows ICO；生成 macOS ICNS 并接入 Electron Builder。不能把原图改画成另一个标志。发布检查点前将 `app.config.ts` 的 `logoUrl` 改为新图标的有效、持久 HTTPS 资产地址。版本号同步到 `package.json`、lockfile、应用内关于/更新提示、`public/sw.js` 的缓存标识、README 和 Electron 包元数据；保留现有 GitHub Actions 构建、SHA256、Cosign OIDC 和 provenance 工作流。
+
+第一阶段只完成代码和应用内 `3.1.0` 预览；在本地/Manus Preview 向用户展示之后，不创建 commit/tag，不推送 canonical 或公开 GitHub，不触发 Release。用户看过预览并明确批准后，才进行正式发布：保持 Manus canonical 为主仓，快进同步同源 commit 到 `DaiYiqq/daiyi-board` 的 `main`，创建且不覆盖 `v3.1.0`，由既有 workflow 构建跨平台包并验证摘要、Cosign 签名、provenance 与 updater metadata。绝不 force-push。
+
+### 设计语言
+
+- **Design Movement**：FlClash 的 Material You 自适应表面层级与 Apple 式直接交互，结合 DY Board 既有的极简全屏画布与液态玻璃。
+- **Core Principles**：画布优先；玻璃轻而通透；连续圆角、明确状态层级；权限与保存行为始终显式可理解。
+- **Color Philosophy**：黑/白画布保持安静，白色透明玻璃同时适配深浅场景；低饱和青绿仅用于选中/确认，错误/危险色不混入装饰。
+- **Layout Paradigm**：画板铺满整个主舞台；底部工具群如悬浮玻璃岛横向锚定屏幕下沿；菜单为邻近触发点的自适应浮层；时钟卡片独立占据全屏真正中心；地图内容占满模式舞台，定位信息放在上方窄栏。
+- **Signature Elements**：用户提供的立体 Yi+ 标志；乳白半透明玻璃与精细边缘高光；中心等宽时钟数字。
+- **Interaction Philosophy**：点击即获得清晰反馈；工具选中态可一眼辨认；只有进入地图时才请求定位；定位失败可自行重试；白板工程仅由用户手动保存。
+- **Animation**：面板以短时淡入和轻微位移出现，按钮按下轻缩、悬停提升边缘高光；关闭流光或减为静态以尊重 `prefers-reduced-motion`；地图加载与定位提示不占用绘图线程。
+- **Typography System**：优先系统无衬线中文字体；时钟使用等宽数字和较轻字重；按钮短标签使用中等字重，辅助说明压低对比但保持可读。
+- **Brand Essence**：为课堂演示与互动书写提供可调节、可直接进入的全屏白板；简洁、明亮、可靠。
+- **Brand Voice**：提示短而明确，例如“正在定位当前位置…”与“位置未授权，允许后可重试”；保存反馈始终区分“未保存”与“已手动保存”。
+- **Wordmark & Logo**：只使用用户交付的圆角深灰底立体白色倾斜 Yi+ 图像；所有尺寸从同一图源规范缩放。
+- **Signature Brand Color**：DY Mint `#86D9BE`，只用于选中工具、地图位置状态与低强度交互焦点。
+
+### 项目结构
+
+- `src/App.tsx`：主应用状态、白板手动保存、底部工具带、时钟/高级模式入口、工具菜单和版本展示；不重构既有画布数据模型。
+- `src/components/LocationMap.tsx`：用户主动进入地图后请求 geolocation、加载 OSM embed、定位状态/重试、坐标精度和 attribution/隐私说明；坐标仅留在组件内存。
+- `src/components/CameraStage.tsx`：沿用已有展台；玻璃重设计通过共享 CSS 控件规则覆盖，不改摄像功能。
+- `src/style.css`：分主题玻璃 tokens、悬浮底栏、按钮状态、居中玻璃时钟、地图布局、移动断点与减少动态效果。
+- `electron/main.cjs`：保留既有安全边界，新增仅针对可信 DY Board 主窗口的 geolocation 请求许可。
+- `public/` 与 `build/`：网站/PWA/Windows/macOS/Linux 图标资产与 manifest；`package.json` 和 lockfile 声明版本/平台图标资源。
+- `README.md`、`TODO.md`：同步版本、定位权限与隐私/OSM attribution、当前发布状态及开发者信息。
+- `.github/workflows/release.yml`：不改变既有可信构建、SHA256/Cosign/provenance 发布路径。

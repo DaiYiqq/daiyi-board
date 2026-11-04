@@ -1,6 +1,6 @@
 {
   "name": "daiyi-board",
-  "version": "0.5.1",
+  "version": "3.1.0",
   "private": false,
   "description": "A full-screen black or white blank board with document-camera mode by Dai Yi.",
   "homepage": "https://github.com/DaiYiqq/daiyi-board",
@@ -99,8 +99,11 @@
       "runAfterFinish": true
     },
     "mac": {
-      "icon": "build/icon.png",
+      "icon": "build/icon.icns",
       "category": "public.app-category.education",
+      "extendInfo": {
+        "NSLocationWhenInUseUsageDescription": "DY Board 在你打开地图功能时使用当前位置来居中显示地图；位置不会写入白板工程。"
+      },
       "target": [
         {
           "target": "dmg",

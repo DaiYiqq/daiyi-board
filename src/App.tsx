@@ -29,11 +29,14 @@ import {
   Timer,
   Crosshair,
   ScanSearch,
+  MapPin,
   Maximize2,
   Pause,
   Play,
 } from 'lucide-react';
 import CameraStage from './components/CameraStage';
+import LocationMap from './components/LocationMap';
+import type { LocationCoordinates, LocationStatus } from './components/LocationMap';
 import type { DesktopUpdaterApi, PwaUpdaterApi, UpdateSnapshot } from './update-types';
 
 declare global {
@@ -58,7 +61,7 @@ type Preferences = { theme: 'dark' | 'light'; compact: boolean; visibleTools: To
 
 const STORAGE_KEY = 'daiyi-board-v1';
 const PREFS_KEY = 'daiyi-board-preferences-v1';
-const APP_VERSION = '0.5.1';
+const APP_VERSION = '3.1.0';
 const RELEASE_URL = 'https://github.com/DaiYiqq/daiyi-board/releases/latest';
 const COLORS = [
   '#FFFFFF',
@@ -226,10 +229,14 @@ export default function App() {
     status: 'idle',
   }));
   const [updateNoticeVisible, setUpdateNoticeVisible] = useState(false);
-  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | null>(null);
+  const [advancedMode, setAdvancedMode] = useState<'clock' | 'timer' | 'map' | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(10 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerDeadlineRef = useRef<number | null>(null);
+  const [mapLocationStatus, setMapLocationStatus] = useState<LocationStatus>('idle');
+  const [mapLocation, setMapLocation] = useState<LocationCoordinates | null>(null);
+  const [mapLocationError, setMapLocationError] = useState('');
+  const mapLocationRequestRef = useRef(0);
   const [laserEnabled, setLaserEnabled] = useState(false);
   const [magnifierEnabled, setMagnifierEnabled] = useState(false);
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null);
@@ -459,6 +466,10 @@ export default function App() {
       if (e.key === 'Escape') {
         setPanel(null);
         setAdvancedMode(null);
+        mapLocationRequestRef.current += 1;
+        setMapLocation(null);
+        setMapLocationStatus('idle');
+        setMapLocationError('');
         pauseTimer();
         setLaserEnabled(false);
         setMagnifierEnabled(false);
@@ -864,12 +875,61 @@ export default function App() {
     setTimerRunning(false);
     setTimerSeconds(seconds);
   }
+  const requestMapLocation = useCallback(() => {
+    const requestId = ++mapLocationRequestRef.current;
+    setMapLocation(null);
+    setMapLocationError('');
+    setMapLocationStatus('locating');
+    if (!navigator.geolocation) {
+      setMapLocationError('当前环境不支持定位。请使用 HTTPS 或 localhost，并检查设备定位服务。');
+      setMapLocationStatus('error');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (requestId !== mapLocationRequestRef.current) return;
+        setMapLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setMapLocationStatus('ready');
+      },
+      (error) => {
+        if (requestId !== mapLocationRequestRef.current) return;
+        setMapLocationError(
+          error.code === 1
+            ? '未获得定位权限。请在浏览器或系统设置中允许 DY Board 使用位置后重试。'
+            : error.code === 3
+              ? '定位超时。请检查系统定位服务或网络连接后重试。'
+              : '设备暂时无法确定位置。请检查系统定位服务或网络连接后重试。',
+        );
+        setMapLocationStatus('error');
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
+    );
+  }, []);
+  const openMap = () => {
+    setAdvancedMode('map');
+    setPanel(null);
+    requestMapLocation();
+  };
+  const closeAdvancedMode = () => {
+    mapLocationRequestRef.current += 1;
+    setMapLocation(null);
+    setMapLocationStatus('idle');
+    setMapLocationError('');
+    setAdvancedMode(null);
+    pauseTimer();
+  };
 
   return (
     <main className={`app-shell theme-${prefs.theme} ${prefs.compact ? 'is-compact' : ''}`}>
       <section className="workspace">
         <div className="time-island" aria-label={`系统时间 ${clockText}`}>
-          <span className="island-logo">Yi+</span>
+          <span className="island-logo">
+            <img src="./icon-64.png" alt="Yi+" />
+          </span>
           <span className="island-separator" />
           <Clock3 size={14} />
           <time>{clockText}</time>
@@ -1112,6 +1172,13 @@ export default function App() {
                     <span>
                       <b>全屏时钟</b>
                       <small>大字时间显示</small>
+                    </span>
+                  </button>
+                  <button className="menu-item" onClick={openMap}>
+                    <MapPin size={18} />
+                    <span>
+                      <b>地图</b>
+                      <small>自动定位当前位置</small>
                     </span>
                   </button>
                   <button
@@ -1440,17 +1507,14 @@ export default function App() {
         <div className="advanced-overlay">
           <button
             className="mode-close"
-            onClick={() => {
-              setAdvancedMode(null);
-              pauseTimer();
-            }}
+            onClick={closeAdvancedMode}
             aria-label="返回白板"
           >
             <X size={21} />
             <span>返回白板</span>
           </button>
           {advancedMode === 'clock' ? (
-            <div className="clock-mode">
+            <div className="clock-mode clock-mode-glass">
               <span className="eyebrow">DY BOARD · 全屏时钟</span>
               <div className="clock-mode-time">{clockText}</div>
               <div className="clock-mode-date">
@@ -1462,6 +1526,13 @@ export default function App() {
                 })}
               </div>
             </div>
+          ) : advancedMode === 'map' ? (
+            <LocationMap
+              status={mapLocationStatus}
+              position={mapLocation}
+              error={mapLocationError}
+              onRetry={requestMapLocation}
+            />
           ) : (
             <div className="timer-mode">
               <span className="eyebrow">DY BOARD · 课堂倒计时</span>
@@ -1513,7 +1584,9 @@ export default function App() {
       {startupProgress < 100 && (
         <div className="startup-overlay" role="status" aria-live="polite">
           <div className="startup-card">
-            <div className="startup-logo">Yi+</div>
+            <div className="startup-logo">
+              <img src="./icon-192.png" alt="Yi+" />
+            </div>
             <div className="startup-title">DY Board 正在启动</div>
             <div className="startup-caption">正在准备白板空间</div>
             <div className="startup-progress">
@@ -1537,7 +1610,7 @@ export default function App() {
               <X size={18} />
             </button>
             <div className="developer-mark">
-              <span className="brand-glyph">Yi+</span>
+              <img className="developer-logo-image" src="./icon-192.png" alt="Yi+" />
             </div>
             <span className="eyebrow">DY BOARD</span>
             <h2>开发者</h2>
@@ -1605,7 +1678,7 @@ export default function App() {
             </p>
             <p className="help-row">
               <b>高级</b>
-              <span>全屏时钟、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
+              <span>全屏时钟、自动定位地图、课堂倒计时、激光指示器和屏幕放大镜都可从底部“高级”进入。</span>
             </p>
             <div className="modal-bottom">
               白板工程不会自动保存；点击底部“保存”可保存到本机并下载 JSON 备份。界面偏好会单独记忆；菜单中可设置、检查更新、查看关于或退出软件。

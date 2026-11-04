@@ -213,13 +213,37 @@ function createWindow() {
   else void win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
 }
 
+function isTrustedPermissionFrame(webContents, requestingUrl, isMainFrame) {
+  const window = mainWindow;
+  if (
+    !window ||
+    window.isDestroyed() ||
+    !webContents ||
+    webContents !== window.webContents ||
+    isMainFrame !== true
+  )
+    return false;
+  const currentUrl = webContents.getURL();
+  return isTrustedAppUrl(currentUrl) && isTrustedAppUrl(requestingUrl || currentUrl);
+}
+
 app.whenReady().then(() => {
-  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    callback(permission === 'media');
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+    const trustedMainFrame = isTrustedPermissionFrame(
+      webContents,
+      details.requestingUrl,
+      details.isMainFrame,
+    );
+    callback(trustedMainFrame && (permission === 'media' || permission === 'geolocation'));
   });
-  session.defaultSession.setPermissionCheckHandler(
-    (_webContents, permission) => permission === 'media',
-  );
+  session.defaultSession.setPermissionCheckHandler((webContents, permission, _origin, details) => {
+    const trustedMainFrame = isTrustedPermissionFrame(
+      webContents,
+      details.requestingUrl,
+      details.isMainFrame,
+    );
+    return trustedMainFrame && (permission === 'media' || permission === 'geolocation');
+  });
   createWindow();
   setupAutoUpdater();
   app.on('activate', () => {
